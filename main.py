@@ -1,4 +1,3 @@
-
 import pybullet as p
 import cv2
 import time
@@ -8,14 +7,13 @@ from robot import robot_action
 p.connect(p.GUI)
 p.setRealTimeSimulation(0)
 
-robot_id, basket_ids, objects= environment.setup_simulation()
+robot_id, target_basket, objects = environment.setup_simulation()
 view_matrix, projection_matrix = environment.get_camera_matrices()
 
-# Trong hàm setup_simulation hoặc sau khi load xong robot
-camera_target_pos = [0.5, 0.0, 0.6]         # Nhìn vào giữa bàn/robot
-camera_distance = 1.3                       # Khoảng cách camera
-camera_yaw = 180                            # Góc xoay quanh trục Z (180 = nhìn từ phía trước vào)
-camera_pitch = -30                          # Góc nghiêng xuống
+camera_target_pos = [0.5, 0.0, 0.6]
+camera_distance = 1.4
+camera_yaw = 180
+camera_pitch = -40
 p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
 for _ in range(240):
@@ -23,19 +21,21 @@ for _ in range(240):
     time.sleep(1./240.)
 
 target_item = "banana"
+target_pos = target_basket
+place_pos = target_pos['basket1']['center']
 pick = False
 
 while True:
     p.stepSimulation()
-    target_pos = robot_action.get_object_position(objects[target_item])
+    obj_pos = robot_action.get_position(objects[target_item])
     if not pick:
-        robot_action.pick(robot_id, objects[target_item], target_pos)
+        cid = robot_action.pick(robot_id, objects[target_item], obj_pos)
+        robot_action.place(robot_id, place_pos, cid)
         pick = True
 
     time.sleep(1. / 240.)
     keys = p.getKeyboardEvents()
     if ord('q') in keys and keys[ord('q')] & p.KEY_WAS_TRIGGERED:
-        print("Dừng mô phỏng.")
         break
 
     width, height, rgbImg, depthImg, _ = p.getCameraImage(

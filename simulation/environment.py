@@ -7,7 +7,7 @@ def setup_simulation():
     p.setAdditionalSearchPath(pybullet_data.getDataPath())
     p.setGravity(0, 0, -9.81)
 
-    plane_id = p.loadURDF("plane.urdf")
+    plane_id = p.loadURDF("plane.urdf",[0,0,0],globalScaling=2.0)
 
     table_id = p.loadURDF("table/table.urdf", [0.5, 0, 0])  # vị trí có thể tùy chỉnh
 
@@ -19,8 +19,9 @@ def setup_simulation():
     book = create_item([0.8, 0.3, 0.65], 'box', [0.03, 0.03, 0.005], [0.5, 0.25, 0, 1])  # Sách
     pen = create_item([0.9, -0.3, 0.65], 'cylinder', [0.01, 0.1], [0, 0, 1, 1])  # Bút
     p.changeDynamics(banana, -1, lateralFriction=0.3)
-    basket1 = create_basket([0.4, 0.3, 0.6])  # Rổ robot
-    basket2 = create_basket([0.9, 0.3, 0.6])  # Rổ human
+
+    basket1_ids, basket1_center = create_basket([0.4, 0.3, 0.6])
+    basket2_ids, basket2_center = create_basket([0.9, 0.3, 0.6])
 
     objects = {
         "banana": banana,
@@ -28,7 +29,11 @@ def setup_simulation():
         "book": book,
         "pen": pen,
     }
-    return robot_id, [basket1, basket2], objects
+    basket = {
+        "basket1": {"ids": basket1_ids, "center": basket1_center},
+        "basket2": {"ids": basket2_ids, "center": basket2_center},
+    }
+    return robot_id, basket, objects
 
 
 def get_camera_matrices():

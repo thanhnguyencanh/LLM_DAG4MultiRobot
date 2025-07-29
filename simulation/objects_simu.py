@@ -18,7 +18,9 @@ def create_basket(base_position):
     walls.append(p.createMultiBody(0, wall_shape, basePosition=[base_position[0], base_position[1]+half_size, base_position[2]+wall_height]))
     walls.append(p.createMultiBody(0, wall_shape, basePosition=[base_position[0]-half_size, base_position[1], base_position[2]+wall_height], baseOrientation=p.getQuaternionFromEuler([0, 0, 1.57])))
     walls.append(p.createMultiBody(0, wall_shape, basePosition=[base_position[0]+half_size, base_position[1], base_position[2]+wall_height], baseOrientation=p.getQuaternionFromEuler([0, 0, 1.57])))
-    return [basket_floor_id] + walls
+
+    basket_ids = [basket_floor_id] + walls
+    return basket_ids, base_position  # Trung điểm là base_position
 
 
 def create_item(position, shape, size, color):
