@@ -5,7 +5,8 @@ import  math
 end_effector_index = 11
 def get_position(obj_id):
     pos, _ = p.getBasePositionAndOrientation(obj_id)
-    return pos
+    adjuted_pos = pos[0], pos[1], pos[2] +0.01
+    return adjuted_pos
 
 def wait_simulation(steps=100):
 

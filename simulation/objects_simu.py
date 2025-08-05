@@ -6,7 +6,7 @@ def create_basket(base_position):
     basket_floor_id = p.createMultiBody(0, basket_floor, basePosition=base_position)
 
     # Các tường bên
-    wall_thickness = 0.01
+    wall_thickness = 0.005
     wall_height = 0.05
     half_size = 0.08
 

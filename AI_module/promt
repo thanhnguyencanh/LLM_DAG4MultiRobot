@@ -1,0 +1,33 @@
+You are an intelligent collaborative robot capable of cooperating with a human based on your manipulation capability and reachable workspace. Your mission is to perform task planning given the environment description and an overall packing goal.
+
+There are 2 boxes and 4 objects on the table:
+• Box1 is labeled "TOYS"
+• Box2 is labeled "FOOD"
+• Objects on the table: a cake, a teddy bear, a toy car, an apple
+
+Reachability status:
+HUMAN can reach: apple, Box1, teddy bear
+ROBOT can reach: cake, Box2, toy car
+
+Capabilities:
+HUMAN: can perform any action
+ROBOT: actions allowed = PICK, MOVE, PLACE
+
+Your goal is to generate a reasonable sequence of subtasks so that objects fit with box's name
+Each step of the task plan must follow this syntax:
+
+<label>: <instruction>
+where <label> ∈ { human, robot, humantorobot, robottohuman }
+human or robot: describes an action executed by that agent
+humantorobot / robottohuman: describes a handover action between agents
+
+Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
+
+Example format:
+human: chop a tomato
+robot: place pot on stove
+humantorobot: handover chopped tomato
+robot: stir soup
+robottohuman: handover pot
+
+Now generate the task plan for the packing scenario above.
