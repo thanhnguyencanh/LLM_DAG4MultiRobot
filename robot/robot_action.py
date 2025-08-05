@@ -15,7 +15,7 @@ def wait_simulation(steps=100):
         time.sleep(1. / 240.)
 
 
-def move_to_target(robot_id, target_pos, steps=100):
+def move_to_target(robot_id, target_pos, steps=200):
     current_joint_states = [p.getJointState(robot_id, i)[0] for i in range(7)]
 
     target_joint_poses = p.calculateInverseKinematics(
@@ -97,12 +97,29 @@ def place(robot_id, target_pos, constraint_id):
     move_to_target(robot_id, move_pos)
     wait_simulation()
 
+    # Mở gripper
     p.setJointMotorControl2(robot_id, 9, p.POSITION_CONTROL,
                             targetPosition=0.04, force=50)
     p.setJointMotorControl2(robot_id, 10, p.POSITION_CONTROL,
                             targetPosition=0.04, force=50)
     wait_simulation()
-    p.removeConstraint(constraint_id)
+
+    if constraint_id is not None:
+        p.removeConstraint(constraint_id)
 
 
+def move_to_human(robot_id, human_pos, constraint_id):
+    move_to_target(robot_id, human_pos)
+    wait_simulation()
 
+    p.setJointMotorControl2(robot_id, 9, p.POSITION_CONTROL,
+                            targetPosition=0.04, force=50)
+    p.setJointMotorControl2(robot_id, 10, p.POSITION_CONTROL,
+                            targetPosition=0.04, force=50)
+    wait_simulation()
+
+    if constraint_id is not None:
+        p.removeConstraint(constraint_id)
+        constraint_id = None
+
+    return constraint_id

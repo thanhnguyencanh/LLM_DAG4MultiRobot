@@ -1,14 +1,11 @@
 import pybullet as p
 import cv2
-import time
 from simulation import environment
-from robot import robot_action
-from Human_Robot_Colab.task.sort_objects import execute_command, graph_to_command, process,task_plan,semantic_parsing
-import re
+from Human_Robot_Colab.graph.graph_comannd import run_from_json
+
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)
-
     robot_id, target_basket, objects = environment.setup_simulation()
     view_matrix, projection_matrix = environment.get_camera_matrices()
 
@@ -18,18 +15,13 @@ def main():
     camera_pitch = -40
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
-    object_map = {
-        "cake": objects.get("cake"),
-        "teddy bear": objects.get("teddy_bear"),
-        "toy car": objects.get("toy_car"),
-        "apple": objects.get("apple"),
-        "Box1": target_basket.get("Box1"),
-        "Box2": target_basket.get("Box2"),
-        "human": "human_position",
-        "robot": "robot_position"
-    }
+    object_map = {'cake': 'cake', 'apple': 'apple', 'box1': 'box1', 'box2': 'box2','teddy_bear': 'teddy_bear','toy_car': 'toy_car'}
+    object_map = objects.copy()
+    for name, info in target_basket.items():
+        object_map[name.lower()] = info["ids"]
 
-    # Dọn dẹp
+    run_from_json("commands.json", robot_id, object_map, target_basket)
+
     cv2.destroyAllWindows()
     p.disconnect()
     print("Simulation kết thúc.")
@@ -37,5 +29,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 

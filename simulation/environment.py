@@ -28,8 +28,8 @@ def setup_simulation():
         "toy_car": toy_car,
     }
     basket = {
-        "Box1": {"ids": basket1_ids, "center": basket1_center},
-        "Box2": {"ids": basket2_ids, "center": basket2_center},
+        "box1": {"ids": basket1_ids, "center": basket1_center},
+        "box2": {"ids": basket2_ids, "center": basket2_center},
     }
     return robot_id, basket, objects
 
