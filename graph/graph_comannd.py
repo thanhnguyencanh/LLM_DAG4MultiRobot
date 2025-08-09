@@ -1,8 +1,11 @@
-from Human_Robot_Colab.robot import robot_action
+from namex import export
+
+from robot import robot_action
 from collections import defaultdict
 import json
 import pybullet as p
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 task_plan = [
     ("robot", "pick cake"),
     ("robot", "place cake in Box2"),
@@ -10,6 +13,7 @@ task_plan = [
     ("human", "place teddy bear in Box1"),
     ("robot", "pick toy car"),
     ("robottohuman", "move toy car to human"),
+    ("human", "pick toy car"),
     ("human", "place toy car in Box1"),
     ("human", "pick apple"),
     ("humantorobot", "move apple to robot"),
@@ -192,36 +196,77 @@ class TaskProcessor:
         print(f"JSON command file saved to {filename}")
 
 
-def run_from_json(json_file, robot_id, object_map, basket):
+def run_from_json(json_file, robot_ids, object_map, basket):
     with open(json_file) as f:
         cmds = json.load(f)
 
     current_constraint = None
-    for c in cmds:
-        agent = c['agent']
-        action = c['action']
-        obj = c['object'].lower()
-        dst = c['destination'].lower()
 
-        if agent != "robot":
+    for c in cmds:
+        agent = c.get('agent', '').lower()
+        action = c.get('action', '').lower()
+        obj = c.get('object', '').lower().strip()
+        dst = c.get('destination', '').lower().strip()
+
+        if agent not in robot_ids:
+            print(f"[WARN] Agent '{agent}' không tồn tại trong robot_ids")
+            continue
+
+        this_robot_id = robot_ids[agent]
+
+        robot_pos = [0.8, 0.2, 0.65]
+        human_pos = [0.3, -0.2, 0.65]
+
+        target_key = None
+        # Lấy target_key ưu tiên obj, nếu không có obj thì dùng dst
+        if obj:
+            if obj in object_map:
+                target_key = obj
+            else:
+                print(f"[WARN] Không tìm thấy object hợp lệ: obj='{obj}'")
+                continue
+        elif dst:
+            if dst in object_map or dst in basket:
+                target_key = dst
+            elif dst in robot_ids:
+                # Ví dụ dst = 'robot' hoặc 'human', target_key để None (điều kiện riêng)
+                target_key = None
+            else:
+                print(f"[WARN] Không tìm thấy destination hợp lệ: dst='{dst}'")
+                continue
+        else:
+            print(f"[WARN] Cả object và destination đều không hợp lệ hoặc rỗng: obj='{obj}', dst='{dst}'")
             continue
 
         if action == 'pick':
-            pos = robot_action.get_position(object_map[obj])
-            current_constraint = robot_action.pick(robot_id, object_map[obj], pos)
+            if target_key is None:
+                print(f"[WARN] Pick action nhưng không có target_key hợp lệ.")
+                continue
+            pos = robot_action.get_position(object_map[target_key])
+            current_constraint = robot_action.pick(this_robot_id, object_map[target_key], pos)
 
         elif action == 'move' and dst == 'robot':
-            receive_pos = [0.4, 0.2, 0.65]
-            p.resetBasePositionAndOrientation(object_map[obj], receive_pos, [0, 0, 0, 1])
+            # Di chuyển đến vị trí robot_pos, dùng move_to_target
+            robot_action.move_to_target(this_robot_id, robot_pos, current_constraint)
+            # Sau khi move, nếu còn vật kẹp thì thả xuống human_pos
+            if current_constraint is not None:
+                robot_action.place(agent, human_pos, current_constraint, robot_ids)
+                current_constraint = None
+
         elif action == 'move' and dst == 'human':
-            human_pos = [0.6, -0.2, 0.65]
-            robot_action.move_to_human(robot_id, human_pos, current_constraint)
-            current_constraint = None
+            robot_action.move_to_target(this_robot_id, human_pos, current_constraint)
+            if current_constraint is not None:
+                robot_action.place(agent, robot_pos, current_constraint, robot_ids)
+                current_constraint = None
+
         elif action == 'place':
+            if target_key is None:
+                print(f"[WARN] Place action nhưng không có target_key hợp lệ.")
+                continue
             if dst in basket:
                 pos = basket[dst]["center"]
             else:
-                pos = robot_action.get_position(object_map[dst])
-            robot_action.place(robot_id, pos, current_constraint)
+                pos = robot_action.get_position(object_map[target_key])
+            robot_action.place(agent, pos, current_constraint, robot_ids)
             current_constraint = None
 

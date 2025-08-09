@@ -17,21 +17,21 @@
         "id": 3,
         "agent": "human",
         "action": "pick",
-        "object": "teddy bear",
+        "object": "teddy_bear",
         "destination": ""
     },
     {
         "id": 4,
         "agent": "human",
         "action": "place",
-        "object": "teddy bear",
+        "object": "teddy_bear",
         "destination": "box1"
     },
     {
         "id": 5,
         "agent": "robot",
         "action": "pick",
-        "object": "toy car",
+        "object": "toy_car",
         "destination": ""
     },
     {
@@ -44,33 +44,40 @@
     {
         "id": 7,
         "agent": "human",
-        "action": "place",
-        "object": "toy car",
-        "destination": "box1"
+        "action": "pick",
+        "object": "toy_car",
+        "destination": ""
     },
     {
         "id": 8,
+        "agent": "human",
+        "action": "place",
+        "object": "toy_car",
+        "destination": "box1"
+    },
+    {
+        "id": 9,
         "agent": "human",
         "action": "pick",
         "object": "apple",
         "destination": ""
     },
     {
-        "id": 9,
+        "id": 10,
         "agent": "human",
         "action": "move",
         "object": "",
         "destination": "robot"
     },
     {
-        "id": 10,
+        "id": 11,
         "agent": "robot",
         "action": "pick",
         "object": "apple",
         "destination": ""
     },
     {
-        "id": 11,
+        "id": 12,
         "agent": "robot",
         "action": "place",
         "object": "apple",

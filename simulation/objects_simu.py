@@ -1,11 +1,9 @@
 import pybullet as p
 
 def create_basket(base_position):
-    # Tạo đáy
     basket_floor = p.createCollisionShape(p.GEOM_BOX, halfExtents=[0.2, 0.2, 0.01])
     basket_floor_id = p.createMultiBody(0, basket_floor, basePosition=base_position)
 
-    # Các tường bên
     wall_thickness = 0.005
     wall_height = 0.05
     half_size = 0.08
@@ -20,7 +18,7 @@ def create_basket(base_position):
     walls.append(p.createMultiBody(0, wall_shape, basePosition=[base_position[0]+half_size, base_position[1], base_position[2]+wall_height], baseOrientation=p.getQuaternionFromEuler([0, 0, 1.57])))
 
     basket_ids = [basket_floor_id] + walls
-    return basket_ids, base_position  # Trung điểm là base_position
+    return basket_ids, base_position
 
 
 def create_item(position, shape, size, color):
