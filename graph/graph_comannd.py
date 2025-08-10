@@ -32,37 +32,62 @@ class TaskProcessor:
 
     def _process_tasks(self):
         handoff_tracker = {"robottohuman": None, "humantorobot": None}
-
+        last_task_for_object = {}
         for i, (agent, action) in enumerate(self.task_plan, start=1):
-            self.tasks[i] = {
-                "agent": agent,
-                "action": action,
-                **self._parse_action(action)
-            }
+            parsed = self._parse_action(action)
+            self.tasks[i] = {"agent": agent, "action": action, **parsed}
 
+            obj = parsed["object"]
+
+            # Lane tracking
             if agent == "human":
                 self.lane_human.append(i)
-                if handoff_tracker["robottohuman"]:
-                    self.edges.append((handoff_tracker["robottohuman"], i))
-                    handoff_tracker["robottohuman"] = None
-
             elif agent == "robot":
                 self.lane_robot.append(i)
-                if handoff_tracker["humantorobot"]:
-                    self.edges.append((handoff_tracker["humantorobot"], i))
-                    handoff_tracker["humantorobot"] = None
 
-            elif agent in ["robottohuman", "humantorobot"]:
+            # Handoff nodes
+            if agent in ["robottohuman", "humantorobot"]:
+                if obj and obj in last_task_for_object:
+                    self.edges.append((last_task_for_object[obj], i))
                 handoff_tracker[agent] = i
 
-            if i > 1:
-                prev_agent = self.tasks[i - 1]["agent"]
-                if prev_agent == agent and agent in ["human", "robot"]:
-                    self.edges.append((i - 1, i))
+            # Normal dependency (pick/place/move nhưng không phải handoff nhận)
+            elif not (
+                    (agent == "human" and handoff_tracker["robottohuman"]) or
+                    (agent == "robot" and handoff_tracker["humantorobot"])
+            ):
+                if obj and obj in last_task_for_object:
+                    self.edges.append((last_task_for_object[obj], i))
+
+            # Receiving from handoff
+            if agent == "human" and handoff_tracker["robottohuman"]:
+                self.edges.append((handoff_tracker["robottohuman"], i))
+                handoff_tracker["robottohuman"] = None
+
+            if agent == "robot" and handoff_tracker["humantorobot"]:
+                self.edges.append((handoff_tracker["humantorobot"], i))
+                handoff_tracker["humantorobot"] = None
+
+            if obj:
+                last_task_for_object[obj] = i
 
         orphaned = [k for k, v in handoff_tracker.items() if v is not None]
         if orphaned:
             raise ValueError(f"Orphaned handoffs: {orphaned}")
+
+    def debug_print_graph(self):
+        print("=== Danh sách node (ID, agent, action, verb, object, destination) ===")
+        for tid, info in self.tasks.items():
+            print(f"Node {tid}: {info}")
+
+        print("\n=== Danh sách dependency (edges) ===")
+        for u, v in self.edges:
+            print(f"{u} -> {v}")
+
+        print("\n=== Lane của agent ===")
+        print(f"Lane robot: {self.lane_robot}")
+        print(f"Lane human: {self.lane_human}")
+
 
     def _parse_action(self, action_text):
         if not action_text:
@@ -92,64 +117,6 @@ class TaskProcessor:
                 if tid not in visited_set and
                 all(dep in visited_set for dep in prev_map[tid])]
 
-    def generate_commands(self):
-
-        prev_map = defaultdict(set)
-        for u, v in self.edges:
-            prev_map[v].add(u)
-
-        visited = set()
-        current_agent = None
-        current_group = []
-
-        def flush():
-            nonlocal current_group, current_agent
-            if current_group:
-                print(f"{current_agent.capitalize()}: {', '.join(current_group)}")
-                current_group = []
-
-        while len(visited) < len(self.tasks):
-            ready_tasks = self._get_ready_tasks(visited, prev_map)
-            if not ready_tasks:
-                break
-
-            tid = ready_tasks[0]
-            task = self.tasks[tid]
-            agent = task["agent"]
-
-            if agent in ["robottohuman", "humantorobot"]:
-                flush()
-                move_agent = "robot" if agent == "robottohuman" else "human"
-                target = "human" if agent == "robottohuman" else "robot"
-                print(f"{move_agent.capitalize()}: move({target})")
-                visited.add(tid)
-                current_agent = None
-                continue
-
-            if current_agent != agent:
-                flush()
-                if current_agent == "human" and agent == "robot":
-                    print("Press Enter to confirm human tasks completed...")
-                    input()
-                current_agent = agent
-
-            verb = task["verb"]
-            obj = task["object"]
-            dest = task["destination"]
-
-            if verb == "move":
-                cmd = f"move({dest or obj})"
-            elif verb == "pick":
-                cmd = f"pick({obj})"
-            elif verb == "place":
-                cmd = f"place({dest or obj})"
-            else:
-                cmd = task["action"]
-
-            current_group.append(cmd)
-            visited.add(tid)
-
-        flush()
 
     def export_json(self, filename="commands.json"):
         prev_map = defaultdict(set)
@@ -270,3 +237,6 @@ def run_from_json(json_file, robot_ids, object_map, basket):
             robot_action.place(agent, pos, current_constraint, robot_ids)
             current_constraint = None
 
+
+tp = TaskProcessor(task_plan)
+tp.debug_print_graph()
