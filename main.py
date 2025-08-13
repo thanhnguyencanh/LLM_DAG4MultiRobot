@@ -33,7 +33,7 @@ def main():
 
     for name, info in target_basket.items():
         object_map[name.lower()] = info["ids"]
-    run_from_json("/home/acer/PycharmProjects/HRC/graph/commands.json", robot_id, object_map, target_basket)
+    run_from_json("commands.json", robot_id, object_map, target_basket)
 
     cv2.destroyAllWindows()
     p.disconnect()
