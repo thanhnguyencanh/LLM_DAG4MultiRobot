@@ -9,7 +9,7 @@ def get_position(obj_id):
     adjusted_pos = (pos[0], pos[1], pos[2] + 0.01)
     return adjusted_pos
 
-def wait_simulation(steps=100):
+def wait_simulation(steps=200):
     for _ in range(steps):
         p.stepSimulation()
         time.sleep(1. / 240.)

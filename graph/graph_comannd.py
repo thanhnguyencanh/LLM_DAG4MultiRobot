@@ -472,9 +472,6 @@ def work_threading(wave_tasks, robot_ids, object_map, basket):
         thread.join()
 
 
-tp = TaskProcessor(task_plan)
-tp.debug_print_graph()
-tp.waveprocess()
 
 
 
