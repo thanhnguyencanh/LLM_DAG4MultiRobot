@@ -40,10 +40,8 @@ def set_gripper(robot_id, target_position, steps=GRIPPER_STEPS):
         p.stepSimulation()
         time.sleep(1 / 240.0)
 
-
 def smooth_step(t):
     return t * t * (3.0 - 2.0 * t)
-
 
 def bezier_curve(t, p0, p1, p2, p3):
     return ((1 - t) ** 3 * np.array(p0) +

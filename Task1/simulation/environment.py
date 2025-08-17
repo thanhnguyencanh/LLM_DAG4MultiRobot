@@ -14,11 +14,11 @@ class Environment:
 
         p.loadURDF("plane.urdf", [0, 0, 0], globalScaling=2.0)
         p.loadURDF("table/table.urdf", [0.5, 0, 0])
-
+        p.loadURDF("D:/track/Human_Robot_Colab/my_objects/024_bowl/google_16k/024_bowl.urdf", [0.5, 0, 0.67],globalScaling=0.1)
         robot_id_1 = p.loadURDF("franka_panda/panda.urdf", [-0.35, 0.0, 0.62], useFixedBase=True)
         rotation_quat = p.getQuaternionFromEuler([0, 0, 3.14159])
         robot_id_2 = p.loadURDF("franka_panda/panda.urdf", [1.35, 0.0, 0.62], rotation_quat, useFixedBase=True)
-
+        
         apple = create_item([1.005, -0.3, 0.65], 'box', [0.025, 0.025, 0.02], [1, 0, 0, 1])
         teddy_bear = create_item([0.76, 0.0, 0.65], 'box', [0.025, 0.025, 0.02], [0.25, 0.25, 0, 1])
 

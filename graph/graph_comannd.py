@@ -26,7 +26,6 @@ class TaskProcessor:
         self._process_tasks()
 
     def _process_tasks(self):
-        """Xử lý task plan và tạo dependencies"""
         handoffs = {"robottohuman": None, "humantorobot": None}
         object_last_task = {}
 
@@ -34,11 +33,10 @@ class TaskProcessor:
             obj = self._extract_object(action)
             self.tasks[i] = {"agent": agent, "action": action, "object": obj}
 
-            # Tạo dependencies dựa trên object
+
             if obj and obj in object_last_task:
                 self.edges.append((object_last_task[obj], i))
 
-            # Xử lý handoff
             if agent in handoffs:
                 handoffs[agent] = i
             elif agent == "human" and handoffs["robottohuman"]:
@@ -52,7 +50,7 @@ class TaskProcessor:
                 object_last_task[obj] = i
 
     def _extract_object(self, action):
-        """Trích xuất object từ action"""
+
         action = action.lower()
         if "pick " in action:
             return action.split("pick ")[1].strip()
@@ -63,16 +61,13 @@ class TaskProcessor:
         return ""
 
     def assign_waves(self):
-        """Gán wave cho các task"""
-        # Tạo dependency map
+
         deps = defaultdict(set)
         for u, v in self.edges:
             deps[v].add(u)
 
-        # Tìm chains
         chains = self._find_chains(deps)
 
-        # Gán wave
         wave = 1
         for chain in chains:
             has_transfer = any(self.tasks[t]["agent"] in ["robottohuman", "humantorobot"] for t in chain)
@@ -81,17 +76,15 @@ class TaskProcessor:
             if has_transfer:
                 wave += 1
 
-        # Tasks không có transfer cùng wave 1
+
         if not any(self.tasks[t].get("wave") for t in self.tasks):
             for task_id in self.tasks:
                 self.tasks[task_id]["wave"] = 1
 
     def _find_chains(self, deps):
-        """Tìm các chains của tasks"""
         visited = set()
         chains = []
 
-        # Tìm start nodes (không có dependency)
         start_nodes = [t for t in self.tasks if not deps[t]]
 
         for start in start_nodes:
@@ -103,7 +96,7 @@ class TaskProcessor:
         return chains
 
     def _build_chain(self, start, deps, visited):
-        """Xây dựng chain từ một node"""
+
         chain = []
         queue = [start]
 
@@ -115,7 +108,6 @@ class TaskProcessor:
             chain.append(node)
             visited.add(node)
 
-            # Tìm nodes phụ thuộc vào node này
             for task_id, task_deps in deps.items():
                 if node in task_deps and task_id not in visited:
                     queue.append(task_id)
@@ -123,7 +115,6 @@ class TaskProcessor:
         return sorted(chain)
 
     def export_json(self, filename="commands.json"):
-        """Export thành JSON"""
         self.assign_waves()
 
         commands = []
@@ -131,7 +122,6 @@ class TaskProcessor:
             task = self.tasks[task_id]
             agent = task["agent"]
 
-            # Xử lý transfer agents
             if agent == "robottohuman":
                 agent = "robot"
                 lane = "transfer"
@@ -140,8 +130,6 @@ class TaskProcessor:
                 lane = "transfer"
             else:
                 lane = agent
-
-            # Parse action
             verb, obj, dest = self._parse_action(task["action"])
 
             commands.append({
@@ -159,7 +147,6 @@ class TaskProcessor:
         print(f"Exported to {filename}")
 
     def _parse_action(self, action):
-        """Parse action thành verb, object, destination"""
         action = action.lower()
 
         if action.startswith("pick "):
@@ -175,16 +162,13 @@ class TaskProcessor:
 
 
 def run_from_json(json_file, robot_ids, object_map, basket):
-    """Thực thi tasks từ JSON file"""
     with open(json_file) as f:
         commands = json.load(f)
 
-    # Nhóm theo wave
     waves = defaultdict(list)
     for cmd in commands:
         waves[cmd["wave"]].append(cmd)
 
-    # Thực thi từng wave
     for wave_id in sorted(waves.keys()):
         tasks = waves[wave_id]
         has_transfer = any(t["lane"] == "transfer" for t in tasks)
@@ -198,20 +182,16 @@ def run_from_json(json_file, robot_ids, object_map, basket):
 
 
 def _execute_sequential(tasks, robot_ids, object_map, basket):
-    """Thực thi tuần tự"""
     constraint = None
-
     for task in tasks:
         constraint = _execute_task(task, robot_ids, object_map, basket, constraint)
 
 
 def _execute_parallel(tasks, robot_ids, object_map, basket):
-    # Nhóm theo agent
     agent_tasks = defaultdict(list)
     for task in tasks:
         agent_tasks[task["agent"]].append(task)
 
-    # Tạo threads
     threads = []
     for agent, task_list in agent_tasks.items():
         thread = threading.Thread(target=_execute_agent_tasks,
@@ -219,20 +199,17 @@ def _execute_parallel(tasks, robot_ids, object_map, basket):
         threads.append(thread)
         thread.start()
 
-    # Đợi hoàn thành
     for thread in threads:
         thread.join()
 
 
 def _execute_agent_tasks(agent, tasks, robot_ids, object_map, basket):
-    """Thực thi tasks của một agent"""
     constraint = None
     for task in tasks:
         constraint = _execute_task(task, robot_ids, object_map, basket, constraint)
 
 
 def _execute_task(task, robot_ids, object_map, basket, constraint):
-    """Thực thi một task"""
     agent = task["agent"]
     action = task["action"]
     obj = task["object"]
