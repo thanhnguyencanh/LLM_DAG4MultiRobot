@@ -1,7 +1,6 @@
-import math
 import pybullet as p
 import pybullet_data
-from simulation.objects_simu import create_basket, create_item
+from Task1.simulation.objects_simu import create_basket, create_item
 
 class Environment:
     def __init__(self):

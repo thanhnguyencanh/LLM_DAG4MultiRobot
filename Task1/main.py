@@ -1,6 +1,6 @@
 import pybullet as p
 import cv2
-from simulation import environment
+from Task1.simulation import environment
 from graph.graph_comannd import run_from_json
 
 def main():
@@ -20,20 +20,7 @@ def main():
     camera_pitch = -40
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
-    object_map = {
-        'cake': 'cake',
-        'apple': 'apple',
-        'box1': 'box1',
-        'box2': 'box2',
-        'teddy_bear': 'teddy_bear',
-        'toy_car': 'toy_car'
-    }
-
-    object_map.update(objects)
-
-    for name, info in target_basket.items():
-        object_map[name.lower()] = info["ids"]
-    run_from_json("commands.json", robot_id, object_map, target_basket)
+    run_from_json("commands.json", robot_id, objects, target_basket)
 
     cv2.destroyAllWindows()
     p.disconnect()

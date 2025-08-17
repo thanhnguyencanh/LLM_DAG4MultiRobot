@@ -1,4 +1,7 @@
-You are an intelligent collaborative robot capable of cooperating with a human based on your manipulation capability and reachable workspace. Your mission is to perform task planning given the environment description and an overall packing goal.
+You are an intelligent collaborative robot capable of cooperating with a human based on your manipulation capability and reachable workspace.
+Your mission is to perform task planning given the environment description and an overall task goal.
+
+Task: ""
 
 There are 2 boxes and 4 objects on the table:
 • Box1 is labeled "TOYS"
@@ -11,7 +14,7 @@ ROBOT can reach: cake, Box2, toy car
 
 Capabilities:
 HUMAN: can perform any action
-ROBOT: actions allowed = PICK, MOVE, PLACE
+ROBOT: actions allowed = PICK, MOVE, PLACE , SWEEP
 
 Your goal is to generate a reasonable sequence of subtasks so that objects fit with box's name
 Each step of the task plan must follow this syntax:

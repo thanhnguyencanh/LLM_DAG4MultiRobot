@@ -23,455 +23,250 @@ class TaskProcessor:
         self.task_plan = task_plan
         self.tasks = {}
         self.edges = []
-        self.lane_human = []
-        self.lane_robot = []
-        self.lane_transfer = []
         self._process_tasks()
 
     def _process_tasks(self):
-        handoff_tracker = {"robottohuman": None, "humantorobot": None}
-        last_task_for_object = {}
+        """Xử lý task plan và tạo dependencies"""
+        handoffs = {"robottohuman": None, "humantorobot": None}
+        object_last_task = {}
+
         for i, (agent, action) in enumerate(self.task_plan, start=1):
-            parsed = self._parse_action(action)
-            self.tasks[i] = {"agent": agent, "action": action, **parsed}
+            obj = self._extract_object(action)
+            self.tasks[i] = {"agent": agent, "action": action, "object": obj}
 
-            obj = parsed["object"]
+            # Tạo dependencies dựa trên object
+            if obj and obj in object_last_task:
+                self.edges.append((object_last_task[obj], i))
 
-            # Lane tracking
-            if agent == "human":
-                self.lane_human.append(i)
-            elif agent == "robot":
-                self.lane_robot.append(i)
-            elif agent == "humantorobot" or agent == "robottohuman":
-                self.lane_transfer.append(i)
-            # Handoff nodes
-            if agent in ["robottohuman", "humantorobot"]:
-                if obj and obj in last_task_for_object:
-                    self.edges.append((last_task_for_object[obj], i))
-                handoff_tracker[agent] = i
-
-            elif not (
-                    (agent == "human" and handoff_tracker["robottohuman"]) or
-                    (agent == "robot" and handoff_tracker["humantorobot"])
-            ):
-                if obj and obj in last_task_for_object:
-                    self.edges.append((last_task_for_object[obj], i))
-
-            if agent == "human" and handoff_tracker["robottohuman"]:
-                self.edges.append((handoff_tracker["robottohuman"], i))
-                handoff_tracker["robottohuman"] = None
-
-            if agent == "robot" and handoff_tracker["humantorobot"]:
-                self.edges.append((handoff_tracker["humantorobot"], i))
-                handoff_tracker["humantorobot"] = None
+            # Xử lý handoff
+            if agent in handoffs:
+                handoffs[agent] = i
+            elif agent == "human" and handoffs["robottohuman"]:
+                self.edges.append((handoffs["robottohuman"], i))
+                handoffs["robottohuman"] = None
+            elif agent == "robot" and handoffs["humantorobot"]:
+                self.edges.append((handoffs["humantorobot"], i))
+                handoffs["humantorobot"] = None
 
             if obj:
-                last_task_for_object[obj] = i
+                object_last_task[obj] = i
 
-        orphaned = [k for k, v in handoff_tracker.items() if v is not None]
-        if orphaned:
-            raise ValueError(f"Orphaned handoffs: {orphaned}")
-        #xu ly wave
+    def _extract_object(self, action):
+        """Trích xuất object từ action"""
+        action = action.lower()
+        if "pick " in action:
+            return action.split("pick ")[1].strip()
+        elif "move " in action:
+            return action.split("move ")[1].split(" to ")[0].strip()
+        elif "place " in action:
+            return action.split("place ")[1].split(" in ")[0].strip()
+        return ""
 
-    def waveprocess(self):
-        # Tạo adjacency list và in-degree
-        adj = defaultdict(list)
-        indeg = defaultdict(int)
+    def assign_waves(self):
+        """Gán wave cho các task"""
+        # Tạo dependency map
+        deps = defaultdict(set)
         for u, v in self.edges:
-            adj[u].append(v)
-            indeg[v] += 1
+            deps[v].add(u)
 
-        # Tìm tất cả node đầu chuỗi (indegree = 0)
-        start_nodes = [node for node in self.tasks.keys() if indeg[node] == 0]
-        if not start_nodes:
-            # Nếu không có node indegree=0, tìm node có indegree nhỏ nhất
-            min_indeg = min(indeg[node] for node in self.tasks.keys())
-            start_nodes = [node for node in self.tasks.keys() if indeg[node] == min_indeg]
+        # Tìm chains
+        chains = self._find_chains(deps)
 
-        visited_global = set()
+        # Gán wave
+        wave = 1
+        for chain in chains:
+            has_transfer = any(self.tasks[t]["agent"] in ["robottohuman", "humantorobot"] for t in chain)
+            for task_id in chain:
+                self.tasks[task_id]["wave"] = wave
+            if has_transfer:
+                wave += 1
+
+        # Tasks không có transfer cùng wave 1
+        if not any(self.tasks[t].get("wave") for t in self.tasks):
+            for task_id in self.tasks:
+                self.tasks[task_id]["wave"] = 1
+
+    def _find_chains(self, deps):
+        """Tìm các chains của tasks"""
+        visited = set()
         chains = []
 
-        def traverse_chain_from_start(start_node):
-            """Duyệt toàn bộ chuỗi từ node đầu tiên"""
-            chain = []
-            stack = [start_node]
-            visited_local = set()
+        # Tìm start nodes (không có dependency)
+        start_nodes = [t for t in self.tasks if not deps[t]]
 
-            while stack:
-                node = stack.pop()
-                if node in visited_local or node in visited_global:
-                    continue
-
-                chain.append(node)
-                visited_local.add(node)
-                visited_global.add(node)
-
-                # Thêm tất cả node con vào stack
-                if node in adj:
-                    for next_node in adj[node]:
-                        if next_node not in visited_local:
-                            stack.append(next_node)
-
-            return sorted(chain)  # Sort để có thứ tự consistent
-
-        # Duyệt từ mỗi node đầu chuỗi
-        for start_node in sorted(start_nodes):
-            if start_node not in visited_global:
-                chain = traverse_chain_from_start(start_node)
+        for start in start_nodes:
+            if start not in visited:
+                chain = self._build_chain(start, deps, visited)
                 if chain:
                     chains.append(chain)
 
-        # Xử lý các node còn lại (nếu có)
-        remaining_nodes = set(self.tasks.keys()) - visited_global
-        for node in sorted(remaining_nodes):
-            chains.append([node])
+        return chains
 
-        # Phân loại chuỗi: có transfer hay không
-        chains_with_transfer = []
-        chains_without_transfer = []
+    def _build_chain(self, start, deps, visited):
+        """Xây dựng chain từ một node"""
+        chain = []
+        queue = [start]
 
-        for chain in chains:
-            has_transfer = any(node in self.lane_transfer for node in chain)
-            if has_transfer:
-                chains_with_transfer.append(chain)
-            else:
-                chains_without_transfer.append(chain)
-
-        # Gán wave
-        wave_assignment = {}
-        current_wave = 1
-
-        # Tất cả chuỗi không có transfer cùng wave 1
-        if chains_without_transfer:
-            for chain in chains_without_transfer:
-                for node in chain:
-                    wave_assignment[node] = current_wave
-            current_wave += 1
-
-        # Mỗi chuỗi có transfer là một wave riêng
-        for chain in chains_with_transfer:
-            for node in chain:
-                wave_assignment[node] = current_wave
-            current_wave += 1
-
-        # Thêm thông tin wave vào tasks
-        for task_id, wave in wave_assignment.items():
-            self.tasks[task_id]["wave"] = wave
-
-        # In kết quả debug
-        print("\n=== Wave Assignment ===")
-        print("Chains found:")
-        for i, chain in enumerate(chains, 1):
-            has_transfer = any(node in self.lane_transfer for node in chain)
-            print(f"  Chain {i}: {chain} {'(có transfer)' if has_transfer else '(không transfer)'}")
-
-        print("\nWave assignments:")
-        for wave in range(1, current_wave):
-            wave_tasks = [tid for tid, task in self.tasks.items() if task.get("wave") == wave]
-            print(f"Wave {wave}: {wave_tasks}")
-            for tid in wave_tasks:
-                task = self.tasks[tid]
-                print(f"  Task {tid}: {task['agent']} - {task['action']}")
-
-        return wave_assignment
-
-
-    def debug_print_graph(self):
-        adj = defaultdict(list)
-        indeg = defaultdict(int)
-        for u, v in self.edges:
-            adj[u].append(v)
-            indeg[v] += 1
-
-        visited_chain = set()
-
-        def build_chain(start):
-            chain = [start]
-            cur = start
-            while cur in adj and len(adj[cur]) == 1 and indeg[adj[cur][0]] == 1:
-                nxt = adj[cur][0]
-                if nxt in visited_chain:
-                    break
-                chain.append(nxt)
-                visited_chain.add(nxt)
-                cur = nxt
-            return chain
-
-        for node in sorted(self.tasks.keys()):
-            if node in visited_chain:
+        while queue:
+            node = queue.pop(0)
+            if node in visited:
                 continue
-            # Nếu node này là đầu chuỗi (indeg = 0 hoặc >1)
-            if indeg[node] != 1:
-                chain = build_chain(node)
-                if len(chain) > 1:
-                    print(" -> ".join(map(str, chain)))
-                else:
-                    # Node đứng 1 mình
-                    if node in adj:
-                        for v in adj[node]:
-                            print(f"{node} -> {v}")
-            visited_chain.update(chain)
 
-        print("\n=== Lane của agent ===")
-        print(f"Lane robot: {self.lane_robot}")
-        print(f"Lane human: {self.lane_human}")
-        print(f"Lane transfer: {self.lane_transfer}")
+            chain.append(node)
+            visited.add(node)
 
+            # Tìm nodes phụ thuộc vào node này
+            for task_id, task_deps in deps.items():
+                if node in task_deps and task_id not in visited:
+                    queue.append(task_id)
 
-    def _parse_action(self, action_text):
-        if not action_text:
-            return {"verb": "unknown", "object": "", "destination": None}
-
-        action_text = action_text.strip().lower()
-
-        if action_text.startswith("move "):
-            parts = action_text[5:].split(" to ")
-            if len(parts) == 2:
-                return {"verb": "move", "object": parts[0].strip(), "destination": parts[1].strip()}
-            return {"verb": "move", "object": parts[0].strip(), "destination": None}
-
-        elif action_text.startswith("place "):
-            parts = action_text[6:].split(" in ")
-            if len(parts) == 2:
-                return {"verb": "place", "object": parts[0].strip(), "destination": parts[1].strip()}
-            return {"verb": "place", "object": parts[0].strip(), "destination": None}
-
-        elif action_text.startswith("pick "):
-            return {"verb": "pick", "object": action_text[5:].strip(), "destination": None}
-
-        return {"verb": "unknown", "object": action_text, "destination": None}
-
-    def _get_ready_tasks(self, visited_set, prev_map):
-        return [tid for tid in sorted(self.tasks.keys())
-                if tid not in visited_set and
-                all(dep in visited_set for dep in prev_map[tid])]
+        return sorted(chain)
 
     def export_json(self, filename="commands.json"):
-        prev_map = defaultdict(set)
-        for u, v in self.edges:
-            prev_map[v].add(u)
+        """Export thành JSON"""
+        self.assign_waves()
 
-        visited = set()
-        json_list = []
-        cmd_id = 1
-
-        while len(visited) < len(self.tasks):
-            ready_tasks = self._get_ready_tasks(visited, prev_map)
-            if not ready_tasks:
-                break
-
-            tid = ready_tasks[0]
-            task = self.tasks[tid]
+        commands = []
+        for task_id in sorted(self.tasks.keys()):
+            task = self.tasks[task_id]
             agent = task["agent"]
 
-            if agent in ["robottohuman", "humantorobot"]:
-                if agent == "robottohuman":
-                    move_agent = "robot"
-                    lane = "transfer"
-                else:  # humantorobot
-                    move_agent = "human"
-                    lane = "transfer"
+            # Xử lý transfer agents
+            if agent == "robottohuman":
+                agent = "robot"
+                lane = "transfer"
+            elif agent == "humantorobot":
+                agent = "human"
+                lane = "transfer"
             else:
-                move_agent = agent
                 lane = agent
 
-            json_list.append({
-                "id": cmd_id,
-                "agent": move_agent,
-                "action": task["verb"],
-                "object": (task["object"] or "").replace(" ", "_"),
-                "destination": (task["destination"] or "").replace(" ", "_"),
+            # Parse action
+            verb, obj, dest = self._parse_action(task["action"])
+
+            commands.append({
+                "id": task_id,
+                "agent": agent,
+                "action": verb,
+                "object": obj.replace(" ", "_") if obj else "",
+                "destination": dest.replace(" ", "_") if dest else "",
                 "lane": lane,
-                "wave": task.get("wave", None)
+                "wave": task.get("wave", 1)
             })
 
-            cmd_id += 1
-            visited.add(tid)
-
         with open(filename, "w") as f:
-            json.dump(json_list, f, indent=4)
-        print(f"JSON command file saved to {filename}")
+            json.dump(commands, f, indent=2)
+        print(f"Exported to {filename}")
+
+    def _parse_action(self, action):
+        """Parse action thành verb, object, destination"""
+        action = action.lower()
+
+        if action.startswith("pick "):
+            return "pick", action[5:], ""
+        elif action.startswith("place "):
+            parts = action[6:].split(" in ")
+            return "place", parts[0], parts[1] if len(parts) > 1 else ""
+        elif action.startswith("move "):
+            parts = action[5:].split(" to ")
+            return "move", parts[0], parts[1] if len(parts) > 1 else ""
+
+        return "unknown", action, ""
 
 
 def run_from_json(json_file, robot_ids, object_map, basket):
+    """Thực thi tasks từ JSON file"""
     with open(json_file) as f:
-        cmds = json.load(f)
+        commands = json.load(f)
 
-    waves = {}
-    for task in cmds:
-        wave_id = task["wave"]
-        if wave_id not in waves:
-            waves[wave_id] = []
-        waves[wave_id].append(task)
+    # Nhóm theo wave
+    waves = defaultdict(list)
+    for cmd in commands:
+        waves[cmd["wave"]].append(cmd)
 
-    current_constraint = None
+    # Thực thi từng wave
+    for wave_id in sorted(waves.keys()):
+        tasks = waves[wave_id]
+        has_transfer = any(t["lane"] == "transfer" for t in tasks)
 
-    # Xử lý từng wave
-    for wave_id, wave_tasks in sorted(waves.items()):
-        lanes = set(task["lane"] for task in wave_tasks)
-        print(f"Wave {wave_id}:")
-
-        if "transfer" in lanes:
-            state = 0  # làm cùng nhau
-            print("  → Làm cùng nhau")
+        if has_transfer:
+            print(f"Wave {wave_id}: Sequential execution")
+            _execute_sequential(tasks, robot_ids, object_map, basket)
         else:
-            state = 1  # làm song song
-            print("  → Làm song song")
+            print(f"Wave {wave_id}: Parallel execution")
+            _execute_parallel(tasks, robot_ids, object_map, basket)
 
-        # Xử lý từng task trong wave
-        for c in wave_tasks:
-            agent = c.get('agent', '').lower()
-            action = c.get('action', '').lower()
-            obj = c.get('object', '').lower().strip()
-            dst = c.get('destination', '').lower().strip()
 
-            if agent not in robot_ids:
-                print(f"[WARN] Agent '{agent}' không tồn tại trong robot_ids")
-                continue
+def _execute_sequential(tasks, robot_ids, object_map, basket):
+    """Thực thi tuần tự"""
+    constraint = None
 
-            this_robot_id = robot_ids[agent]
-            robot_pos = [0.8, 0.2, 0.65]
-            human_pos = [0.3, -0.2, 0.65]
+    for task in tasks:
+        constraint = _execute_task(task, robot_ids, object_map, basket, constraint)
 
-            # Xác định target
-            target_key = None
-            if obj:
-                if obj in object_map:
-                    target_key = obj
-                else:
-                    print(f"[WARN] Không tìm thấy object hợp lệ: obj='{obj}'")
-                    continue
-            elif dst:
-                if dst in object_map or dst in basket:
-                    target_key = dst
-                elif dst in robot_ids:
-                    target_key = None
-                else:
-                    print(f"[WARN] Không tìm thấy destination hợp lệ: dst='{dst}'")
-                    continue
 
-            # Thực hiện hành động
-            if state == 0:
-                # Làm cùng nhau
-                if action == 'pick':
-                    if target_key is None:
-                        print(f"[WARN] Pick action nhưng không có target_key hợp lệ.")
-                        continue
-                    pos = robot_action.get_position(object_map[target_key])
-                    current_constraint = robot_action.pick(this_robot_id, object_map[target_key], pos)
+def _execute_parallel(tasks, robot_ids, object_map, basket):
+    # Nhóm theo agent
+    agent_tasks = defaultdict(list)
+    for task in tasks:
+        agent_tasks[task["agent"]].append(task)
 
-                elif action == 'move' and dst == 'robot':
-                    robot_action.move_to_target(this_robot_id, robot_pos, current_constraint)
-                    if current_constraint is not None:
-                        robot_action.place(agent, human_pos, current_constraint, robot_ids)
-                        current_constraint = None
-
-                elif action == 'move' and dst == 'human':
-                    robot_action.move_to_target(this_robot_id, human_pos, current_constraint)
-                    if current_constraint is not None:
-                        robot_action.place(agent, robot_pos, current_constraint, robot_ids)
-                        current_constraint = None
-
-                elif action == 'place':
-                    if target_key is None:
-                        print(f"[WARN] Place action nhưng không có target_key hợp lệ.")
-                        continue
-                    if dst in basket:
-                        pos = basket[dst]["center"]
-                    else:
-                        pos = robot_action.get_position(object_map[target_key])
-                    robot_action.place(agent, pos, current_constraint, robot_ids)
-                    current_constraint = None
-            else:
-                # Làm song song
-                work_threading(wave_tasks,robot_ids, object_map, basket)
-                break
-
-def work_threading(wave_tasks, robot_ids, object_map, basket):
-# Nhóm các task theo agent
-    tasks_per_agent = {}
-    for task in wave_tasks:
-        agent = task.get("agent", "").lower()
-        if agent not in tasks_per_agent:
-            tasks_per_agent[agent] = []
-        tasks_per_agent[agent].append(task)
-
-    # Hàm chạy các task của từng agent
-    def run_tasks(agent, tasks):
-        if agent not in robot_ids:
-            print(f"[ERROR] Agent '{agent}' không tồn tại trong robot_ids: {list(robot_ids.keys())}")
-            return
-        this_agent_id = robot_ids[agent]
-        current_constraint = None
-
-        for task in tasks:
-            agent = task.get("agent", "").lower()
-            action = task.get("action", "").lower()
-            obj = task.get("object", "")
-            dst = task.get("destination", "")
-
-            obj_key = obj.replace(" ", "_") if obj else None
-            dst_key = dst.replace(" ", "_") if dst else None
-
-            print(f"[INFO] Agent {agent} (ID: {this_agent_id}) executing: {action} {obj_key or ''} {dst_key or ''}")
-
-            try:
-                if action == "pick":
-                    if obj_key not in object_map:
-                        print(f"[WARN] Object '{obj_key}' không tồn tại trong object_map")
-                        continue
-                    pos = robot_action.get_position(object_map[obj_key])
-                    current_constraint = robot_action.pick(this_agent_id, object_map[obj_key], pos)
-
-                elif action == "place":
-                    if current_constraint is None:
-                        print(f"[WARN] Không có object để place cho agent {agent}")
-                        continue
-
-                    if dst_key in basket:
-                        pos = basket[dst_key]["center"]
-                    elif obj_key in object_map:
-                        pos = robot_action.get_position(object_map[obj_key])
-                    else:
-                        print(f"[WARN] Không tìm thấy vị trí cho place: obj='{obj_key}', dst='{dst_key}'")
-                        continue
-
-                    robot_action.place(agent, pos, current_constraint, robot_ids)
-                    current_constraint = None
-
-                elif action == "move":
-                    if dst_key == "robot":
-                        target_pos = [0.8, 0.2, 0.65]
-                    elif dst_key == "human":
-                        target_pos = [0.3, -0.2, 0.65]
-                    else:
-                        print(f"[WARN] Destination '{dst_key}' không được hỗ trợ cho move action")
-                        continue
-
-                    robot_action.move_to_target(this_agent_id, target_pos, current_constraint)
-
-                    # Nếu đang kẹp vật, thả xuống vị trí hiện tại
-                    if current_constraint is not None:
-                        robot_action.place(agent, target_pos, current_constraint, robot_ids)
-                        current_constraint = None
-
-                else:
-                    print(f"[WARN] Action '{action}' không được hỗ trợ")
-
-            except Exception as e:
-                print(f"[ERROR] Lỗi khi thực hiện action {action} cho agent {agent}: {e}")
-
-    # Tạo thread cho mỗi agent và chạy song song
+    # Tạo threads
     threads = []
-    for agent, tasks in tasks_per_agent.items():
-        thread = threading.Thread(target=run_tasks, args=(agent, tasks))
+    for agent, task_list in agent_tasks.items():
+        thread = threading.Thread(target=_execute_agent_tasks,
+                                  args=(agent, task_list, robot_ids, object_map, basket))
         threads.append(thread)
         thread.start()
 
+    # Đợi hoàn thành
     for thread in threads:
         thread.join()
 
 
+def _execute_agent_tasks(agent, tasks, robot_ids, object_map, basket):
+    """Thực thi tasks của một agent"""
+    constraint = None
+    for task in tasks:
+        constraint = _execute_task(task, robot_ids, object_map, basket, constraint)
 
+
+def _execute_task(task, robot_ids, object_map, basket, constraint):
+    """Thực thi một task"""
+    agent = task["agent"]
+    action = task["action"]
+    obj = task["object"]
+    dest = task["destination"]
+
+    if agent not in robot_ids:
+        print(f"Unknown agent: {agent}")
+        return constraint
+
+    robot_id = robot_ids[agent]
+
+    try:
+        if action == "pick" and obj in object_map:
+            pos = robot_action.get_position(object_map[obj])
+            return robot_action.pick(robot_id, object_map[obj], pos)
+
+        elif action == "place":
+            if dest in basket:
+                pos = basket[dest]["center"]
+            else:
+                pos = robot_action.get_position(object_map.get(obj, obj))
+            robot_action.place(agent, pos, constraint, robot_ids)
+            return None
+
+        elif action == "move":
+            target_pos = [0.3, -0.2, 0.65] if dest == "robot" else [0.8, 0.2, 0.65]
+            robot_action.move_to_target(robot_id, target_pos, constraint)
+            if constraint:
+                robot_action.place(agent, target_pos, constraint, robot_ids)
+                return None
+
+    except Exception as e:
+        print(f"Error executing {action} for {agent}: {e}")
+
+    return constraint
 
 
