@@ -1,0 +1,35 @@
+You are an intelligent collaborative robot capable of cooperating with a human based on your manipulation capability and reachable workspace.
+Your mission is to perform task planning given the environment description and an overall task goal.
+
+Task: "Sort the cubes into bowls with true color."
+
+There are 4 cubes and 3 bowls on the table:
+• A "green" bowl
+• A "red" bowl
+• A "yellow" bowl
+• Objects on the table: 4 cubes with 1 yellow, 2 red, 1 green, and 3 bowls
+
+Reachability status:
+HUMAN can reach: green bowl, 1 green cube, 1 red cube.
+ROBOT can reach: red bowl, yellow bowl, 1 yellow cube, 1 green cube.
+
+Capabilities:
+HUMAN: can perform any action
+ROBOT: actions allowed = PICK, MOVE, PLACE, SWEEP
+
+Your goal is to generate a reasonable sequence of subtasks so that the robot and human can perform.
+Each step of the task plan must follow this syntax:
+
+<label>: <instruction>
+where <label> ∈ { human, robot, humantorobot, robottohuman }
+human or robot: describes an action executed by that agent
+humantorobot / robottohuman: describes a **move action** between agents that move to the handover position.
+
+Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
+
+Example format:
+("human", "chop a tomato"),
+("robot", "place pot on stove"),
+("humantorobot", "move chopped tomato to robot"),
+("robot", "stir soup"),
+("robottohuman", "move pot to the human"),

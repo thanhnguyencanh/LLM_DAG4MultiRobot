@@ -1,22 +1,23 @@
 import threading
-from robot import robot_action
 from collections import defaultdict
 import json
+from robot import robot_action
 
-task_plan = [
-    ("robot", "pick cake"),
-    ("robot", "place cake in Box2"),
-    ("human", "pick teddy bear"),
-    ("human", "place teddy bear in Box1"),
-    ("robot", "pick toy car"),
-    ("robottohuman", "move toy car to human"),
-    ("human", "pick toy car"),
-    ("human", "place toy car in Box1"),
-    ("human", "pick apple"),
-    ("humantorobot", "move apple to robot"),
-    ("robot", "pick apple"),
-    ("robot", "place apple in Box2"),
+task_plan_1 = [
+    ("human", "pick green cube 2"),
+    ("human", "place green cube 2 into green bowl"),
+    ("robot", "pick yellow cube"),
+    ("robot", "place yellow cube into yellow bowl"),
+    ("human", "pick red cube"),
+    ("humantorobot", "move red cube to robot"),
+    ("robot", "pick red cube"),
+    ("robot", "place red cube into red bowl"),
+    ("robot", "pick green cube 1"),
+    ("robottohuman", "move green cube 1 to human"),
+    ("human", "pick green cube 1"),
+    ("human", "place green cube 1 into green bowl"),
 ]
+
 
 class TaskProcessor:
     def __init__(self, task_plan):
@@ -32,7 +33,6 @@ class TaskProcessor:
         for i, (agent, action) in enumerate(self.task_plan, start=1):
             obj = self._extract_object(action)
             self.tasks[i] = {"agent": agent, "action": action, "object": obj}
-
 
             if obj and obj in object_last_task:
                 self.edges.append((object_last_task[obj], i))
@@ -50,69 +50,83 @@ class TaskProcessor:
                 object_last_task[obj] = i
 
     def _extract_object(self, action):
-
         action = action.lower()
         if "pick " in action:
             return action.split("pick ")[1].strip()
         elif "move " in action:
             return action.split("move ")[1].split(" to ")[0].strip()
         elif "place " in action:
-            return action.split("place ")[1].split(" in ")[0].strip()
+            # Xử lý cả "in" và "into"
+            if " into " in action:
+                return action.split("place ")[1].split(" into ")[0].strip()
+            elif " in " in action:
+                return action.split("place ")[1].split(" in ")[0].strip()
+            else:
+                return action.split("place ")[1].strip()
         return ""
 
     def assign_waves(self):
-
-        deps = defaultdict(set)
-        for u, v in self.edges:
-            deps[v].add(u)
-
-        chains = self._find_chains(deps)
+        subtasks = self._find_object_based_subtasks()
 
         wave = 1
-        for chain in chains:
-            has_transfer = any(self.tasks[t]["agent"] in ["robottohuman", "humantorobot"] for t in chain)
-            for task_id in chain:
-                self.tasks[task_id]["wave"] = wave
+        pending_subtasks = []
+
+        for subtask in subtasks:
+
+            has_transfer = any(self.tasks[task_id]["agent"] in ["robottohuman", "humantorobot"]
+                               for task_id in subtask)
+
             if has_transfer:
+                for pending_subtask in pending_subtasks:
+                    for task_id in pending_subtask:
+                        self.tasks[task_id]["wave"] = wave
+
+                if pending_subtasks:
+                    wave += 1
+
+                pending_subtasks = []
+
+                for task_id in subtask:
+                    self.tasks[task_id]["wave"] = wave
+
                 wave += 1
+            else:
+
+                pending_subtasks.append(subtask)
+
+        for pending_subtask in pending_subtasks:
+            for task_id in pending_subtask:
+                self.tasks[task_id]["wave"] = wave
 
 
         if not any(self.tasks[t].get("wave") for t in self.tasks):
             for task_id in self.tasks:
                 self.tasks[task_id]["wave"] = 1
 
-    def _find_chains(self, deps):
-        visited = set()
-        chains = []
+    def _find_object_based_subtasks(self):
+        subtasks = []
+        current_subtask = []
+        current_object = None
 
-        start_nodes = [t for t in self.tasks if not deps[t]]
+        for task_id in sorted(self.tasks.keys()):
+            task_object = self.tasks[task_id]["object"]
 
-        for start in start_nodes:
-            if start not in visited:
-                chain = self._build_chain(start, deps, visited)
-                if chain:
-                    chains.append(chain)
+            if current_object is None:
+                # Task đầu tiên
+                current_object = task_object
+                current_subtask = [task_id]
+            elif task_object == current_object:
+                current_subtask.append(task_id)
+            else:
+                if current_subtask:
+                    subtasks.append(current_subtask)
+                current_object = task_object
+                current_subtask = [task_id]
 
-        return chains
+        if current_subtask:
+            subtasks.append(current_subtask)
 
-    def _build_chain(self, start, deps, visited):
-
-        chain = []
-        queue = [start]
-
-        while queue:
-            node = queue.pop(0)
-            if node in visited:
-                continue
-
-            chain.append(node)
-            visited.add(node)
-
-            for task_id, task_deps in deps.items():
-                if node in task_deps and task_id not in visited:
-                    queue.append(task_id)
-
-        return sorted(chain)
+        return subtasks
 
     def export_json(self, filename="commands.json"):
         self.assign_waves()
@@ -152,7 +166,13 @@ class TaskProcessor:
         if action.startswith("pick "):
             return "pick", action[5:], ""
         elif action.startswith("place "):
-            parts = action[6:].split(" in ")
+            # Xử lý cả "in" và "into"
+            if " into " in action:
+                parts = action[6:].split(" into ")
+            elif " in " in action:
+                parts = action[6:].split(" in ")
+            else:
+                parts = [action[6:], ""]
             return "place", parts[0], parts[1] if len(parts) > 1 else ""
         elif action.startswith("move "):
             parts = action[5:].split(" to ")
@@ -160,8 +180,31 @@ class TaskProcessor:
 
         return "unknown", action, ""
 
+    def print_summary(self):
+        """In ra tóm tắt các wave và task"""
+        self.assign_waves()
 
+        print("\n=== TASK SUMMARY ===")
+        waves = defaultdict(list)
+        for task_id, task in self.tasks.items():
+            waves[task.get("wave", 1)].append((task_id, task))
+
+        for wave_id in sorted(waves.keys()):
+            tasks = waves[wave_id]
+            has_transfer = any(task["agent"] in ["robottohuman", "humantorobot"]
+                               for _, task in tasks)
+            execution_type = "Sequential" if has_transfer else "Parallel"
+
+            print(f"\nWave {wave_id} ({execution_type}):")
+            for task_id, task in sorted(tasks):
+                lane = "transfer" if task["agent"] in ["robottohuman", "humantorobot"] else task["agent"]
+                print(f"  Task {task_id}: {task['agent']} - {task['action']} (lane: {lane})")
+
+
+
+# Hàm thực thi file JSON
 def run_from_json(json_file, robot_ids, object_map, basket):
+    """Static method để chạy từ JSON file"""
     with open(json_file) as f:
         commands = json.load(f)
 
@@ -222,20 +265,23 @@ def _execute_task(task, robot_ids, object_map, basket, constraint):
     robot_id = robot_ids[agent]
 
     try:
+        print(f"Executing: {agent} {action} {obj} {dest}")
+
         if action == "pick" and obj in object_map:
             pos = robot_action.get_position(object_map[obj])
             return robot_action.pick(robot_id, object_map[obj], pos)
 
         elif action == "place":
-            if dest in basket:
-                pos = basket[dest]["center"]
+            if dest in object_map:
+                pos = robot_action.get_position(object_map[dest])
             else:
                 pos = robot_action.get_position(object_map.get(obj, obj))
             robot_action.place(agent, pos, constraint, robot_ids)
+
             return None
 
         elif action == "move":
-            target_pos = [0.3, -0.2, 0.65] if dest == "robot" else [0.8, 0.2, 0.65]
+            target_pos = [0.33, -0.2, 0.65] if dest == "robot" else [0.7, 0.2, 0.65]
             robot_action.move_to_target(robot_id, target_pos, constraint)
             if constraint:
                 robot_action.place(agent, target_pos, constraint, robot_ids)
@@ -246,4 +292,7 @@ def _execute_task(task, robot_ids, object_map, basket, constraint):
 
     return constraint
 
+processor = TaskProcessor(task_plan_1)
+processor.print_summary()
+processor.export_json("commands_task1.json")
 

@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "agent": "human",
+    "action": "pick",
+    "object": "green_cube_2",
+    "destination": "",
+    "lane": "human",
+    "wave": 1
+  },
+  {
+    "id": 2,
+    "agent": "human",
+    "action": "place",
+    "object": "green_cube_2",
+    "destination": "green_bowl",
+    "lane": "human",
+    "wave": 1
+  },
+  {
+    "id": 3,
+    "agent": "robot",
+    "action": "pick",
+    "object": "yellow_cube",
+    "destination": "",
+    "lane": "robot",
+    "wave": 1
+  },
+  {
+    "id": 4,
+    "agent": "robot",
+    "action": "place",
+    "object": "yellow_cube",
+    "destination": "yellow_bowl",
+    "lane": "robot",
+    "wave": 1
+  },
+  {
+    "id": 5,
+    "agent": "human",
+    "action": "pick",
+    "object": "red_cube",
+    "destination": "",
+    "lane": "human",
+    "wave": 2
+  },
+  {
+    "id": 6,
+    "agent": "human",
+    "action": "move",
+    "object": "red_cube",
+    "destination": "robot",
+    "lane": "transfer",
+    "wave": 2
+  },
+  {
+    "id": 7,
+    "agent": "robot",
+    "action": "pick",
+    "object": "red_cube",
+    "destination": "",
+    "lane": "robot",
+    "wave": 2
+  },
+  {
+    "id": 8,
+    "agent": "robot",
+    "action": "place",
+    "object": "red_cube",
+    "destination": "red_bowl",
+    "lane": "robot",
+    "wave": 2
+  },
+  {
+    "id": 9,
+    "agent": "robot",
+    "action": "pick",
+    "object": "green_cube_1",
+    "destination": "",
+    "lane": "robot",
+    "wave": 3
+  },
+  {
+    "id": 10,
+    "agent": "robot",
+    "action": "move",
+    "object": "green_cube_1",
+    "destination": "human",
+    "lane": "transfer",
+    "wave": 3
+  },
+  {
+    "id": 11,
+    "agent": "human",
+    "action": "pick",
+    "object": "green_cube_1",
+    "destination": "",
+    "lane": "human",
+    "wave": 3
+  },
+  {
+    "id": 12,
+    "agent": "human",
+    "action": "place",
+    "object": "green_cube_1",
+    "destination": "green_bowl",
+    "lane": "human",
+    "wave": 3
+  }
+]

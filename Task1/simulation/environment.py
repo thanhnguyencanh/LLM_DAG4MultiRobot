@@ -18,16 +18,21 @@ class Environment:
         robot_id_1 = p.loadURDF("franka_panda/panda.urdf", [-0.35, 0.0, 0.62], useFixedBase=True)
         rotation_quat = p.getQuaternionFromEuler([0, 0, 3.14159])
         robot_id_2 = p.loadURDF("franka_panda/panda.urdf", [1.35, 0.0, 0.62], rotation_quat, useFixedBase=True)
-        p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_green/bowl_green.urdf", [0.3, 0.0, 0.66],
+
+        green_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_green/bowl_green.urdf", [1.005, 0.35, 0.66],
                    globalScaling=0.1)
-        apple = create_item([1.005, -0.3, 0.65], 'box', [0.025, 0.025, 0.02], [1, 0, 0, 1])
-        teddy_bear = create_item([0.76, 0.0, 0.65], 'box', [0.025, 0.025, 0.02], [0.25, 0.25, 0, 1])
 
-        cake = create_item([0.32, -0.2, 0.65], 'box', [0.025, 0.025, 0.025], [1, 1, 0, 1])
-        toy_car = create_item([0.3, 0.1, 0.65], 'box', [0.025, 0.025, 0.025], [0, 0, 1, 1])
+        red_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_red/google_16k/bowl_red.urdf", [0.3, -0.33, 0.66],
+                   globalScaling=0.1)
 
-        basket1_ids, basket1_center = create_basket([1.005, 0.35, 0.6])
-        basket2_ids, basket2_center = create_basket([0.3, 0.35, 0.6])
+        yellow_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_yellow/google_16k/bowl_yellow.urdf", [0.3, 0.33, 0.66],
+                   globalScaling=0.1)
+
+        red_cube = create_item([1.005, -0.3, 0.65], 'box', [0.025, 0.025, 0.02], [1, 0, 0, 1]) #red
+        yellow_cube = create_item([0.22, -0.1, 0.65], 'box', [0.025, 0.025, 0.02], [1, 1, 0, 1]) #yellow
+
+        green_cube_1 = create_item([0.32, 0.1, 0.65], 'box', [0.025, 0.025, 0.025], [0, 1, 0, 1]) #green
+        green_cube_2 = create_item([0.8, 0.0, 0.65], 'box', [0.025, 0.025, 0.025], [0, 1, 0, 1])
 
         self.robot_id = {
             "robot": robot_id_1,
@@ -35,15 +40,16 @@ class Environment:
         }
 
         self.objects = {
-            "cake": cake,
-            "apple": apple,
-            "teddy_bear": teddy_bear,
-            "toy_car": toy_car,
+           "red_cube" : red_cube,
+            "yellow_cube": yellow_cube,
+            "green_cube_1": green_cube_1,
+            "green_cube_2": green_cube_2,
         }
 
-        self.basket = {
-            "box1": {"ids": basket1_ids, "center": basket1_center},
-            "box2": {"ids": basket2_ids, "center": basket2_center},
+        self.bowls = {
+            "green_bowl": green_bowl,
+            "yellow_bowl": yellow_bowl,
+            "red_bowl": red_bowl,
         }
 
 
