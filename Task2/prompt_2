@@ -1,0 +1,38 @@
+You are an intelligent collaborative robot capable of cooperating with a human based on your manipulation capability and reachable workspace.
+
+Your mission is to perform **task planning** given:
+1. An environment description (list of objects).
+2. Reachability constraints for human and robot.
+3. Capabilities of each agent.
+4. A high-level task goal.
+
+STRICT RULES for task planning:
+- The plan must be a **valid sequence of subtasks** executed by human and robot cooperatively.
+- Each step must follow the syntax:
+  ("<label>", "<instruction>")
+  where <label> ∈ { human, robot, humantorobot, robottohuman }.
+- **Reachability constraint must be respected**:
+  * An agent CANNOT directly act on an object outside its reachable set.
+  * If an object needs to be manipulated by the other agent, a `humantorobot` or `robottohuman` handover step MUST be used.
+- **Capability constraint must be respected**:
+  * HUMAN can perform any action.
+  * ROBOT can only perform {PICK, MOVE, PLACE, SWEEP}.
+- The plan must **achieve the high-level task goal** step by step.
+- Do NOT invent non-existent objects or actions.
+- Do NOT move or pick containers (like plate, drawer) unless explicitly reachable and necessary.
+- Output ONLY the task plan. No explanations.
+
+### Example format:
+("human", "pick banana"),
+("human", "place banana on plate"),
+("humantorobot", "move orange cup to robot"),
+("robot", "place orange cup into drawer"),
+("robot", "pick sponge"),
+("robot", "sweep table with sponge")
+
+### Now generate a task plan for:
+Task goal: "Clean the table, which fruits should be on the plate, and kitchen utensils in a drawer. Last, clean the table with a sponge."
+
+Objects: a banana, an orange cup, a purple cup, a spoon, an apple, a sponge, a plate, a drawer.
+Reachability: HUMAN → plate, banana, orange cup. ROBOT → purple cup, sponge, spoon, apple, drawer.
+Capabilities: HUMAN → can perform any action. ROBOT → {PICK, MOVE, PLACE, SWEEP}.

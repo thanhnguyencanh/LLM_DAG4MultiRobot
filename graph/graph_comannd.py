@@ -3,19 +3,27 @@ from collections import defaultdict
 import json
 from robot import robot_action
 
-task_plan_1 = [
-    ("human", "pick green cube 2"),
-    ("human", "place green cube 2 into green bowl"),
-    ("robot", "pick yellow cube"),
-    ("robot", "place yellow cube into yellow bowl"),
-    ("human", "pick red cube"),
-    ("humantorobot", "move red cube to robot"),
-    ("robot", "pick red cube"),
-    ("robot", "place red cube into red bowl"),
-    ("robot", "pick green cube 1"),
-    ("robottohuman", "move green cube 1 to human"),
-    ("human", "pick green cube 1"),
-    ("human", "place green cube 1 into green bowl"),
+task_plan_2 = [
+    ("human", "pick banana"),
+    ("human", "place banana on plate"),
+
+    ("robottohuman", "move apple to human"),
+    ("human", "pick apple"),
+    ("human", "place apple on plate"),
+
+    ("human", "pick orange cup"),
+    ("humantorobot", "move orange cup to robot"),
+    ("robot", "pick orange cup into drawer"),
+    ("robot", "place orange cup into drawer"),
+
+    ("robot", "pick purple cup"),
+    ("robot", "place purple cup into drawer"),
+
+    ("robot", "pick spoon"),
+    ("robot", "place spoon into drawer"),
+
+    ("robot", "pick sponge"),
+    ("robot", "sweep table with sponge")
 ]
 
 
@@ -61,6 +69,8 @@ class TaskProcessor:
                 return action.split("place ")[1].split(" into ")[0].strip()
             elif " in " in action:
                 return action.split("place ")[1].split(" in ")[0].strip()
+            elif " on " in action:
+                return action.split("place ")[1].split(" on ")[0].strip()
             else:
                 return action.split("place ")[1].strip()
         return ""
@@ -171,6 +181,8 @@ class TaskProcessor:
                 parts = action[6:].split(" into ")
             elif " in " in action:
                 parts = action[6:].split(" in ")
+            elif "on" in action:
+                parts = action[6:].split(" on ")
             else:
                 parts = [action[6:], ""]
             return "place", parts[0], parts[1] if len(parts) > 1 else ""
@@ -203,7 +215,7 @@ class TaskProcessor:
 
 
 # Hàm thực thi file JSON
-def run_from_json(json_file, robot_ids, object_map, basket):
+def run_from_json(json_file, robot_ids, object_map):
     """Static method để chạy từ JSON file"""
     with open(json_file) as f:
         commands = json.load(f)
@@ -218,19 +230,23 @@ def run_from_json(json_file, robot_ids, object_map, basket):
 
         if has_transfer:
             print(f"Wave {wave_id}: Sequential execution")
-            _execute_sequential(tasks, robot_ids, object_map, basket)
+            _execute_sequential(tasks, robot_ids, object_map)
         else:
             print(f"Wave {wave_id}: Parallel execution")
-            _execute_parallel(tasks, robot_ids, object_map, basket)
+            _execute_parallel(tasks, robot_ids, object_map)
 
 
-def _execute_sequential(tasks, robot_ids, object_map, basket):
+
+def _execute_sequential(tasks, robot_ids, object_map):
+    """Execute tasks sequentially"""
     constraint = None
     for task in tasks:
-        constraint = _execute_task(task, robot_ids, object_map, basket, constraint)
+        constraint = _execute_task(task, robot_ids, object_map, constraint)
 
 
-def _execute_parallel(tasks, robot_ids, object_map, basket):
+
+def _execute_parallel(tasks, robot_ids, object_map):
+    """Execute tasks in parallel by agent"""
     agent_tasks = defaultdict(list)
     for task in tasks:
         agent_tasks[task["agent"]].append(task)
@@ -238,7 +254,7 @@ def _execute_parallel(tasks, robot_ids, object_map, basket):
     threads = []
     for agent, task_list in agent_tasks.items():
         thread = threading.Thread(target=_execute_agent_tasks,
-                                  args=(agent, task_list, robot_ids, object_map, basket))
+                                  args=(agent, task_list, robot_ids, object_map))
         threads.append(thread)
         thread.start()
 
@@ -246,13 +262,14 @@ def _execute_parallel(tasks, robot_ids, object_map, basket):
         thread.join()
 
 
-def _execute_agent_tasks(agent, tasks, robot_ids, object_map, basket):
+def _execute_agent_tasks(agent, tasks, robot_ids, object_map):
+    """Execute tasks for a specific agent"""
     constraint = None
     for task in tasks:
-        constraint = _execute_task(task, robot_ids, object_map, basket, constraint)
+        constraint = _execute_task(task, robot_ids, object_map, constraint)
 
 
-def _execute_task(task, robot_ids, object_map, basket, constraint):
+def _execute_task(task, robot_ids, object_map, constraint):
     agent = task["agent"]
     action = task["action"]
     obj = task["object"]
@@ -271,11 +288,17 @@ def _execute_task(task, robot_ids, object_map, basket, constraint):
             pos = robot_action.get_position(object_map[obj])
             return robot_action.pick(robot_id, object_map[obj], pos)
 
+
         elif action == "place":
+
             if dest in object_map:
+
                 pos = robot_action.get_position(object_map[dest])
+
             else:
+
                 pos = robot_action.get_position(object_map.get(obj, obj))
+
             robot_action.place(agent, pos, constraint, robot_ids)
 
             return None
@@ -292,7 +315,7 @@ def _execute_task(task, robot_ids, object_map, basket, constraint):
 
     return constraint
 
-processor = TaskProcessor(task_plan_1)
+processor = TaskProcessor(task_plan_2)
 processor.print_summary()
-processor.export_json("commands_task1.json")
+processor.export_json("commands_task2.json")
 
