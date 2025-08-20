@@ -20,6 +20,15 @@
   {
     "id": 3,
     "agent": "robot",
+    "action": "pick",
+    "object": "apple",
+    "destination": "",
+    "lane": "robot",
+    "wave": 2
+  },
+  {
+    "id": 4,
+    "agent": "robot",
     "action": "move",
     "object": "apple",
     "destination": "human",
@@ -27,25 +36,25 @@
     "wave": 2
   },
   {
-    "id": 4,
+    "id": 5,
     "agent": "human",
     "action": "pick",
     "object": "apple",
     "destination": "",
     "lane": "human",
-    "wave": 2
+    "wave": 3
   },
   {
-    "id": 5,
+    "id": 6,
     "agent": "human",
     "action": "place",
     "object": "apple",
     "destination": "plate",
     "lane": "human",
-    "wave": 2
+    "wave": 3
   },
   {
-    "id": 6,
+    "id": 7,
     "agent": "human",
     "action": "pick",
     "object": "orange_cup",
@@ -54,7 +63,7 @@
     "wave": 3
   },
   {
-    "id": 7,
+    "id": 8,
     "agent": "human",
     "action": "move",
     "object": "orange_cup",
@@ -63,16 +72,16 @@
     "wave": 3
   },
   {
-    "id": 8,
+    "id": 9,
     "agent": "robot",
     "action": "pick",
-    "object": "orange_cup_into_drawer",
+    "object": "orange_cup",
     "destination": "",
     "lane": "robot",
     "wave": 4
   },
   {
-    "id": 9,
+    "id": 10,
     "agent": "robot",
     "action": "place",
     "object": "orange_cup",
@@ -81,26 +90,26 @@
     "wave": 4
   },
   {
-    "id": 10,
+    "id": 11,
     "agent": "robot",
     "action": "pick",
     "object": "purple_cup",
     "destination": "",
-    "lane": "robot",
-    "wave": 4
-  },
-  {
-    "id": 11,
-    "agent": "robot",
-    "action": "place",
-    "object": "purple_cup",
-    "destination": "drawer",
     "lane": "robot",
     "wave": 4
   },
   {
     "id": 12,
     "agent": "robot",
+    "action": "place",
+    "object": "purple_cup",
+    "destination": "drawer",
+    "lane": "robot",
+    "wave": 4
+  },
+  {
+    "id": 13,
+    "agent": "robot",
     "action": "pick",
     "object": "spoon",
     "destination": "",
@@ -108,7 +117,7 @@
     "wave": 4
   },
   {
-    "id": 13,
+    "id": 14,
     "agent": "robot",
     "action": "place",
     "object": "spoon",
@@ -117,7 +126,7 @@
     "wave": 4
   },
   {
-    "id": 14,
+    "id": 15,
     "agent": "robot",
     "action": "pick",
     "object": "sponge",
@@ -126,10 +135,10 @@
     "wave": 4
   },
   {
-    "id": 15,
+    "id": 16,
     "agent": "robot",
-    "action": "unknown",
-    "object": "sweep_table_with_sponge",
+    "action": "sweep",
+    "object": "sponge",
     "destination": "",
     "lane": "robot",
     "wave": 4

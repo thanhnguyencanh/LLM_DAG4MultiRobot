@@ -7,6 +7,7 @@ task_plan_2 = [
     ("human", "pick banana"),
     ("human", "place banana on plate"),
 
+    ("robot", "pick apple"),
     ("robottohuman", "move apple to human"),
     ("human", "pick apple"),
     ("human", "place apple on plate"),
@@ -15,6 +16,7 @@ task_plan_2 = [
     ("humantorobot", "move orange cup to robot"),
     ("robot", "pick orange cup into drawer"),
     ("robot", "place orange cup into drawer"),
+
 
     ("robot", "pick purple cup"),
     ("robot", "place purple cup into drawer"),
@@ -93,21 +95,17 @@ class TaskProcessor:
 
                 if pending_subtasks:
                     wave += 1
-
                 pending_subtasks = []
-
                 for task_id in subtask:
                     self.tasks[task_id]["wave"] = wave
 
                 wave += 1
             else:
-
                 pending_subtasks.append(subtask)
 
         for pending_subtask in pending_subtasks:
             for task_id in pending_subtask:
                 self.tasks[task_id]["wave"] = wave
-
 
         if not any(self.tasks[t].get("wave") for t in self.tasks):
             for task_id in self.tasks:
@@ -189,11 +187,12 @@ class TaskProcessor:
         elif action.startswith("move "):
             parts = action[5:].split(" to ")
             return "move", parts[0], parts[1] if len(parts) > 1 else ""
-
+        elif action.startswith("sweep "):
+            obj = action[6:] if len(action) > 6 else ""
+            return "sweep", obj, ""
         return "unknown", action, ""
 
     def print_summary(self):
-        """In ra tóm tắt các wave và task"""
         self.assign_waves()
 
         print("\n=== TASK SUMMARY ===")
@@ -214,9 +213,9 @@ class TaskProcessor:
 
 
 
-# Hàm thực thi file JSON
+
 def run_from_json(json_file, robot_ids, object_map):
-    """Static method để chạy từ JSON file"""
+
     with open(json_file) as f:
         commands = json.load(f)
 
@@ -238,7 +237,6 @@ def run_from_json(json_file, robot_ids, object_map):
 
 
 def _execute_sequential(tasks, robot_ids, object_map):
-    """Execute tasks sequentially"""
     constraint = None
     for task in tasks:
         constraint = _execute_task(task, robot_ids, object_map, constraint)
@@ -246,7 +244,6 @@ def _execute_sequential(tasks, robot_ids, object_map):
 
 
 def _execute_parallel(tasks, robot_ids, object_map):
-    """Execute tasks in parallel by agent"""
     agent_tasks = defaultdict(list)
     for task in tasks:
         agent_tasks[task["agent"]].append(task)
@@ -263,7 +260,6 @@ def _execute_parallel(tasks, robot_ids, object_map):
 
 
 def _execute_agent_tasks(agent, tasks, robot_ids, object_map):
-    """Execute tasks for a specific agent"""
     constraint = None
     for task in tasks:
         constraint = _execute_task(task, robot_ids, object_map, constraint)
@@ -283,24 +279,16 @@ def _execute_task(task, robot_ids, object_map, constraint):
 
     try:
         print(f"Executing: {agent} {action} {obj} {dest}")
-
         if action == "pick" and obj in object_map:
             pos = robot_action.get_position(object_map[obj])
             return robot_action.pick(robot_id, object_map[obj], pos)
 
-
         elif action == "place":
-
             if dest in object_map:
-
                 pos = robot_action.get_position(object_map[dest])
-
             else:
-
                 pos = robot_action.get_position(object_map.get(obj, obj))
-
             robot_action.place(agent, pos, constraint, robot_ids)
-
             return None
 
         elif action == "move":
@@ -310,12 +298,20 @@ def _execute_task(task, robot_ids, object_map, constraint):
                 robot_action.place(agent, target_pos, constraint, robot_ids)
                 return None
 
+        elif action == "sweep":
+            if obj in object_map:
+                obj_id = object_map[obj]
+                robot_action.sweep(robot_id, obj_id, sweep_count=3)
+            else:
+                print(f"Object {obj} not found for sweeping.")
+
     except Exception as e:
         print(f"Error executing {action} for {agent}: {e}")
 
     return constraint
 
-processor = TaskProcessor(task_plan_2)
-processor.print_summary()
-processor.export_json("commands_task2.json")
+
+task_processor = TaskProcessor(task_plan_2)
+task_processor.print_summary()
+
 

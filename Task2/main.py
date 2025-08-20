@@ -1,7 +1,7 @@
 import pybullet as p
 import cv2
 from Task2.simulation import environment
-from graph.graph_comannd import run_from_json
+from graph.graph_command import run_from_json
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "D:/track/Human_Robot_Colab/Task2/commands_task2.json",
+        "commands_task2.json",
         robot_ids,
         object_map
     )

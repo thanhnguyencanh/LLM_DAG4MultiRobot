@@ -40,8 +40,10 @@ def set_gripper(robot_id, target_position, steps=GRIPPER_STEPS):
         p.stepSimulation()
         time.sleep(1 / 240.0)
 
+
 def smooth_step(t):
     return t * t * (3.0 - 2.0 * t)
+
 
 def bezier_curve(t, p0, p1, p2, p3):
     return ((1 - t) ** 3 * np.array(p0) +
@@ -148,20 +150,27 @@ def place(agent_name, target_pos, constraint_id, robot_ids):
         wait_simulation(30)
 
 
-def sweep(robot_id, obj_id, sweep_distance=0.2, sweep_count=3):
+def sweep(robot_id, obj_id, sweep_count=3, z_height=0.65):
     target_pos = get_position(obj_id)
     constraint_id = pick(robot_id, obj_id, target_pos)
     if not constraint_id:
         return
     wait_simulation()
     start_pos = list(target_pos)
-    end_pos = list(target_pos)
-    end_pos[1] += sweep_distance
+    start_pos[2] = z_height
+
+    pos_1 = list(start_pos)
+    pos_1[1] += 0.3
+
+    pos_2 = list(start_pos)
+    pos_2[1] -= 0.3
+    move_to_target(robot_id, start_pos)
+    wait_simulation()
     for _ in range(sweep_count):
-        move_to_target(robot_id, end_pos)
+        move_to_target(robot_id, pos_1)
         wait_simulation()
-        move_to_target(robot_id, start_pos)
-        wait_simulation()
+        move_to_target(robot_id, pos_2)
     set_gripper(robot_id, GRIPPER_OPEN)
     if constraint_id:
         p.removeConstraint(constraint_id)
+
