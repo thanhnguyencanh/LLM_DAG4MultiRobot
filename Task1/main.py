@@ -1,7 +1,7 @@
 import pybullet as p
 import cv2
 from Task1.simulation import environment
-from graph.graph_command import run_from_json
+from graph.execute_command import run_from_json
 
 
 def main():

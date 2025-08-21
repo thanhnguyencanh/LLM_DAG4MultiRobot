@@ -1,9 +1,7 @@
-import threading
 from collections import defaultdict
 import json
-from robot import robot_action
 
-# Task plan for the second task
+# Task plan for the second task gen from LLM
 task_plan_2 = [
     ("human", "pick banana"),
     ("human", "place banana on plate"),
@@ -18,7 +16,6 @@ task_plan_2 = [
     ("robot", "pick orange cup into drawer"),
     ("robot", "place orange cup into drawer"),
 
-
     ("robot", "pick purple cup"),
     ("robot", "place purple cup into drawer"),
 
@@ -29,14 +26,14 @@ task_plan_2 = [
     ("robot", "sweep table with sponge")
 ]
 
-
+# TaskProcessor class to process the task plan and generate commands
 class TaskProcessor:
     def __init__(self, task_plan):
         self.task_plan = task_plan
         self.tasks = {}
         self.edges = []
         self._process_tasks()
-    
+
     def _process_tasks(self):
         handoffs = {"robottohuman": None, "humantorobot": None}
         object_last_task = {}
@@ -60,6 +57,7 @@ class TaskProcessor:
             if obj:
                 object_last_task[obj] = i
 
+    # Extract the object from the action string (rule-based) but can improve with NLP
     def _extract_object(self, action):
         action = action.lower()
         if "pick " in action:
@@ -79,6 +77,7 @@ class TaskProcessor:
                 return action.split("place ")[1].strip()
         return ""
 
+    # Assign waves to tasks based on the transfer actions ( parralel or sequential execution )
     def assign_waves(self):
         subtasks = self._find_object_based_subtasks()
         wave = 1
@@ -111,6 +110,7 @@ class TaskProcessor:
             for task_id in self.tasks:
                 self.tasks[task_id]["wave"] = 1
 
+    # Find subtasks based on the objects involved in the tasks
     def _find_object_based_subtasks(self):
         subtasks = []
         current_subtask = []
@@ -133,6 +133,7 @@ class TaskProcessor:
             subtasks.append(current_subtask)
         return subtasks
 
+    # Export the tasks to a JSON file with the required format
     def export_json(self, filename="commands.json"):
         self.assign_waves()
         commands = []
@@ -164,14 +165,13 @@ class TaskProcessor:
             json.dump(commands, f, indent=2)
         print(f"Exported to {filename}")
 
-
+    # Parse the action string to extract the verb, object, and destination
     def parse_action(self, action):
         action = action.lower()
 
         if action.startswith("pick "):
             return "pick", action[5:], ""
         elif action.startswith("place "):
-            # Xử lý cả "in" và "into"
             if " into " in action:
                 parts = action[6:].split(" into ")
             elif " in " in action:
@@ -208,101 +208,6 @@ class TaskProcessor:
                 print(f"  Task {task_id}: {task['agent']} - {task['action']} (lane: {lane})")
 
 
-def run_from_json(json_file, robot_ids, object_map):
-    with open(json_file) as f:
-        commands = json.load(f)
-
-    waves = defaultdict(list)
-    for cmd in commands:
-        waves[cmd["wave"]].append(cmd)
-
-    for wave_id in sorted(waves.keys()):
-        tasks = waves[wave_id]
-        has_transfer = any(t["lane"] == "transfer" for t in tasks)
-
-        if has_transfer:
-            print(f"Wave {wave_id}: Sequential execution")
-            _execute_sequential(tasks, robot_ids, object_map)
-        else:
-            print(f"Wave {wave_id}: Parallel execution")
-            _execute_parallel(tasks, robot_ids, object_map)
-
-
-def _execute_sequential(tasks, robot_ids, object_map):
-    constraint = None
-    for task in tasks:
-        constraint = _execute_task(task, robot_ids, object_map, constraint)
-
-#execute tasks in parallel
-def _execute_parallel(tasks, robot_ids, object_map):
-    agent_tasks = defaultdict(list)
-    for task in tasks:
-        agent_tasks[task["agent"]].append(task)
-
-    threads = []
-    for agent, task_list in agent_tasks.items():
-        thread = threading.Thread(target=_execute_agent_tasks,
-                                  args=(agent, task_list, robot_ids, object_map))
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
-
-
-def _execute_agent_tasks(agent, tasks, robot_ids, object_map):
-    constraint = None
-    for task in tasks:
-        constraint = _execute_task(task, robot_ids, object_map, constraint)
-
-# Execute a single task for the agent
-def _execute_task(task, robot_ids, object_map, constraint):
-    agent = task["agent"]
-    action = task["action"]
-    obj = task["object"]
-    dest = task["destination"]
-
-    if agent not in robot_ids:
-        print(f"Unknown agent: {agent}")
-        return constraint
-
-    robot_id = robot_ids[agent]
-
-    try:
-        print(f"Executing: {agent} {action} {obj} {dest}")
-        if action == "pick" and obj in object_map:
-            pos = robot_action.get_position(object_map[obj])
-            return robot_action.pick(robot_id, object_map[obj], pos)
-
-        elif action == "place":
-            if dest in object_map:
-                pos = robot_action.get_position(object_map[dest])
-            else:
-                pos = robot_action.get_position(object_map.get(obj, obj))
-            robot_action.place(agent, pos, constraint, robot_ids)
-            return None
-
-        elif action == "move":
-            target_pos = [0.33, -0.2, 0.65] if dest == "robot" else [0.7, 0.2, 0.65]
-            robot_action.move_to_target(robot_id, target_pos, constraint)
-            if constraint:
-                robot_action.place(agent, target_pos, constraint, robot_ids)
-                return None
-
-        elif action == "sweep":
-            if obj in object_map:
-                obj_id = object_map[obj]
-                robot_action.sweep(robot_id, obj_id, sweep_count=3)
-            else:
-                print(f"Object {obj} not found for sweeping.")
-
-    except Exception as e:
-        print(f"Error executing {action} for {agent}: {e}")
-
-    return constraint
-
-
 task_processor = TaskProcessor(task_plan_2)
 task_processor.print_summary()
-
 
