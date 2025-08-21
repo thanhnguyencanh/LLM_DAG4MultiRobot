@@ -20,7 +20,7 @@ class Environment:
         rotation_quat = p.getQuaternionFromEuler([0, 0, 3.14159])
         robot_id_2 = p.loadURDF("franka_panda/panda.urdf", [1.35, 0.0, 0.8], rotation_quat, useFixedBase=True)
 
-        green_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_green/bowl_green.urdf", [0.9, 0.35, 0.8], globalScaling=0.1)
+        green_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_green/bowl_green.urdf", [0.9, 0.37, 0.8], globalScaling=0.1)
 
         red_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_red/google_16k/bowl_red.urdf", [0.3, -0.33, 0.8], globalScaling=0.1)
 

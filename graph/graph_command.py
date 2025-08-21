@@ -3,6 +3,7 @@ from collections import defaultdict
 import json
 from robot import robot_action
 
+# Task plan for the second task
 task_plan_2 = [
     ("human", "pick banana"),
     ("human", "place banana on plate"),
@@ -35,7 +36,7 @@ class TaskProcessor:
         self.tasks = {}
         self.edges = []
         self._process_tasks()
-
+    
     def _process_tasks(self):
         handoffs = {"robottohuman": None, "humantorobot": None}
         object_last_task = {}
@@ -63,10 +64,11 @@ class TaskProcessor:
         action = action.lower()
         if "pick " in action:
             return action.split("pick ")[1].strip()
+
         elif "move " in action:
             return action.split("move ")[1].split(" to ")[0].strip()
+
         elif "place " in action:
-            # Xử lý cả "in" và "into"
             if " into " in action:
                 return action.split("place ")[1].split(" into ")[0].strip()
             elif " in " in action:
@@ -79,7 +81,6 @@ class TaskProcessor:
 
     def assign_waves(self):
         subtasks = self._find_object_based_subtasks()
-
         wave = 1
         pending_subtasks = []
 
@@ -98,7 +99,6 @@ class TaskProcessor:
                 pending_subtasks = []
                 for task_id in subtask:
                     self.tasks[task_id]["wave"] = wave
-
                 wave += 1
             else:
                 pending_subtasks.append(subtask)
@@ -120,7 +120,6 @@ class TaskProcessor:
             task_object = self.tasks[task_id]["object"]
 
             if current_object is None:
-                # Task đầu tiên
                 current_object = task_object
                 current_subtask = [task_id]
             elif task_object == current_object:
@@ -130,15 +129,12 @@ class TaskProcessor:
                     subtasks.append(current_subtask)
                 current_object = task_object
                 current_subtask = [task_id]
-
         if current_subtask:
             subtasks.append(current_subtask)
-
         return subtasks
 
     def export_json(self, filename="commands.json"):
         self.assign_waves()
-
         commands = []
         for task_id in sorted(self.tasks.keys()):
             task = self.tasks[task_id]
@@ -152,7 +148,7 @@ class TaskProcessor:
                 lane = "transfer"
             else:
                 lane = agent
-            verb, obj, dest = self._parse_action(task["action"])
+            verb, obj, dest = self.parse_action(task["action"])
 
             commands.append({
                 "id": task_id,
@@ -168,7 +164,8 @@ class TaskProcessor:
             json.dump(commands, f, indent=2)
         print(f"Exported to {filename}")
 
-    def _parse_action(self, action):
+
+    def parse_action(self, action):
         action = action.lower()
 
         if action.startswith("pick "):
@@ -194,8 +191,7 @@ class TaskProcessor:
 
     def print_summary(self):
         self.assign_waves()
-
-        print("\n=== TASK SUMMARY ===")
+        print("\n TASK SUMMARY")
         waves = defaultdict(list)
         for task_id, task in self.tasks.items():
             waves[task.get("wave", 1)].append((task_id, task))
@@ -212,10 +208,7 @@ class TaskProcessor:
                 print(f"  Task {task_id}: {task['agent']} - {task['action']} (lane: {lane})")
 
 
-
-
 def run_from_json(json_file, robot_ids, object_map):
-
     with open(json_file) as f:
         commands = json.load(f)
 
@@ -235,14 +228,12 @@ def run_from_json(json_file, robot_ids, object_map):
             _execute_parallel(tasks, robot_ids, object_map)
 
 
-
 def _execute_sequential(tasks, robot_ids, object_map):
     constraint = None
     for task in tasks:
         constraint = _execute_task(task, robot_ids, object_map, constraint)
 
-
-
+#execute tasks in parallel
 def _execute_parallel(tasks, robot_ids, object_map):
     agent_tasks = defaultdict(list)
     for task in tasks:
@@ -264,7 +255,7 @@ def _execute_agent_tasks(agent, tasks, robot_ids, object_map):
     for task in tasks:
         constraint = _execute_task(task, robot_ids, object_map, constraint)
 
-
+# Execute a single task for the agent
 def _execute_task(task, robot_ids, object_map, constraint):
     agent = task["agent"]
     action = task["action"]
