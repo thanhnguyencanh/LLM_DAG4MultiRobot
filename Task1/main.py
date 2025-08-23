@@ -1,13 +1,12 @@
 import pybullet as p
 import cv2
-from Task1.simulation import environment
 from graph.execute_command import run_from_json
+from Task1.simulation import environment
 
 
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)
-
     env = environment.Environment()
     env.setup_simulation()
 

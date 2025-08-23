@@ -30,7 +30,6 @@ def main():
 
     cv2.destroyAllWindows()
     p.disconnect()
-    print("Simulation kết thúc.")
 
 
 if __name__ == "__main__":

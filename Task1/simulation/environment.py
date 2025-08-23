@@ -1,8 +1,8 @@
+from robot.robot_env import UR5Robotiq85
 import pybullet as p
 import pybullet_data
 from my_objects.objects_simu import create_item
-
-
+import math
 class Environment:
     def __init__(self):
         self.robot_id = {}
@@ -16,19 +16,17 @@ class Environment:
         p.loadURDF("plane.urdf", [0, 0, 0], globalScaling=2.0)
         p.loadURDF("table/table.urdf", [0.5, 0, 0],globalScaling=1.2)
 
-        robot_id_1 = p.loadURDF("franka_panda/panda.urdf", [-0.35, 0.0, 0.8], useFixedBase=True)
-        rotation_quat = p.getQuaternionFromEuler([0, 0, 3.14159])
-        robot_id_2 = p.loadURDF("franka_panda/panda.urdf", [1.35, 0.0, 0.8], rotation_quat, useFixedBase=True)
+        robot_id_1 = UR5Robotiq85([-0.35, 0.0, 0.8], [0, 0, 0])
+        robot_id_2 = UR5Robotiq85([1.35, 0.0, 0.8], [0, 0, math.pi])
+        robot_id_1.load()
+        robot_id_2.load()
 
-        green_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_green/bowl_green.urdf", [0.9, 0.37, 0.8], globalScaling=0.1)
+        green_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_green/bowl_green.urdf", [0.9, 0.37, 0.9], globalScaling=0.13)
+        red_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_red/google_16k/bowl_red.urdf", [0.3, -0.33, 0.9], globalScaling=0.13)
+        yellow_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_yellow/google_16k/bowl_yellow.urdf", [0.3, 0.4, 0.9], globalScaling=0.13)
 
-        red_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_red/google_16k/bowl_red.urdf", [0.3, -0.33, 0.8], globalScaling=0.1)
-
-        yellow_bowl = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/bowl_yellow/google_16k/bowl_yellow.urdf", [0.3, 0.33, 0.8], globalScaling=0.1)
-
-        red_cube = create_item([1.005, -0.3, 0.8], 'box', [0.025, 0.025, 0.02], [1, 0, 0, 1])
+        red_cube = create_item([1.005, -0.3, 0.81], 'box', [0.025, 0.025, 0.02], [1, 0, 0, 1])
         yellow_cube = create_item([0.22, -0.1, 0.8], 'box', [0.025, 0.025, 0.02], [1, 1, 0, 1])
-
         green_cube_1 = create_item([0.32, 0.1, 0.8], 'box', [0.025, 0.025, 0.025], [0, 1, 0, 1])
         green_cube_2 = create_item([0.8, 0.0, 0.8], 'box', [0.025, 0.025, 0.025], [0, 1, 0, 1])
 

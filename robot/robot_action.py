@@ -1,161 +1,122 @@
 import pybullet as p
 import time
-import numpy as np
 
-END_EFFECTOR_INDEX = 11
-GRIPPER_OPEN = 0.04
-GRIPPER_CLOSED = 0.0
-SIMULATION_STEPS = 150
-MOVE_STEPS = 100
-GRIPPER_STEPS = 30
-FORCE = 50
-MAX_VELOCITY = 2.0
-HOME_POSITIONS = {
-    'robot': [-0.1, 0.0, 2.0],
-    'human': [1.0, 0.0, 2.0]
-}
+
+SIMULATION_STEPS = 50
+GRIPPER_OPEN = 0.1
+GRIPPER_CLOSE = 0.0
+APPROACH_HEIGHT = 0.25
+GRASP_HEIGHT = 0.12
+PLACE_HEIGHT = 0.15
+DEFAULT_SLEEP = 0.01
 
 
 def get_position(obj_id):
     pos, _ = p.getBasePositionAndOrientation(obj_id)
-    return (pos[0], pos[1], pos[2] + 0.01)
+    return (pos[0], pos[1], pos[2])
 
 
-def wait_simulation(steps=SIMULATION_STEPS):
+def wait_simulation(steps=SIMULATION_STEPS, sleep_time=DEFAULT_SLEEP):
     for _ in range(steps):
         p.stepSimulation()
-        time.sleep(1 / 240.0)
+        time.sleep(sleep_time)
 
 
-def set_gripper(robot_id, target_position, steps=GRIPPER_STEPS):
-    current_pos = [p.getJointState(robot_id, joint)[0] for joint in [9, 10]]
-    for step in range(steps):
-        progress = smooth_step(step / steps)
-        interpolated_pos = current_pos[0] + (target_position - current_pos[0]) * progress
-        for joint in [9, 10]:
-            p.setJointMotorControl2(robot_id, joint, p.POSITION_CONTROL,
-                                    targetPosition=interpolated_pos,
-                                    force=FORCE,
-                                    maxVelocity=0.5)
-        p.stepSimulation()
-        time.sleep(1 / 240.0)
+def move_to_target(robot_id, target_pos, target_orn):
+    if target_orn is None:
+        eef_state = p.getLinkState(robot_id.id, robot_id.eef_id)
+        target_orn = eef_state[1]
+
+    robot_id.move_arm_ik(target_pos, target_orn)
+    time.sleep(0.5)
+    wait_simulation(50)
 
 
-def smooth_step(t):
-    return t * t * (3.0 - 2.0 * t)
+def set_gripper(robot_id, open_length):
+    open_length = max(robot_id.gripper_range[0],
+                      min(open_length, robot_id.gripper_range[1]))
+    robot_id.move_gripper(open_length)
+    wait_simulation(steps=20)
+    return True
 
 
-def bezier_curve(t, p0, p1, p2, p3):
-    return ((1 - t) ** 3 * np.array(p0) +
-            3 * (1 - t) ** 2 * t * np.array(p1) +
-            3 * (1 - t) * t ** 2 * np.array(p2) +
-            t ** 3 * np.array(p3))
+def pick(robot_id, object_id, target_pos = None):
 
+    target_joint_positions = [0, -1.57, 1.57, -1.5, -1.57, 0.0]
+    for i, joint_id in enumerate(robot_id.arm_controllable_joints):
+        p.setJointMotorControl2(robot_id.id, joint_id, p.POSITION_CONTROL, target_joint_positions[i])
+    wait_simulation(steps=200)
 
-def move_to_target(robot_id, target_pos, steps=MOVE_STEPS, use_smooth_trajectory=True):
-    current_joints = [p.getJointState(robot_id, i)[0] for i in range(7)]
-    current_ee_pos = p.getLinkState(robot_id, END_EFFECTOR_INDEX)[0]
-    target_joints = p.calculateInverseKinematics(
-        bodyUniqueId=robot_id,
-        endEffectorLinkIndex=END_EFFECTOR_INDEX,
-        targetPosition=target_pos
-    )[:7]
+    eef_state = p.getLinkState(robot_id.id, robot_id.eef_id)
+    eef_orientation = eef_state[1]
 
-    if use_smooth_trajectory and np.linalg.norm(np.array(target_pos) - np.array(current_ee_pos)) > 0.1:
-        control1 = np.array(current_ee_pos) + np.array([0, 0, 0.1])
-        control2 = np.array(target_pos) + np.array([0, 0, 0.1])
-        trajectory_points = []
-        for i in range(steps):
-            t = i / (steps - 1)
-            smooth_t = smooth_step(t)
-            point = bezier_curve(smooth_t, current_ee_pos, control1, control2, target_pos)
-            trajectory_points.append(point)
-        for point in trajectory_points:
-            joints = p.calculateInverseKinematics(
-                bodyUniqueId=robot_id,
-                endEffectorLinkIndex=END_EFFECTOR_INDEX,
-                targetPosition=point
-            )[:7]
-            for i, angle in enumerate(joints):
-                p.setJointMotorControl2(robot_id, i, p.POSITION_CONTROL,
-                                        targetPosition=angle,
-                                        force=5 * 240.0,
-                                        maxVelocity=MAX_VELOCITY)
-            p.stepSimulation()
-            time.sleep(1 / 240.0)
-    else:
-        for step in range(steps):
-            progress = smooth_step(step / steps)
-            interpolated = [
-                current + (target - current) * progress
-                for current, target in zip(current_joints, target_joints)
-            ]
-            for i, angle in enumerate(interpolated):
-                p.setJointMotorControl2(robot_id, i, p.POSITION_CONTROL,
-                                        targetPosition=angle,
-                                        force=5 * 240.0,
-                                        maxVelocity=MAX_VELOCITY)
-            p.stepSimulation()
-            time.sleep(1 / 240.0)
+    approach_pos = [target_pos[0], target_pos[1], target_pos[2] + APPROACH_HEIGHT]
+    robot_id.move_arm_ik(approach_pos, eef_orientation)
+    wait_simulation(50)
 
+    grasp_pos = [target_pos[0], target_pos[1], target_pos[2] + GRASP_HEIGHT]
+    robot_id.move_arm_ik(grasp_pos, eef_orientation)
+    wait_simulation(50)
 
-def pick(robot_id, object_id, target_pos):
+    set_gripper(robot_id, GRIPPER_CLOSE)
+
     try:
-        set_gripper(robot_id, GRIPPER_OPEN)
-        approach_pos = list(target_pos)
-        approach_pos[2] += 0.3
-        move_to_target(robot_id, approach_pos, use_smooth_trajectory=True)
-        move_to_target(robot_id, target_pos, steps=60, use_smooth_trajectory=False)
-        set_gripper(robot_id, GRIPPER_CLOSED, steps=40)
-        time.sleep(0.5)
         constraint_id = p.createConstraint(
-            parentBodyUniqueId=robot_id,
-            parentLinkIndex=END_EFFECTOR_INDEX,
+            parentBodyUniqueId=robot_id.id,
+            parentLinkIndex=robot_id.eef_id,
             childBodyUniqueId=object_id,
             childLinkIndex=-1,
             jointType=p.JOINT_FIXED,
             jointAxis=[0, 0, 0],
-            parentFramePosition=[0, 0, 0],
+            parentFramePosition=[0.15,0.0,-0.005],
             childFramePosition=[0, 0, 0]
         )
-        lift_pos = list(target_pos)
-        lift_pos[2] += 0.5
-        move_to_target(robot_id, lift_pos, steps=80, use_smooth_trajectory=True)
-        wait_simulation(50)
-        return constraint_id
+        print(f"Constraint created: {constraint_id}")
     except Exception as e:
-        print(f"Pick error: {e}")
-        return None
+        print(f"Failed to create constraint: {e}")
+        constraint_id = None
+
+    robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.4], eef_orientation)
+    wait_simulation(50)
+
+    return constraint_id
 
 
-def place(agent_name, target_pos, constraint_id, robot_ids):
-    if agent_name not in robot_ids:
-        print(f"Unknown agent: {agent_name}")
+def place(agent_name, target_pos,constraint_id, robot_ids):
+    if constraint_id is None:
+        print("No constraint found. Cannot place object.")
         return
     robot_id = robot_ids[agent_name]
-    above_pos = list(target_pos)
-    above_pos[2] += 0.3
-    move_to_target(robot_id, above_pos, use_smooth_trajectory=True)
-    move_to_target(robot_id, target_pos, steps=60, use_smooth_trajectory=False)
-    time.sleep(0.2)
-    set_gripper(robot_id, GRIPPER_OPEN, steps=50)
-    time.sleep(0.3)
+
+    eef_state = p.getLinkState(robot_id.id, robot_id.eef_id)
+    eef_orientation = eef_state[1]
+
+    robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.3], eef_orientation)
+    wait_simulation(50)
+
+    robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.2], eef_orientation)
+    wait_simulation(50)
+
+    robot_id.move_gripper(GRIPPER_OPEN)
+    wait_simulation(20)
+
     if constraint_id:
         p.removeConstraint(constraint_id)
-    retreat_pos = list(target_pos)
-    retreat_pos[2] += 0.2
-    move_to_target(robot_id, retreat_pos, steps=40, use_smooth_trajectory=False)
-    if agent_name in HOME_POSITIONS:
-        move_to_target(robot_id, HOME_POSITIONS[agent_name], use_smooth_trajectory=True)
-        wait_simulation(30)
+
+    robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.3], eef_orientation)
+    wait_simulation(50)
+
+    move_to_home(robot_id)
+    wait_simulation(50)
 
 
-def sweep(robot_id, obj_id, sweep_count=3, z_height=0.65):
+def sweep(robot_id, obj_id, sweep_count=3, sweep_distance=0.3, z_height=0.65):
     target_pos = get_position(obj_id)
     constraint_id = pick(robot_id, obj_id, target_pos)
     if not constraint_id:
         return
     wait_simulation()
+
     start_pos = list(target_pos)
     start_pos[2] = z_height
 
@@ -164,13 +125,31 @@ def sweep(robot_id, obj_id, sweep_count=3, z_height=0.65):
 
     pos_2 = list(start_pos)
     pos_2[1] -= 0.3
-    move_to_target(robot_id, start_pos)
-    wait_simulation()
+
+    move_to_target(robot_id, start_pos, None)
+
     for _ in range(sweep_count):
-        move_to_target(robot_id, pos_1)
+        move_to_target(robot_id, pos_1,None)
         wait_simulation()
-        move_to_target(robot_id, pos_2)
+        move_to_target(robot_id, pos_2,None)
     set_gripper(robot_id, GRIPPER_OPEN)
     if constraint_id:
         p.removeConstraint(constraint_id)
+
+
+def move_to_home(robot_id):
+    move_arm_to_joint_positions(robot_id, robot_id.arm_rest_poses)
+    set_gripper(robot_id, GRIPPER_OPEN)
+
+
+def move_arm_to_joint_positions(robot_id, joint_positions):
+    for i, joint_id in enumerate(robot_id.arm_controllable_joints):
+        p.setJointMotorControl2(
+            robot_id.id,
+            joint_id,
+            p.POSITION_CONTROL,
+            joint_positions[i],
+            maxVelocity=robot_id.max_velocity
+        )
+    wait_simulation()
 

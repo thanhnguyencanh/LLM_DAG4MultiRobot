@@ -2,6 +2,7 @@ import threading
 from collections import defaultdict
 import json
 from robot import robot_action
+import pybullet as p
 
 def run_from_json(json_file, robot_ids, object_map):
     with open(json_file) as f:
@@ -69,7 +70,10 @@ def _execute_task(task, robot_ids, object_map, constraint):
         print(f"Executing: {agent} {action} {obj} {dest}")
         if action == "pick" and obj in object_map:
             pos = robot_action.get_position(object_map[obj])
-            return robot_action.pick(robot_id, object_map[obj], pos)
+            constraint = robot_action.pick(robot_id, object_map[obj], pos)
+            if constraint is None:
+                print(f"Pick action failed for object: {obj}")
+            return constraint
 
         elif action == "place":
             if dest in object_map:
@@ -80,8 +84,7 @@ def _execute_task(task, robot_ids, object_map, constraint):
             return None
 
         elif action == "move":
-            target_pos = [0.33, -0.2, 0.65] if dest == "robot" else [0.7, 0.2, 0.65]
-            robot_action.move_to_target(robot_id, target_pos, constraint)
+            target_pos = [0.5, 0.0, 0.85] if dest == "robot" else [0.65, 0.0, 0.85]
             if constraint:
                 robot_action.place(agent, target_pos, constraint, robot_ids)
                 return None
@@ -96,4 +99,3 @@ def _execute_task(task, robot_ids, object_map, constraint):
     except Exception as e:
         print(f"Error executing {action} for {agent}: {e}")
 
-    return constraint

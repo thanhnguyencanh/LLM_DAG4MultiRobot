@@ -1,6 +1,8 @@
+from robot.robot_env import UR5Robotiq85
 import pybullet as p
 import pybullet_data
 from my_objects.objects_simu import create_item
+import math
 
 
 class Environment:
@@ -16,9 +18,10 @@ class Environment:
         p.loadURDF("plane.urdf", [0, 0, 0], globalScaling=2.0)
         p.loadURDF("table/table.urdf", [0.5, 0, 0],globalScaling=1.2)
 
-        robot_id_1 = p.loadURDF("franka_panda/panda.urdf", [-0.35, 0.0, 0.8], useFixedBase=True)
-        rotation_quat = p.getQuaternionFromEuler([0, 0, 3.14159])
-        robot_id_2 = p.loadURDF("franka_panda/panda.urdf", [1.35, 0.0, 0.8], rotation_quat, useFixedBase=True)
+        robot_id_1 = UR5Robotiq85([-0.35, 0.0, 0.8], [0, 0, 0])
+        robot_id_2 = UR5Robotiq85([1.35, 0.0, 0.8], [0, 0, math.pi])
+        robot_id_1.load()
+        robot_id_2.load()
 
         plate = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/029_plate/google_16k/029_plate.urdf", [0.9, -0.25, 0.8], globalScaling=1.15)
         banana = p.loadURDF("D:/track/Human_Robot_Colab/my_objects/011_banana/google_16k/011_banana.urdf", [0.9, 0.2, 0.8], globalScaling=1.0)
@@ -37,16 +40,15 @@ class Environment:
         }
 
         self.objects = {
-            "banana" : banana,
-            "apple" : apple,
-            "spoon" :spoon,
-            "sponge" :sponge,
+            "banana": banana,
+            "apple": apple,
+            "spoon": spoon,
+            "sponge": sponge,
             "plate": plate,
-            "orange_cup":  orange_cup,
-            "purple_cup" :  purple_cup,
+            "orange_cup": orange_cup,
+            "purple_cup": purple_cup,
             "drawer": drawer,
         }
-
 
 
 def get_camera_matrices():
