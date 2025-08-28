@@ -2,7 +2,7 @@ import pybullet as p
 import cv2
 from Task2.simulation import environment
 from graph.execute_command import run_from_json
-
+import time
 
 def main():
     p.connect(p.GUI)
@@ -27,10 +27,9 @@ def main():
         robot_ids,
         object_map
     )
-
+    time.sleep(3)
     cv2.destroyAllWindows()
     p.disconnect()
-
 
 if __name__ == "__main__":
     main()

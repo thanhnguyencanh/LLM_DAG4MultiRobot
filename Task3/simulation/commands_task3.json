@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "agent": "robot1",
+    "action": "pick",
+    "object": "sponge",
+    "location": "table"
+  },
+  {
+    "id": 2,
+    "agent": "robot2",
+    "action": "pick",
+    "object": "sponge",
+    "location": "table"
+  },
+  {
+    "id": 3,
+    "agent": "robot1",
+    "action": "wipe",
+    "object": "table",
+    "tool": "sponge",
+    "area": "left_side"
+  },
+  {
+    "id": 4,
+    "agent": "robot2",
+    "action": "wipe",
+    "object": "table",
+    "tool": "sponge",
+    "area": "right_side"
+  },
+  {
+    "id": 5,
+    "agent": "robot1",
+    "action": "place",
+    "object": "sponge",
+    "location": "drawer"
+  },
+  {
+    "id": 6,
+    "agent": "robot2",
+    "action": "place",
+    "object": "sponge",
+    "location": "drawer"
+  }
+]
