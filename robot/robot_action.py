@@ -1,11 +1,10 @@
 import pybullet as p
 import time
 
-
 SIMULATION_STEPS = 50
 GRIPPER_OPEN = 0.1
 GRIPPER_CLOSE = 0.0
-APPROACH_HEIGHT = 0.25
+APPROACH_HEIGHT = 0.3
 GRASP_HEIGHT = 0.12
 PLACE_HEIGHT = 0.15
 DEFAULT_SLEEP = 0.01
@@ -40,8 +39,7 @@ def set_gripper(robot_id, open_length):
     return True
 
 
-def pick(robot_id, object_id, target_pos = None):
-
+def pick(robot_id, object_id, target_pos=None):
     target_joint_positions = [0, -1.57, 1.57, -1.5, -1.57, 0.0]
     for i, joint_id in enumerate(robot_id.arm_controllable_joints):
         p.setJointMotorControl2(robot_id.id, joint_id, p.POSITION_CONTROL, target_joint_positions[i])
@@ -68,7 +66,7 @@ def pick(robot_id, object_id, target_pos = None):
             childLinkIndex=-1,
             jointType=p.JOINT_FIXED,
             jointAxis=[0, 0, 0],
-            parentFramePosition=[0.15,0.0,-0.005],
+            parentFramePosition=[0.15, 0.0, -0.005],
             childFramePosition=[0, 0, 0]
         )
         print(f"Constraint created: {constraint_id}")
@@ -82,7 +80,7 @@ def pick(robot_id, object_id, target_pos = None):
     return constraint_id
 
 
-def place(agent_name, target_pos,constraint_id, robot_ids):
+def place(agent_name, target_pos, constraint_id, robot_ids):
     if constraint_id is None:
         print("No constraint found. Cannot place object.")
         return
@@ -110,31 +108,62 @@ def place(agent_name, target_pos,constraint_id, robot_ids):
     wait_simulation(50)
 
 
-def sweep(robot_id, obj_id, sweep_count=3, sweep_distance=0.3, z_height=0.65):
+def sweep(robot_id, obj_id, sweep_count=2, z_height=0.15, sweep_distance=0.3):
     target_pos = get_position(obj_id)
-    constraint_id = pick(robot_id, obj_id, target_pos)
-    if not constraint_id:
+    downward_orientation = p.getQuaternionFromEuler([0, 1.57, 0])
+    set_gripper(robot_id, GRIPPER_OPEN)
+    approach_pos = [target_pos[0], target_pos[1], target_pos[2] + APPROACH_HEIGHT]
+    move_to_target(robot_id, approach_pos, downward_orientation)
+
+    grasp_pos = [target_pos[0], target_pos[1], target_pos[2] + GRASP_HEIGHT]
+    move_to_target(robot_id, grasp_pos, downward_orientation)
+
+    set_gripper(robot_id, GRIPPER_CLOSE)
+
+
+    try:
+        constraint_id = p.createConstraint(
+            parentBodyUniqueId=robot_id.id,
+            parentLinkIndex=robot_id.eef_id,
+            childBodyUniqueId=obj_id,
+            childLinkIndex=-1,
+            jointType=p.JOINT_FIXED,
+            jointAxis=[0, 0, 0],
+            parentFramePosition=[0.15, 0.0, -0.005],
+            childFramePosition=[0, 0, 0]
+        )
+        print(f"Constraint created: {constraint_id}")
+    except Exception as e:
+        print(f"Failed to create constraint: {e}")
+        constraint_id = None
         return
-    wait_simulation()
 
-    start_pos = list(target_pos)
-    start_pos[2] = z_height
+    sweep_pos = [target_pos[0], target_pos[1], z_height + 0.1]
+    move_to_target(robot_id, sweep_pos, downward_orientation)
 
-    pos_1 = list(start_pos)
-    pos_1[1] += 0.3
+    center_y = target_pos[1]
+    pos1 = [target_pos[0], center_y - sweep_distance / 2, z_height]
+    pos2 = [target_pos[0], center_y + sweep_distance / 2, z_height]
 
-    pos_2 = list(start_pos)
-    pos_2[1] -= 0.3
+    for i in range(sweep_count):
+        move_to_target(robot_id, pos1, downward_orientation)
+        wait_simulation(30)
+        move_to_target(robot_id, pos2, downward_orientation)
+        wait_simulation(30)
 
-    move_to_target(robot_id, start_pos, None)
 
-    for _ in range(sweep_count):
-        move_to_target(robot_id, pos_1,None)
-        wait_simulation()
-        move_to_target(robot_id, pos_2,None)
+    move_to_target(robot_id, sweep_pos, downward_orientation)
+    wait_simulation(30)
+
     set_gripper(robot_id, GRIPPER_OPEN)
     if constraint_id:
         p.removeConstraint(constraint_id)
+
+    final_pos = [target_pos[0], target_pos[1], target_pos[2] + 0.4]
+    move_to_target(robot_id, final_pos, downward_orientation)
+    wait_simulation(50)
+
+    move_to_home(robot_id)
 
 
 def move_to_home(robot_id):
@@ -152,4 +181,3 @@ def move_arm_to_joint_positions(robot_id, joint_positions):
             maxVelocity=robot_id.max_velocity
         )
     wait_simulation()
-

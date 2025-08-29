@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot name="drawer">
 
+  <!-- Liên kết gốc thế giới -->
+  <link name="world"/>
+
+  <!-- Joint cố định để dịch toàn bộ robot lên theo trục Y 10 cm -->
+  <joint name="world_to_base" type="fixed">
+    <origin xyz="-0.6 0.25 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="base_link"/>
+  </joint>
+
   <link name="base_link">
     <inertial>
       <origin xyz="0.170762501727078 -0.35 0.131563760738117" rpy="0 0 0" />
