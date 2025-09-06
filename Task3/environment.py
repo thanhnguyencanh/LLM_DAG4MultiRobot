@@ -4,7 +4,7 @@ import pybullet_data
 import math
 
 class Environment:
-    def __init_data_get__(self):
+    def __init__(self):
         self.robot_id = {}
         self.basket = {}
         self.objects = {}

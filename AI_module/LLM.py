@@ -13,14 +13,12 @@ def call_gemini():
     response = model.generate_content(prompt)
     print(response.text)
 
-    # Parse the response text to extract tuples
     return parse_task_plan(response.text)
 
 
 def parse_task_plan(text):
-    """Parse the text response from Gemini to extract task plan tuples"""
+
     try:
-        # Method 1: Try to extract tuples using regex
         pattern = r'\("([^"]+)",\s*"([^"]+)"\)'
         matches = re.findall(pattern, text)
 
@@ -55,7 +53,7 @@ def parse_task_plan(text):
         if task_list:
             return task_list
 
-        # Method 3: Manual parsing as fallback
+
         return manual_parse_tasks(text)
 
     except Exception as e:
@@ -64,7 +62,7 @@ def parse_task_plan(text):
 
 
 def manual_parse_tasks(text):
-    """Manual parsing as fallback method"""
+
     tasks = []
     lines = text.split('\n')
 

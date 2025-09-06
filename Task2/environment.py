@@ -1,15 +1,26 @@
 from robot.robot_env import UR5Robotiq85
 import pybullet as p
 import pybullet_data
-from my_objects.objects_simu import create_item
 import math
 
 
 class Environment:
-    def __init_data_get__(self):
+    def __init__(self):
         self.robot_id = {}
         self.basket = {}
-        self.objects = {}
+        self.objects = {
+            "plate": (0.9, -0.25, 0.8),
+            "banana": (0.9, 0.2, 0.8),
+            "apple": (0.15, 0.36, 0.8),
+            "spoon": (0.3, 0.2, 0.8),
+            "sponge": (0.12, 0.0, 0.8),
+            "drawer": (0.25, -0.65, 0.7),
+            "orange_cup": (1.0, 0.38, 0.8),
+            "purple_cup": (0.3, -0.27, 0.8),
+        }
+
+    def get_object_names(self):
+        return list(self.objects.keys())
 
     def setup_simulation(self):
         p.setAdditionalSearchPath(pybullet_data.getDataPath())

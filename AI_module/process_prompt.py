@@ -1,5 +1,4 @@
-from Task1.environment import Environment
-import pybullet as p
+from Task2.environment import Environment
 import math
 
 
@@ -29,37 +28,46 @@ def build_prompt():
 
     human_objects, robot_objects = reachability_analysis(env.objects)
     prompt_template = f"""
-    You are an intelligent collaborative robot capable of cooperating with a human based on your manipulation capability and reachable workspace.
-    Your mission is to perform task planning given the environment description and an overall task goal.
-
-    Task: "{task}"
-
-    There are some objects  on the table:
-    {objects}
-
-    Reachability status:
-    HUMAN: {human_objects}
-    ROBOT: {robot_objects}
-
+        You are an intelligent collaborative planner capable of cooperating with a human based on the agent’s manipulation capability and reachable workspace.
+    Your mission is to perform task planning for human and robot, given the environment description and an overall task goal.
+    Environment description:
+    1) Task: "{task}"
+    2) Objects : {objects}
+    3) Reachability status: 
+        HUMAN: {human_objects}
+        ROBOT: {robot_objects}
     Capabilities:
-    HUMAN: can perform ALL actions
-    ROBOT: PICK, MOVE, PLACE, SWEEP
+        HUMAN: can perform ALL actions
+        ROBOT: PICK(object): MOVE to object and pick up the object from table or environment. MOVE(location): move robot hand or base to a target location, PLACE(object, destination): place object currently held into or onto a reachable destination. SWEEP(surface, tool): wipe or clean a surface using an object currently held (e.g., sponge)
+    
+    You must follow the following criteria:
+    1) Each step of the task plan must follow this syntax:
+         <label>: <instruction>
+        where <label> ∈ {{ human, robot, humantorobot, robottohuman}}
+        human or robot: describes an action executed by that agent. For example, if human take this action, label is human.
+        humantorobot or robottohuman: describes a **move action** between two agents that move to the designated position. This label occurs when the responsible agent for the task cannot directly reach or manipulate the object due to reachability or capability limitations, so the other agent must deliver the object via a handover. For example, when the task is to chop a cucumber but the human cannot reach it, while the robot can. The robot must pick up the cucumber and move to the designated handover position. The plan will be: ("robottohuman": "move cucumber to human")
+    
+    2) Every "place" action must be preceded by a corresponding "pick" action of the same object. This ensures that the agent actually has the object in hand before placing it into the destination. After the "place" action is executed, the object is no longer in the agent’s hand.
+    3) If an object is not reachable by the agent responsible for the task, a "move" action must be included to transfer the object from the other agent who can reach it. This ensures that the object is physically accessible before any manipulation actions are attempted.
+    4) Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
 
-    Your goal is to generate a REASONABLE sequence of subtasks so that the robot and human can perform. ATTENTION to the Reachability status and Capabilities.
-    Each step of the task plan must follow this syntax:
-    <label>: <instruction>a
-    where <label> ∈ {{ human, robot, humantorobot, robottohuman}}
-    human or robot: describes an action executed by that agent
-    humantorobot / robottohuman: describes a **move action** between agents that move to the handover position. If an agent can not reach objects, they need to move objects to another agent.
-    IF “place” action must have “pick” action after that.
-
-    Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
-    Example format:(MUST HAVE FOLLOW THE FORMAT)
-    ("human", "chop a tomato"),
-    ("robot", "place pot on stove"),
-    ("humantorobot", "move chopped tomato to robot"),
-    ("robot", "stir soup"),
-    ("robottohuman", "move pot to the human"),
+    Here's an example input and response:
+    INPUT:
+    Task:  Clean the table. The fruits should into the plate. 
+    Objects: ["sponge", "lemon", "apple", "plate"], 
+    Reachability status: 
+    HUMAN: sponge, apple
+    ROBOT: plate, lemon
+    
+    RESPONSE:(MUST HAVE FOLLOW THE FORMAT)
+    ("robot", "pick lemon"),
+    ("robot", "place lemon on the plate"),
+    ("human", "pick apple "),
+    ("humantorobot", "move apple to robot"),
+    ("robot", "pick apple"),
+    ("robot", "place apple on the plate"),
+    (“human”, “ pick sponge”),
+    (“human”, “ sweep the table ”),
     """
 
     return prompt_template
