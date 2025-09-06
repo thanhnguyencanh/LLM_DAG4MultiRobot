@@ -7,7 +7,19 @@ class Environment:
     def __init__(self):
         self.robot_id = {}
         self.basket = {}
-        self.objects = {}
+        self.objects = {
+            "green_bowl": (0.9, 0.37, 0.9),
+            "red_bowl": (0.3, -0.33, 0.9),
+            "yellow_bowl": (0.3, 0.4, 0.9),
+
+            "red_cube": (1.005, -0.3, 0.81),
+            "yellow_cube": (0.22, -0.1, 0.8),
+            "green_cube_1": (0.32, 0.1, 0.8),
+            "green_cube_2": (0.8, 0.0, 0.8),
+        }
+
+    def get_object_names(self):
+        return list(self.objects.keys())
 
     def setup_simulation(self):
         p.setAdditionalSearchPath(pybullet_data.getDataPath())

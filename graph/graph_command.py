@@ -1,32 +1,11 @@
 from collections import defaultdict
 import json
+from AI_module.LLM import call_gemini
 
-# Task plan for the second task gen from LLM
-task_plan_2 = [
-    ("human", "pick banana"),
-    ("human", "place banana on plate"),
 
-    ("robot", "pick apple"),
-    ("robottohuman", "move apple to human"),
-    ("human", "pick apple"),
-    ("human", "place apple on plate"),
 
-    ("human", "pick orange cup"),
-    ("humantorobot", "move orange cup to robot"),
-    ("robot", "pick orange cup into drawer"),
-    ("robot", "place orange cup into drawer"),
+task_plan = call_gemini()
 
-    ("robot", "pick purple cup"),
-    ("robot", "place purple cup into drawer"),
-
-    ("robot", "pick spoon"),
-    ("robot", "place spoon into drawer"),
-
-    ("robot", "pick sponge"),
-    ("robot", "sweep table with sponge")
-]
-
-# TaskProcessor class to process the task plan and generate commands
 class TaskProcessor:
     def __init__(self, task_plan):
         self.task_plan = task_plan
@@ -208,6 +187,6 @@ class TaskProcessor:
                 print(f"  Task {task_id}: {task['agent']} - {task['action']} (lane: {lane})")
 
 
-task_processor = TaskProcessor(task_plan_2)
+task_processor = TaskProcessor(task_plan)
 task_processor.print_summary()
-
+task_processor.export_json("commands.json")

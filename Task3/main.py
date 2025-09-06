@@ -1,6 +1,6 @@
 import pybullet as p
 import cv2
-from Task3.simulation import environment
+from Task3 import environment
 from graph.execute_command import run_from_json
 import time
 
