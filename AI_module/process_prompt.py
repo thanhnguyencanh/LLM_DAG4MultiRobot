@@ -38,7 +38,11 @@ def build_prompt():
         ROBOT: {robot_objects}
     Capabilities:
         HUMAN: can perform ALL actions
-        ROBOT: PICK(object): MOVE to object and pick up the object from table or environment. MOVE(location): move robot hand or base to a target location, PLACE(object, destination): place object currently held into or onto a reachable destination. SWEEP(surface, tool): wipe or clean a surface using an object currently held (e.g., sponge)
+        ROBOT: 
+            - PICK(object): move to object and pick up
+            - MOVE(location): move hand/base to location
+            - PLACE(object, destination): place held object into/onto destination
+            - SWEEP(surface, tool): wipe/clean a surface using held object
     
     You must follow the following criteria:
     1) Each step of the task plan must follow this syntax:
@@ -49,7 +53,8 @@ def build_prompt():
     
     2) Every "place" action must be preceded by a corresponding "pick" action of the same object. This ensures that the agent actually has the object in hand before placing it into the destination. After the "place" action is executed, the object is no longer in the agent’s hand.
     3) If an object is not reachable by the agent responsible for the task, a "move" action must be included to transfer the object from the other agent who can reach it. This ensures that the object is physically accessible before any manipulation actions are attempted.
-    4) Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
+    4) Prioritize actions that an agent can complete independently, without requiring handover. Execute these actions first to allow human and robot to work in parallel. Schedule handover actions only after all independent tasks in the same area are completed.
+    5) Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
 
     Here's an example input and response:
     INPUT:
