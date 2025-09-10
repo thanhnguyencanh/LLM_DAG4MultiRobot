@@ -25,15 +25,13 @@ def parse_task_plan(text):
         if matches:
             return matches
 
-        # Method 2: Try to evaluate as Python literal (more risky but handles complex cases)
-        # Find lines that look like tuples
+
         lines = text.split('\n')
         task_list = []
 
         for line in lines:
             line = line.strip()
             if line.startswith('(') and line.endswith('),'):
-                # Remove trailing comma
                 line = line[:-1]
                 try:
                     # Safely evaluate the tuple
@@ -69,7 +67,6 @@ def manual_parse_tasks(text):
     for line in lines:
         line = line.strip()
         if '("' in line and '")' in line:
-            # Extract content between quotes
             parts = line.split('("')[1].split('")')[0]
             if '", "' in parts:
                 agent, action = parts.split('", "')

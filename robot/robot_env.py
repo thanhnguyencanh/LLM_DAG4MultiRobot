@@ -2,7 +2,7 @@ import pybullet as p
 import math
 from collections import namedtuple
 import pybullet_data
-
+from paths import ROBOT_URDF
 
 class UR5Robotiq85:
     def __init__(self, pos, ori):
@@ -15,7 +15,12 @@ class UR5Robotiq85:
         self.max_velocity = 3
 
     def load(self):
-        self.id = p.loadURDF('D:/track/Human_Robot_Colab/robot/ur5_robotiq_85.urdf', self.base_pos, self.base_ori, useFixedBase=True)
+        self.id = p.loadURDF(
+            str(ROBOT_URDF),
+            self.base_pos,
+            self.base_ori,
+            useFixedBase=True
+        )
         self.__parse_joint_info__()  # Get joint information of the robot arm
         self.__setup_mimic_joints__()  # Set up mimic joints for the gripper
 
