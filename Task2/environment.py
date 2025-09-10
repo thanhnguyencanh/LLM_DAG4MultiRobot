@@ -2,7 +2,10 @@ from robot.robot_env import UR5Robotiq85
 import pybullet as p
 import pybullet_data
 import math
-
+from paths import (
+    PLATE_URDF, BANANA_URDF, APPLE_URDF, SPOON_URDF,
+    SPONGE_URDF, DRAWER_URDF, ORANGE_CUP_URDF, PURPLE_CUP_URDF
+)
 
 class Environment:
     def __init__(self):
@@ -34,19 +37,17 @@ class Environment:
         robot_id_1.load()
         robot_id_2.load()
 
-        plate = p.loadURDF("/my_objects/029_plate/google_16k/029_plate.urdf", [0.9, -0.25, 0.8], globalScaling=1.15)
-        banana = p.loadURDF("/my_objects/011_banana/google_16k/011_banana.urdf", [0.9, 0.2, 0.8], globalScaling=1.0)
+        plate = p.loadURDF(PLATE_URDF, [0.9, -0.25, 0.8], globalScaling=1.15)
+        banana = p.loadURDF(BANANA_URDF, [0.9, 0.2, 0.8], globalScaling=1.0)
+        apple = p.loadURDF(APPLE_URDF, [0.15, 0.36, 0.8], globalScaling=0.1)
+        spoon = p.loadURDF(SPOON_URDF, [0.3, 0.2, 0.8], globalScaling=1.0)
+        sponge = p.loadURDF(SPONGE_URDF, [0.12, 0.0, 0.8], globalScaling=1.2)
 
-        apple = p.loadURDF("/my_objects/013_apple/google_16k/013_apple.urdf", [0.15, 0.36, 0.8], globalScaling=0.1)
-        spoon = p.loadURDF("/my_objects/031_spoon/google_16k/031_spoon.urdf", [0.3, 0.2, 0.8], globalScaling=1.0)
-
-        sponge = p.loadURDF("/my_objects/026_sponge/google_16k/026_sponge.urdf", [0.12, 0.0, 0.8], globalScaling=1.2)
         base_orientation = p.getQuaternionFromEuler([0, 0, -(math.pi / 2)])
-        drawer = p.loadURDF("/my_objects/drawer/urdf/drawer.urdf", [0.25, -0.65, 0.7], base_orientation, globalScaling=0.4, useFixedBase=True)
+        drawer = p.loadURDF(DRAWER_URDF, [0.25, -0.65, 0.7], base_orientation, globalScaling=0.4, useFixedBase=True)
 
-        orange_cup = p.loadURDF("/my_objects/065-a_cups/google_16k/065-a_cups.urdf", [1.0, 0.38, 0.8], globalScaling=1.0)
-        purple_cup = p.loadURDF("/my_objects/065-f_cups/google_16k/065-f_cups.urdf", [0.3, -0.27, 0.8], globalScaling=1.0)
-
+        orange_cup = p.loadURDF(ORANGE_CUP_URDF, [1.0, 0.38, 0.8], globalScaling=1.0)
+        purple_cup = p.loadURDF(PURPLE_CUP_URDF, [0.3, -0.27, 0.8], globalScaling=1.0)
 
         self.robot_id = {
             "robot": robot_id_1,
