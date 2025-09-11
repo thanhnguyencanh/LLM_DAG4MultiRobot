@@ -4,3 +4,5 @@ opencv_python==4.11.0.86
 pybullet==3.2.7
 PyQt5==5.15.11
 PyQt5_sip==12.17.0
+mediapipe==0.10.21
+ultralytics==8.2.100
