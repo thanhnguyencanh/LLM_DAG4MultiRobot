@@ -55,7 +55,9 @@ def build_prompt():
     3) If an object is not reachable by the agent responsible for the task, a "move" action must be included to transfer the object from the other agent who can reach it. This ensures that the object is physically accessible before any manipulation actions are attempted.
     4) Prioritize actions that an agent can complete independently, without requiring handover. Execute these actions first to allow human and robot to work in parallel. Schedule handover actions only after all independent tasks in the same area are completed.
     5) Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
-
+    6) Minimize total completion time by: 
+        - Avoid one agent being overloaded while other is idle.
+        - Scheduling handovers to minimize idle time.
     Here's an example input and response:
     INPUT:
     Task:  Clean the table. The fruits should into the plate. 

@@ -15,14 +15,20 @@ class TaskProcessor:
 
     def _process_tasks(self):
         handoffs = {"robottohuman": None, "humantorobot": None}
-        object_last_task = {}
+        object_last_task = {}  # key: "agent_object"
 
         for i, (agent, action) in enumerate(self.task_plan, start=1):
             obj = self._extract_object(action)
             self.tasks[i] = {"agent": agent, "action": action, "object": obj}
 
-            if obj and obj in object_last_task:
-                self.edges.append((object_last_task[obj], i))
+            # Xử lý dependency dựa trên agent + object
+            if obj and agent not in ["robottohuman", "humantorobot"]:
+                agent_object_key = f"{agent}_{obj}"
+
+                if agent_object_key in object_last_task:
+                    self.edges.append((object_last_task[agent_object_key], i))
+
+                object_last_task[agent_object_key] = i
 
             if agent in handoffs:
                 handoffs[agent] = i
@@ -32,9 +38,6 @@ class TaskProcessor:
             elif agent == "robot" and handoffs["humantorobot"]:
                 self.edges.append((handoffs["humantorobot"], i))
                 handoffs["humantorobot"] = None
-
-            if obj:
-                object_last_task[obj] = i
 
     # Extract the object from the action string (rule-based) but can improve with NLP
     def _extract_object(self, action):
