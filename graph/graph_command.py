@@ -1,6 +1,6 @@
 from collections import defaultdict
 import json
-from AI_module.LLM import call_gemini
+from AI_module.LLM.LLM import call_gemini
 
 
 
