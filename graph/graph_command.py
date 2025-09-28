@@ -1,10 +1,19 @@
 from collections import defaultdict
 import json
-from AI_module.LLM.LLM import call_gemini
 
+task_plan = [("robot", "pick yellow_cube"),
+             ("human", "pick green_cube_2"),
+             ("robot", "place yellow_cube into yellow_bowl"),
+             ("human", "place green_cube_2 into green_bowl"),
+             ("human", "pick red_cube"),
+             ("humantorobot", "move red_cube to robot"),
+             ("robot", "pick red_cube"),
+             ("robot", "place red_cube into red_bowl"),
+             ("robot", "pick green_cube_1"),
+             ("robottohuman", "move green_cube_1 to human"),
+             ("human", "pick green_cube_1"),
+             ("human", "place green_cube_1 into green_bowl"), ]
 
-
-task_plan = call_gemini()
 
 class TaskProcessor:
     def __init__(self, task_plan):
@@ -115,9 +124,37 @@ class TaskProcessor:
             subtasks.append(current_subtask)
         return subtasks
 
+    # Get wave format (parallel1, sequential1, etc.)
+    def _get_wave_format(self):
+        wave_formats = {}
+        parallel_count = 0
+        sequential_count = 0
+
+        # Group tasks by wave
+        waves = defaultdict(list)
+        for task_id, task in self.tasks.items():
+            waves[task.get("wave", 1)].append((task_id, task))
+
+        # Determine format for each wave
+        for wave_id in sorted(waves.keys()):
+            tasks = waves[wave_id]
+            has_transfer = any(task["agent"] in ["robottohuman", "humantorobot"]
+                               for _, task in tasks)
+
+            if has_transfer:
+                sequential_count += 1
+                wave_formats[wave_id] = f"sequential{sequential_count}"
+            else:
+                parallel_count += 1
+                wave_formats[wave_id] = f"parallel{parallel_count}"
+
+        return wave_formats
+
     # Export the tasks to a JSON file with the required format
-    def export_json(self, filename="commands.json"):
+    def export_json(self, filename="commands_task1.json"):
         self.assign_waves()
+        wave_formats = self._get_wave_format()
+
         commands = []
         for task_id in sorted(self.tasks.keys()):
             task = self.tasks[task_id]
@@ -140,7 +177,7 @@ class TaskProcessor:
                 "object": obj.replace(" ", "_") if obj else "",
                 "destination": dest.replace(" ", "_") if dest else "",
                 "lane": lane,
-                "wave": task.get("wave", 1)
+                "wave": wave_formats.get(task.get("wave", 1), "parallel1")
             })
 
         with open(filename, "w") as f:
@@ -173,6 +210,8 @@ class TaskProcessor:
 
     def print_summary(self):
         self.assign_waves()
+        wave_formats = self._get_wave_format()
+
         print("\n TASK SUMMARY")
         waves = defaultdict(list)
         for task_id, task in self.tasks.items():
@@ -183,8 +222,9 @@ class TaskProcessor:
             has_transfer = any(task["agent"] in ["robottohuman", "humantorobot"]
                                for _, task in tasks)
             execution_type = "Sequential" if has_transfer else "Parallel"
+            wave_format = wave_formats.get(wave_id, "parallel1")
 
-            print(f"\nWave {wave_id} ({execution_type}):")
+            print(f"\nWave {wave_id} ({execution_type}) - Format: {wave_format}:")
             for task_id, task in sorted(tasks):
                 lane = "transfer" if task["agent"] in ["robottohuman", "humantorobot"] else task["agent"]
                 print(f"  Task {task_id}: {task['agent']} - {task['action']} (lane: {lane})")
@@ -192,4 +232,4 @@ class TaskProcessor:
 
 task_processor = TaskProcessor(task_plan)
 task_processor.print_summary()
-task_processor.export_json("commands.json")
+task_processor.export_json("commands_task1.json")
