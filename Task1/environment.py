@@ -29,8 +29,8 @@ class Environment:
         p.loadURDF("plane.urdf", [0, 0, 0], globalScaling=2.0)
         p.loadURDF("table/table.urdf", [0.5, 0, 0],globalScaling=1.2)
 
-        robot_id_1 = UR5Robotiq85([-0.35, 0.0, 0.8], [0, 0, 0])
-        robot_id_2 = UR5Robotiq85([1.35, 0.0, 0.8], [0, 0, math.pi])
+        robot_id_2 = UR5Robotiq85([-0.35, 0.0, 0.8], [0, 0, 0])
+        robot_id_1 = UR5Robotiq85([1.35, 0.0, 0.8], [0, 0, math.pi])
         robot_id_1.load()
         robot_id_2.load()
 
@@ -45,8 +45,8 @@ class Environment:
         green_cube_2 = create_item([0.8, 0.0, 0.8], 'box', [0.025, 0.025, 0.025], [0, 1, 0, 1])
 
         self.robot_id = {
-            "robot": robot_id_1,
-            "human": robot_id_2,
+            "robot1": robot_id_1,
+            "robot2": robot_id_2,
         }
 
         self.objects = {

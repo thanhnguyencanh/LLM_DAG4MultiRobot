@@ -1,18 +1,20 @@
 from collections import defaultdict
 import json
+from AI_module.LLM import call_gemini
 
-task_plan = [("robot", "pick yellow_cube"),
-             ("human", "pick green_cube_2"),
-             ("robot", "place yellow_cube into yellow_bowl"),
-             ("human", "place green_cube_2 into green_bowl"),
-             ("human", "pick red_cube"),
-             ("humantorobot", "move red_cube to robot"),
-             ("robot", "pick red_cube"),
-             ("robot", "place red_cube into red_bowl"),
-             ("robot", "pick green_cube_1"),
-             ("robottohuman", "move green_cube_1 to human"),
-             ("human", "pick green_cube_1"),
-             ("human", "place green_cube_1 into green_bowl"), ]
+# Example task plan (normally obtained from LLM)
+task_plan = [("robot1", "pick green_cube_2"),
+("robot1", "place green_cube_2 into green_bowl"),
+("robot2", "pick yellow_cube"),
+("robot2", "place yellow_cube into yellow_bowl"),
+("robot1", "pick red_cube"),
+("robot1torobot2", "move red_cube to robot2"),
+("robot2", "pick red_cube"),
+("robot2", "place red_cube into red_bowl"),
+("robot2", "pick green_cube_1"),
+("robot2torobot1", "move green_cube_1 to robot1"),
+("robot1", "pick green_cube_1"),
+("robot1", "place green_cube_1 into green_bowl"),]
 
 
 class TaskProcessor:
@@ -23,7 +25,7 @@ class TaskProcessor:
         self._process_tasks()
 
     def _process_tasks(self):
-        handoffs = {"robottohuman": None, "humantorobot": None}
+        handoffs = {"robot1torobot2": None, "robot2torobot1": None}
         object_last_task = {}  # key: "agent_object"
 
         for i, (agent, action) in enumerate(self.task_plan, start=1):
@@ -31,7 +33,7 @@ class TaskProcessor:
             self.tasks[i] = {"agent": agent, "action": action, "object": obj}
 
             # Xử lý dependency dựa trên agent + object
-            if obj and agent not in ["robottohuman", "humantorobot"]:
+            if obj and agent not in ["robot1torobot2", "robot2torobot1"]:
                 agent_object_key = f"{agent}_{obj}"
 
                 if agent_object_key in object_last_task:
@@ -41,12 +43,12 @@ class TaskProcessor:
 
             if agent in handoffs:
                 handoffs[agent] = i
-            elif agent == "human" and handoffs["robottohuman"]:
-                self.edges.append((handoffs["robottohuman"], i))
-                handoffs["robottohuman"] = None
-            elif agent == "robot" and handoffs["humantorobot"]:
-                self.edges.append((handoffs["humantorobot"], i))
-                handoffs["humantorobot"] = None
+            elif agent == "robot2" and handoffs["robot1torobot2"]:
+                self.edges.append((handoffs["robot1torobot2"], i))
+                handoffs["robot1torobot2"] = None
+            elif agent == "robot1" and handoffs["robot2torobot1"]:
+                self.edges.append((handoffs["robot2torobot1"], i))
+                handoffs["robot2torobot1"] = None
 
     # Extract the object from the action string (rule-based) but can improve with NLP
     def _extract_object(self, action):
@@ -76,7 +78,7 @@ class TaskProcessor:
 
         for subtask in subtasks:
 
-            has_transfer = any(self.tasks[task_id]["agent"] in ["robottohuman", "humantorobot"]
+            has_transfer = any(self.tasks[task_id]["agent"] in ["robot1torobot2", "robot2torobot1"]
                                for task_id in subtask)
 
             if has_transfer:
@@ -138,7 +140,7 @@ class TaskProcessor:
         # Determine format for each wave
         for wave_id in sorted(waves.keys()):
             tasks = waves[wave_id]
-            has_transfer = any(task["agent"] in ["robottohuman", "humantorobot"]
+            has_transfer = any(task["agent"] in ["robot1torobot2", "robot2torobot1"]
                                for _, task in tasks)
 
             if has_transfer:
@@ -160,11 +162,11 @@ class TaskProcessor:
             task = self.tasks[task_id]
             agent = task["agent"]
 
-            if agent == "robottohuman":
-                agent = "robot"
+            if agent == "robot1torobot2":
+                agent = "robot1"
                 lane = "transfer"
-            elif agent == "humantorobot":
-                agent = "human"
+            elif agent == "robot2torobot1":
+                agent = "robot2"
                 lane = "transfer"
             else:
                 lane = agent
@@ -219,14 +221,14 @@ class TaskProcessor:
 
         for wave_id in sorted(waves.keys()):
             tasks = waves[wave_id]
-            has_transfer = any(task["agent"] in ["robottohuman", "humantorobot"]
+            has_transfer = any(task["agent"] in ["robot1torobot2", "robot2torobot1"]
                                for _, task in tasks)
             execution_type = "Sequential" if has_transfer else "Parallel"
             wave_format = wave_formats.get(wave_id, "parallel1")
 
             print(f"\nWave {wave_id} ({execution_type}) - Format: {wave_format}:")
             for task_id, task in sorted(tasks):
-                lane = "transfer" if task["agent"] in ["robottohuman", "humantorobot"] else task["agent"]
+                lane = "transfer" if task["agent"] in ["robot1torobot2", "robot2torobot1"] else task["agent"]
                 print(f"  Task {task_id}: {task['agent']} - {task['action']} (lane: {lane})")
 
 

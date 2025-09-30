@@ -1,110 +1,110 @@
 [
   {
     "id": 1,
-    "agent": "robot",
+    "agent": "robot1",
     "action": "pick",
-    "object": "yellow_cube",
+    "object": "green_cube_2",
     "destination": "",
-    "lane": "robot",
+    "lane": "robot1",
     "wave": "parallel1"
   },
   {
     "id": 2,
-    "agent": "human",
-    "action": "pick",
+    "agent": "robot1",
+    "action": "place",
     "object": "green_cube_2",
-    "destination": "",
-    "lane": "human",
+    "destination": "green_bowl",
+    "lane": "robot1",
     "wave": "parallel1"
   },
   {
     "id": 3,
-    "agent": "robot",
-    "action": "place",
+    "agent": "robot2",
+    "action": "pick",
     "object": "yellow_cube",
-    "destination": "yellow_bowl",
-    "lane": "robot",
+    "destination": "",
+    "lane": "robot2",
     "wave": "parallel1"
   },
   {
     "id": 4,
-    "agent": "human",
+    "agent": "robot2",
     "action": "place",
-    "object": "green_cube_2",
-    "destination": "green_bowl",
-    "lane": "human",
+    "object": "yellow_cube",
+    "destination": "yellow_bowl",
+    "lane": "robot2",
     "wave": "parallel1"
   },
   {
     "id": 5,
-    "agent": "human",
+    "agent": "robot1",
     "action": "pick",
     "object": "red_cube",
     "destination": "",
-    "lane": "human",
+    "lane": "robot1",
     "wave": "sequential1"
   },
   {
     "id": 6,
-    "agent": "human",
+    "agent": "robot1",
     "action": "move",
     "object": "red_cube",
-    "destination": "robot",
+    "destination": "robot2",
     "lane": "transfer",
     "wave": "sequential1"
   },
   {
     "id": 7,
-    "agent": "robot",
+    "agent": "robot2",
     "action": "pick",
     "object": "red_cube",
     "destination": "",
-    "lane": "robot",
+    "lane": "robot2",
     "wave": "sequential1"
   },
   {
     "id": 8,
-    "agent": "robot",
+    "agent": "robot2",
     "action": "place",
     "object": "red_cube",
     "destination": "red_bowl",
-    "lane": "robot",
+    "lane": "robot2",
     "wave": "sequential1"
   },
   {
     "id": 9,
-    "agent": "robot",
+    "agent": "robot2",
     "action": "pick",
     "object": "green_cube_1",
     "destination": "",
-    "lane": "robot",
+    "lane": "robot2",
     "wave": "sequential2"
   },
   {
     "id": 10,
-    "agent": "robot",
+    "agent": "robot2",
     "action": "move",
     "object": "green_cube_1",
-    "destination": "human",
+    "destination": "robot1",
     "lane": "transfer",
     "wave": "sequential2"
   },
   {
     "id": 11,
-    "agent": "human",
+    "agent": "robot1",
     "action": "pick",
     "object": "green_cube_1",
     "destination": "",
-    "lane": "human",
+    "lane": "robot1",
     "wave": "sequential2"
   },
   {
     "id": 12,
-    "agent": "human",
+    "agent": "robot1",
     "action": "place",
     "object": "green_cube_1",
     "destination": "green_bowl",
-    "lane": "human",
+    "lane": "robot1",
     "wave": "sequential2"
   }
 ]

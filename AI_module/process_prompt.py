@@ -1,4 +1,4 @@
-from Task2.environment import Environment
+from Task3.environment import Environment
 import math
 
 
@@ -34,8 +34,8 @@ def build_prompt():
     1) Task: "{task}"
     2) Objects : {objects}
     3) Reachability status: 
-        HUMAN: {human_objects}
-        ROBOT: {robot_objects}
+        ROBOT1: {human_objects}
+        ROBOT2: {robot_objects}
     Capabilities:
         HUMAN: can perform ALL actions
         ROBOT: 

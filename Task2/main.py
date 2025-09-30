@@ -4,7 +4,6 @@ from Task2 import environment
 from graph.execute_command import run_from_json
 import time
 
-#Clean the table, which fruits should be on the plate, and kitchen utensils in a drawer. Last, clean the table with a sponge.
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)
@@ -24,14 +23,13 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "commands_task2.json",
+        "commands_task3.json",
         robot_ids,
         object_map
     )
     time.sleep(3)
     cv2.destroyAllWindows()
     p.disconnect()
-
 
 if __name__ == "__main__":
     main()

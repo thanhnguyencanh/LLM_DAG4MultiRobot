@@ -161,7 +161,7 @@ def _execute_task(task, robot_ids, object_map, constraint):
             return None
 
         elif action == "move":
-            target_pos = [0.5, 0.2, 0.85] if dest == "robot" else [0.65, -0.2, 0.85]
+            target_pos = [0.5, 0.2, 0.85] if dest == "robot2" else [0.65, -0.2, 0.85]
             if constraint:
                 robot_action.place(agent, target_pos, constraint, robot_ids)
                 return None
