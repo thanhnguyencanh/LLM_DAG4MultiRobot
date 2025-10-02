@@ -4,7 +4,8 @@ from Task3 import environment
 from graph.execute_command import run_from_json
 import time
 
-#Clean the table, which fruits should be on the plate, and kitchen utensils in a drawer. Last, clean the table with a sponge.
+#Clean the table, which fruits should be on the plate, and kitchen utensils in a drawer.
+
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)

@@ -3,7 +3,6 @@ import cv2
 from graph.execute_command import run_from_json
 from Task1 import environment
 
-#Sort the cubes into bowls with true color.
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)
