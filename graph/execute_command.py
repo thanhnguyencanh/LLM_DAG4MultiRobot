@@ -8,7 +8,6 @@ ROBOT_TRANSFER_POSITIONS = {
     "robot1": [0.65, -0.2, 0.85],
     "robot2": [0.5, 0.2, 0.85],
     "robot3": [0.35, 0.1, 0.85],
-
 }
 
 
