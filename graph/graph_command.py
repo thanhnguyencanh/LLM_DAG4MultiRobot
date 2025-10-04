@@ -3,19 +3,7 @@ import json
 import re
 from AI_module.LLM import call_gemini
 
-task_plan = [("robot1", "pick green_cube_2"),
-("robot1", "place green_cube_2 into green_bowl"),
-("robot2", "pick yellow_cube"),
-("robot2", "place yellow_cube into yellow_bowl"),
-("robot1", "pick red_cube"),
-("robot1torobot2", "move red_cube to robot2"),
-("robot2", "pick red_cube"),
-("robot2", "place red_cube into red_bowl"),
-("robot2", "pick green_cube_1"),
-("robot2torobot1", "move green_cube_1 to robot1"),
-("robot1", "pick green_cube_1"),
-("robot1", "place green_cube_1 into green_bowl"),]
-
+task_plan = call_gemini()
 
 class TaskProcessor:
     def __init__(self, task_plan):
@@ -268,7 +256,7 @@ class TaskProcessor:
             execution_type = "Sequential" if has_transfer else "Parallel"
             wave_format = wave_formats.get(wave_id, "parallel1")
 
-            print(f"\n🌊 Wave {wave_id} ({execution_type}) - Format: {wave_format}:")
+            print(f"\nWave {wave_id} ({execution_type}) - Format: {wave_format}:")
             for task_id, task in sorted(tasks):
                 lane = "transfer" if task["agent"] in self.handoff_agents else task["agent"]
                 print(f"  └─ Task {task_id}: {task['agent']} - {task['action']} (lane: {lane})")

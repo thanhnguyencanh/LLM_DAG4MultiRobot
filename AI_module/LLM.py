@@ -2,6 +2,7 @@ import google.generativeai as genai
 from AI_module.process_prompt import build_prompt
 import ast
 import re
+from AI_module.preprocessLLM import preprocess_llm_response
 
 
 def call_gemini():
@@ -11,20 +12,23 @@ def call_gemini():
     model = genai.GenerativeModel("gemini-2.5-flash")
     prompt = build_prompt()
     response = model.generate_content(prompt)
-    print(response.text)
 
-    return parse_task_plan(response.text)
+    response_text = response.text
+    print("Raw LLM Response:", response_text)
+
+    preprocessed_response = preprocess_llm_response(response_text)
+    print("Preprocessed LLM Response:", preprocessed_response)
+
+    return parse_task_plan(preprocessed_response)
 
 
 def parse_task_plan(text):
-
     try:
         pattern = r'\("([^"]+)",\s*"([^"]+)"\)'
         matches = re.findall(pattern, text)
 
         if matches:
             return matches
-
 
         lines = text.split('\n')
         task_list = []
@@ -51,7 +55,6 @@ def parse_task_plan(text):
         if task_list:
             return task_list
 
-
         return manual_parse_tasks(text)
 
     except Exception as e:
@@ -60,7 +63,6 @@ def parse_task_plan(text):
 
 
 def manual_parse_tasks(text):
-
     tasks = []
     lines = text.split('\n')
 

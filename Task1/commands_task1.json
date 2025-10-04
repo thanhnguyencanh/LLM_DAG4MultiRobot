@@ -10,20 +10,20 @@
   },
   {
     "id": 2,
-    "agent": "robot1",
-    "action": "place",
-    "object": "green_cube_2",
-    "destination": "green_bowl",
-    "lane": "robot1",
-    "wave": "parallel1"
-  },
-  {
-    "id": 3,
     "agent": "robot2",
     "action": "pick",
     "object": "yellow_cube",
     "destination": "",
     "lane": "robot2",
+    "wave": "parallel1"
+  },
+  {
+    "id": 3,
+    "agent": "robot1",
+    "action": "place",
+    "object": "green_cube_2",
+    "destination": "green_bowl",
+    "lane": "robot1",
     "wave": "parallel1"
   },
   {
