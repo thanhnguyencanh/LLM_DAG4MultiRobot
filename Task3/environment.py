@@ -32,9 +32,10 @@ class Environment:
         p.loadURDF("table/table.urdf", [0.5, 0, 0],globalScaling=1.2)
 
         robot_id_2  = UR5Robotiq85([-0.35, 0.0, 0.8], [0, 0, 0])
+        robot_id_2.load()
         robot_id_1 = UR5Robotiq85([1.35, 0.0, 0.8], [0, 0, math.pi])
         robot_id_1.load()
-        robot_id_2.load()
+
 
         plate = p.loadURDF(PLATE_URDF, [0.8, -0.1, 0.8], globalScaling=1.15)
         banana = p.loadURDF(BANANA_URDF, [0.9, 0.2, 0.8], globalScaling=1.0)

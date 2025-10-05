@@ -2,14 +2,13 @@ import threading
 from collections import defaultdict
 import json
 from robot import robot_action
-
+from Task2.environment import Environment
 
 ROBOT_TRANSFER_POSITIONS = {
     "robot1": [0.65, -0.2, 0.85],
     "robot2": [0.5, 0.2, 0.85],
     "robot3": [0.35, 0.1, 0.85],
 }
-
 
 class RobotExecutor:
     def __init__(self, robot_ids, object_map, transfer_positions=None):

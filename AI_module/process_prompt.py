@@ -191,7 +191,6 @@ class PromptBuilder:
         return prompt_template
 
     def print_agent_summary(self):
-        """In ra summary về các agents trong hệ thống"""
         print("\n" + "=" * 60)
         print(" AGENT CONFIGURATION SUMMARY")
         print("=" * 60)

@@ -23,6 +23,9 @@ class UR5Robotiq85:
         )
         self.__parse_joint_info__()  # Get joint information of the robot arm
         self.__setup_mimic_joints__()  # Set up mimic joints for the gripper
+        for i, joint_id in enumerate(self.arm_controllable_joints):
+            if i < len(self.arm_rest_poses):
+                p.resetJointState(self.id, joint_id, self.arm_rest_poses[i])
 
     def __parse_joint_info__(self):
 
