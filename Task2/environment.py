@@ -36,11 +36,11 @@ class Environment:
             size=[1.2, 0.5],  # [bán kính, chiều cao]
             color=[0.5, 0.4, 0.2, 1]  # màu nâu gỗ
         )
-        robot_id_1 = UR5Robotiq85([0.5, -0.6928, 0.2], [0, 0.0, 1.5])
+        robot_id_1 = UR5Robotiq85([0.5, -0.6928, 0.3], [0, 0.0, 1.5])
         robot_id_1.load()
-        robot_id_2 = UR5Robotiq85([1.4, 0.6, 0.2], [0, 0, -2.6])
+        robot_id_2 = UR5Robotiq85([1.4, 0.6, 0.3], [0, 0, -2.6])
         robot_id_2.load()
-        robot_id_3 = UR5Robotiq85([-0.3, 0.6928, 0.2], [0.0, 0.0, -1.1])
+        robot_id_3 = UR5Robotiq85([-0.3, 0.6928, 0.3], [0.0, 0.0, -1.1])
         robot_id_3.load()
 
         green_bowl = p.loadURDF(BOWL_GREEN_URDF, [0.5, -0.3, 0.3], globalScaling=0.13)

@@ -3,6 +3,8 @@ import json
 import re
 from AI_module.LLM import call_gemini
 
+#Check lại logic xử lý graph : Có hướng tiếp cận sử dụng ví dụ 2 node khác nhau trong cùng 1 vài wave sẽ chạy song song + Cơ chế nếu còn dư node thì làm tiếp (Brainstorm lại)
+
 
 task_plan = call_gemini()
 

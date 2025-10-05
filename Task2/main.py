@@ -25,13 +25,14 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "../Task1/commands_task1.json",
+        "commands_task2.json",
         robot_ids,
         object_map
     )
     time.sleep(3)
     cv2.destroyAllWindows()
     p.disconnect()
+
 
 if __name__ == "__main__":
     main()

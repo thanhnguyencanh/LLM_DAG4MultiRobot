@@ -2,12 +2,14 @@ import threading
 from collections import defaultdict
 import json
 from robot import robot_action
-from Task2.environment import Environment
+
+#check lại cái này để thêm vị trí handoff cho task2 cungx như cái khác automation
 
 ROBOT_TRANSFER_POSITIONS = {
     "robot1": [0.65, -0.2, 0.85],
     "robot2": [0.5, 0.2, 0.85],
     "robot3": [0.35, 0.1, 0.85],
+
 }
 
 class RobotExecutor:
