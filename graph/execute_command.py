@@ -2,41 +2,72 @@ import threading
 from collections import defaultdict
 import json
 from robot import robot_action
-
-
-#Sửa lai jauto tính transfer position
-ROBOT_TRANSFER_POSITIONS = {
-    "robot1": [0.65, -0.2, 0.85],
-    "robot2": [0.5, 0.2, 0.85],
-    "robot3": [0.35, 0.1, 0.85],
-}
+from Task2.environment import Environment
 
 
 class RobotExecutor:
     def __init__(self, robot_ids, object_map, transfer_positions=None):
+        """
+        Args:
+            robot_ids: Dict mapping robot names to robot IDs
+            object_map: Dict mapping object names to object IDs
+            transfer_positions: Dict with transfer positions
+                               (nếu None sẽ lấy từ Environment)
+        """
         self.robot_ids = robot_ids
         self.object_map = object_map
-        self.transfer_positions = transfer_positions or ROBOT_TRANSFER_POSITIONS
+
+        # Lấy transfer positions từ Environment nếu không được cung cấp
+        if transfer_positions is None:
+            env = Environment()
+            self.transfer_positions = self._get_transfer_positions_from_env(env)
+        else:
+            self.transfer_positions = transfer_positions
+
         self._validate_robots()
 
+    def _get_transfer_positions_from_env(self, env):
+        if not hasattr(env, 'handoff_points') or not env.handoff_points:
+            raise ValueError(
+                "[ERROR] Environment does not have 'handoff_points'. "
+                "Please define handoff_points (e.g., {'robot1torobot2': [x, y, z], ...}) in Environment"
+            )
+
+        transfer_pos = env.handoff_points
+
+        print("[INFO] Handoff points loaded from Environment:")
+        for key, pos in sorted(transfer_pos.items()):
+            print(f"  {key}: {pos}")
+
+        return transfer_pos
+
     def _validate_robots(self):
-        missing_positions = []
-        for robot in self.robot_ids.keys():
-            if robot not in self.transfer_positions:
-                missing_positions.append(robot)
+        if not self.transfer_positions:
+            raise ValueError(
+                "[ERROR] No handoff points available. "
+                "Please define handoff_points in Environment"
+            )
 
-        if missing_positions:
-            print(f"Warning: Missing transfer positions for: {missing_positions}")
-            print(f"   Available positions: {list(self.transfer_positions.keys())}")
-
-    def get_transfer_position(self, robot_name):
-        if robot_name in self.transfer_positions:
-            return self.transfer_positions[robot_name]
+    def get_transfer_position(self, position_key):
+        if position_key in self.transfer_positions:
+            return self.transfer_positions[position_key]
         else:
-            print(f"No transfer position defined for {robot_name}, using default")
-            return [0.5, 0.0, 0.85]
+            raise KeyError(
+                f"[ERROR] Transfer position '{position_key}' not found. "
+                f"Available: {list(self.transfer_positions.keys())}"
+            )
+
+    def print_transfer_positions(self):
+        """In ra tất cả handoff points"""
+        print("\n" + "=" * 60)
+        print(" HANDOFF POINTS (for move action)")
+        print("=" * 60)
+        for key, pos in sorted(self.transfer_positions.items()):
+            print(f"{key}: {pos}")
+        print("=" * 60 + "\n")
 
     def run_from_json(self, json_file):
+        """Chạy commands từ JSON file"""
         with open(json_file) as f:
             commands = json.load(f)
 
@@ -54,44 +85,47 @@ class RobotExecutor:
             self._execute_thread(thread_waves, waves)
 
     def _group_execution_threads(self, waves):
-        """
-        Group consecutive waves into execution threads based on boundary-agent
-        non-conflict conditions.
-        """
+        """Nhóm waves thành execution threads"""
         sorted_wave_ids = sorted(waves.keys())
         execution_threads = []
-        current_thread = []
+        remaining_waves = sorted_wave_ids.copy()  # Các wave chưa được xử lý
 
-        for i, wave_id in enumerate(sorted_wave_ids):
-            if not current_thread:
-                current_thread.append(wave_id)
-            else:
-                # Check if current wave can be added to current thread
-                prev_wave_id = current_thread[-1]
-                can_add = self._check_boundary_agent_non_conflict(
-                    waves[prev_wave_id], waves[wave_id]
-                )
+        while remaining_waves:
+            current_thread = []
+            waves_to_remove = []
+
+            # Bắt đầu thread mới với wave đầu tiên còn lại
+            current_thread.append(remaining_waves[0])
+            waves_to_remove.append(remaining_waves[0])
+
+            # Thử thêm các wave tiếp theo vào thread
+            for wave_id in remaining_waves[1:]:
+                # Kiểm tra với TẤT CẢ wave đã có trong thread hiện tại
+                can_add = True
+                for existing_wave_id in current_thread:
+                    if not self._check_boundary_agent_non_conflict(
+                            waves[existing_wave_id],
+                            waves[wave_id]
+                    ):
+                        can_add = False
+                        break  # Nếu conflict với bất kỳ wave nào → dừng kiểm tra
 
                 if can_add:
                     current_thread.append(wave_id)
+                    waves_to_remove.append(wave_id)
                 else:
-                    # Start new thread
-                    execution_threads.append(current_thread)
-                    current_thread = [wave_id]
+                    # Gặp conflict → dừng việc thêm vào thread này
+                    break
 
-        if current_thread:
+            # Lưu thread và loại bỏ các wave đã xử lý
             execution_threads.append(current_thread)
+            for wave_id in waves_to_remove:
+                remaining_waves.remove(wave_id)
 
         return execution_threads
 
     def _check_boundary_agent_non_conflict(self, prev_tasks, curr_tasks):
-        """
-        Check boundary-agent non-conflict conditions between two consecutive waves.
-
-        Conditions:
-        - Agent(start(W_i)) != Agent(start(W_{i+1}))
-        - Agent(end(W_i)) != Agent(end(W_{i+1}))
-        """
+        """Kiểm tra xem hai wave có conflict không"""
         if not prev_tasks or not curr_tasks:
             return True
 
@@ -181,7 +215,9 @@ class RobotExecutor:
                 return None
 
             elif action == "move":
-                target_pos = self.get_transfer_position(dest)
+                # Chuyển destination robot name thành handoff label (e.g., robot1 -> robot2torobot1)
+                handoff_label = f"{agent}to{dest}"
+                target_pos = self.get_transfer_position(handoff_label)
                 if constraint:
                     robot_action.place(agent, target_pos, constraint, self.robot_ids)
                     return None
@@ -201,4 +237,5 @@ class RobotExecutor:
 
 def run_from_json(json_file, robot_ids, object_map, transfer_positions=None):
     executor = RobotExecutor(robot_ids, object_map, transfer_positions)
+    executor.print_transfer_positions()
     executor.run_from_json(json_file)

@@ -1,8 +1,4 @@
-from Task1.environment import Environment
-import math
-import pybullet as p
-
-#Fix lại code để lấy từ trong môi trường simulation
+from Task2.environment import Environment
 
 AGENT_CONFIG = {
     "robot1": {
@@ -10,118 +6,95 @@ AGENT_CONFIG = {
             - MOVE(location): move hand/base to location
             - PLACE(object, destination): place held object into/onto destination
             - SWEEP(surface, tool): wipe/clean a surface using held object""",
-        "label": "robot2"
     },
     "robot2": {
         "capabilities": """- PICK(object): move to object and pick up
         - MOVE(location): move hand/base to location
         - PLACE(object, destination): place held object into/onto destination
         - SWEEP(surface, tool): wipe/clean a surface using held object""",
-        "label": "robot1"
     },
     "robot3": {
         "capabilities": """- PICK(object): move to object and pick up
         - MOVE(location): move hand/base to location
         - PLACE(object, destination): place held object into/onto destination
         - SWEEP(surface, tool): wipe/clean a surface using held object""",
-        "label": "robot3"
     },
-    # Thêm robot mới ở đây...
 }
 
 
 class PromptBuilder:
-    def __init__(self, agent_config=None, use_simulation=True):
+    def __init__(self, agent_config=None):
         """
         Args:
             agent_config: Dict định nghĩa agents và capabilities
                          (nếu None sẽ dùng AGENT_CONFIG mặc định)
-            use_simulation: Nếu True, sẽ khởi tạo simulation để lấy position thực tế
-                           Nếu False, sẽ dùng position mặc định từ config
+
+        Lấy agent_positions và handoff_points từ Environment
         """
         self.agent_config = agent_config or AGENT_CONFIG
         self.env = Environment()
         self.agent_names = list(self.agent_config.keys())
-        self.physics_client = None
-        self.use_simulation = use_simulation
 
-        if use_simulation:
-            # Khởi tạo PyBullet physics server
-            self._init_physics_server()
-            # Khởi tạo simulation để lấy position
-            self.env.setup_simulation()
-            # Lấy position của các robot từ simulation
-            self._update_robot_positions()
+        # Lấy positions từ environment
+        self._load_positions_from_environment()
+
+    def _load_positions_from_environment(self):
+        """Lấy agent positions và handoff points từ Environment"""
+        # Lấy agent positions
+        if hasattr(self.env, 'agent_positions'):
+            for agent_name in self.agent_names:
+                if agent_name in self.env.agent_positions:
+                    self.agent_config[agent_name]["position"] = self.env.agent_positions[agent_name]
+                else:
+                    raise ValueError(f"Agent '{agent_name}' position not found in Environment.agent_positions")
+            print("[INFO] Loaded agent positions from Environment")
         else:
-            # Sử dụng position mặc định nếu không dùng simulation
-            self._set_default_positions()
+            raise AttributeError("Environment does not have 'agent_positions' attribute")
 
-    def _init_physics_server(self):
-        """Khởi tạo PyBullet physics server"""
-        try:
-            # Thử kết nối với server hiện có
-            p.getConnectionInfo()
-            print("[INFO] Using existing PyBullet connection")
-        except:
-            # Nếu chưa có connection, tạo mới (DIRECT mode - không GUI)
-            self.physics_client = p.connect(p.DIRECT)
-            print(f"[INFO] Created new PyBullet connection: {self.physics_client}")
+        # Lấy handoff points
+        if hasattr(self.env, 'handoff_points'):
+            self.handoff_points = self.env.handoff_points
+            print("[INFO] Loaded handoff points from Environment")
+        else:
+            raise AttributeError("Environment does not have 'handoff_points' attribute")
 
-    def _set_default_positions(self):
+    def get_handoff_point(self, agent1, agent2):
         """
-        Đặt position mặc định cho các robot khi không dùng simulation
+        Lấy handoff point giữa hai robot
+
+        Args:
+            agent1: Robot sẽ gửi object
+            agent2: Robot sẽ nhận object
+
+        Returns:
+            List [x, y, z] của handoff point
         """
-        default_positions = {
-            "robot1": [0.5, -0.6928, 0.8],
-            "robot2": [1.4, 0.6, 0.8],
-            "robot3": [-0.3, 0.6928, 0.8],
-        }
+        key = f"{agent1}to{agent2}"
+        if key in self.handoff_points:
+            return self.handoff_points[key]
+        else:
+            raise KeyError(f"Handoff point '{key}' not found in Environment.handoff_points")
 
-        for agent_name in self.agent_names:
-            if agent_name in default_positions:
-                self.agent_config[agent_name]["position"] = default_positions[agent_name]
-            else:
-                # Position mặc định cho robot mới
-                self.agent_config[agent_name]["position"] = [0.0, 0.0, 0.8]
-
-            print(f"[INFO] {agent_name}: Default position={self.agent_config[agent_name]['position']}")
-
-    def _update_robot_positions(self):
+    def get_all_handoff_points(self):
         """
-        Lấy position của các robot từ PyBullet simulation
-        và cập nhật vào agent_config
+        Lấy tất cả handoff points
+
+        Returns:
+            Dict {handoff_label: [x, y, z]}
         """
-        for agent_name in self.agent_names:
-            if agent_name in self.env.robot_id:
-                robot = self.env.robot_id[agent_name]
-                # Lấy vị trí base của robot từ PyBullet
-                base_pos, base_orn = p.getBasePositionAndOrientation(robot.id)
-                # Lấy vị trí end-effector (tay robot)
-                ee_pos = robot.get_joint_obs()[:3]  # x, y, z của end-effector
-
-                # Cập nhật position vào config (dùng end-effector position)
-                self.agent_config[agent_name]["position"] = list(ee_pos)
-
-                print(f"[INFO] {agent_name}: Base={base_pos}, End-effector={ee_pos}")
+        return self.handoff_points.copy()
 
     def reachability_analysis(self, objects):
         """
         Phân tích object nào gần agent nào nhất
         """
+        import math
+
         agent_objects = {agent: [] for agent in self.agent_names}
 
-        for obj_name, obj_data in objects.items():
-            # Xử lý 2 trường hợp: obj_data là tuple (x,y,z) hoặc là object ID
-            if isinstance(obj_data, tuple):
-                # Trường hợp objects là dict với position cứng
-                obj_pos = obj_data
-            elif isinstance(obj_data, int):
-                # Trường hợp objects là dict với PyBullet object IDs
-                try:
-                    obj_pos, _ = p.getBasePositionAndOrientation(obj_data)
-                except:
-                    continue
-            else:
+        for obj_name, obj_pos in objects.items():
+            # obj_pos là tuple (x, y, z)
+            if not isinstance(obj_pos, tuple) or len(obj_pos) < 3:
                 continue
 
             # Tính khoảng cách từ object đến tất cả agents
@@ -155,7 +128,6 @@ class PromptBuilder:
         lines = []
         for agent_name in self.agent_names:
             objects = agent_objects.get(agent_name, [])
-            # Capitalize agent name cho display
             display_name = agent_name.upper()
             objects_str = ", ".join(objects) if objects else "None"
             lines.append(f"        {display_name}: {objects_str}")
@@ -186,16 +158,14 @@ class PromptBuilder:
         """
         Generate example dựa trên số agents hiện có
         """
-        # Lấy 2 agents đầu tiên để làm example
         agents_for_example = self.agent_names[:2] if len(self.agent_names) >= 2 else self.agent_names
 
         agent1 = agents_for_example[0]
         agent2 = agents_for_example[1] if len(agents_for_example) > 1 else agent1
 
-        # Format reachability cho example
         example_reachability = []
         for agent in agents_for_example:
-            objects = agent_objects.get(agent, [])[:2]  # Lấy 2 objects đầu
+            objects = agent_objects.get(agent, [])[:2]
             objects_str = ", ".join(objects) if objects else "object1, object2"
             example_reachability.append(f"    {agent.upper()}: {objects_str}")
 
@@ -219,18 +189,15 @@ class PromptBuilder:
     ("{agent1}", "sweep the table"),"""
 
     def build_prompt(self, task=None):
-        # Lấy tên các objects từ environment
-        if self.use_simulation:
-            object_names = [name for name in self.env.objects.keys()]
-        else:
-            object_names = list(self.env.objects.keys())
-
-        objects = ", ".join(object_names)
-
+        """Build prompt dựa trên Environment"""
         if task is None:
             task = input("Input task: ")
 
-        # Phân tích reachability dựa trên vị trí thực tế từ simulation
+        # Lấy tên các objects từ environment
+        object_names = [name for name in self.env.objects.keys()]
+        objects = ", ".join(object_names)
+
+        # Phân tích reachability dựa trên vị trí từ environment
         agent_objects = self.reachability_analysis(self.env.objects)
 
         # Build các sections của prompt
@@ -279,6 +246,7 @@ class PromptBuilder:
         return prompt_template
 
     def print_agent_summary(self):
+        """In ra tóm tắt cấu hình agents và handoff points"""
         print("\n" + "=" * 60)
         print(" AGENT CONFIGURATION SUMMARY")
         print("=" * 60)
@@ -290,31 +258,24 @@ class PromptBuilder:
 
         print(f"\nTotal agents: {len(self.agent_names)}")
         print(f"Possible handoff combinations: {len(self._generate_handoff_labels())}")
+
+        print(f"\nHandoff Points:")
+        for handoff_label, handoff_pos in sorted(self.handoff_points.items()):
+            print(f"  {handoff_label}: {handoff_pos}")
+
         print("=" * 60 + "\n")
 
-    def cleanup(self):
-        """Đóng kết nối PyBullet nếu được tạo bởi PromptBuilder"""
-        if self.physics_client is not None:
-            try:
-                p.disconnect(self.physics_client)
-                print("[INFO] PyBullet connection closed")
-            except:
-                pass
 
-    def __del__(self):
-        """Destructor để cleanup khi object bị xóa"""
-        self.cleanup()
-
-
-def build_prompt(task=None, agent_config=None, use_simulation=False):
+def build_prompt(task=None, agent_config=None):
     """
-    Build prompt với option sử dụng simulation hoặc không
+    Build prompt từ Environment
 
     Args:
         task: Task description
-        agent_config: Agent configuration
-        use_simulation: Nếu True, khởi tạo PyBullet simulation để lấy position thực tế
-                       Nếu False (default), dùng position mặc định (nhanh hơn cho LLM calls)
+        agent_config: Agent configuration (nếu None dùng AGENT_CONFIG mặc định)
+
+    Returns:
+        Prompt string cho LLM
     """
-    builder = PromptBuilder(agent_config, use_simulation=use_simulation)
+    builder = PromptBuilder(agent_config)
     return builder.build_prompt(task)

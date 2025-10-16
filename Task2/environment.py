@@ -20,6 +20,19 @@ class Environment:
             "green_cube_2": (0.9, -0.3, 0.45),
             "green_cube_3": (0.1, 0.5, 0.45),
         }
+        self.handoff_points = {
+            "robot1torobot2": [0.95, -0.0464, 0.3],
+            "robot2torobot1": [0.95, -0.0464, 0.3],
+            "robot2torobot3": [0.55, 0.6464, 0.3],
+            "robot3torobot2": [0.55, 0.6464, 0.3],
+            "robot1torobot3": [0.1, 0.0, 0.3],
+            "robot3torobot1": [0.1, 0.0, 0.3],
+        }
+        self.agent_positions = {
+            "robot1": [0.5, -0.6928, 0.3],
+            "robot2": [1.4, 0.6, 0.3],
+            "robot3": [-0.3, 0.6928, 0.3],
+        }
 
     def get_object_names(self):
         return list(self.objects.keys())

@@ -20,6 +20,14 @@ class Environment:
             "orange_cup": (1.0, 0.38, 0.8),
             "purple_cup": (0.3, -0.27, 0.8),
         }
+        self.handoff_points = {
+            "robot1torobot2": [0.5, 0.2, 0.85],
+            "robot2torobot1": [0.65, -0.2, 0.85],
+        }
+        self.agent_positions = {
+            "robot1": [1.35, 0.0, 0.8],
+            "robot2": [-0.35, 0.0, 0.8],
+        }
 
     def get_object_names(self):
         return list(self.objects.keys())

@@ -1,7 +1,8 @@
 from collections import defaultdict, deque
 import json
 import re
-
+from AI_module.LLM import call_gemini
+"""
 def call_gemini():
     return [
         ("robot2", "pick yellow_cube"),
@@ -17,8 +18,8 @@ def call_gemini():
         ("robot2", "pick red_cube"),
         ("robot2", "place red_cube into red_bowl")
     ]
-
-
+"""
+task_plan = call_gemini()
 class TaskProcessor:
     def __init__(self, task_plan):
         if not task_plan:
@@ -221,10 +222,6 @@ class TaskProcessor:
         print(f"✅ Exported {len(commands)} commands to {filename}")
 
     def print_summary(self):
-        """
-        Print a detailed summary of tasks organized by waves
-        Shows execution plan with parallel/sequential indicators
-        """
         self.assign_waves()
 
         waves = defaultdict(list)
@@ -232,7 +229,7 @@ class TaskProcessor:
             waves[task.get("wave", 1)].append((task_id, task))
 
         print("\n" + "=" * 70)
-        print("📋 TASK EXECUTION PLAN (Wave-based Scheduling)")
+        print("TASK EXECUTION PLAN (Wave-based Scheduling)")
         print("=" * 70)
 
         for wave_id in sorted(waves.keys()):
@@ -243,20 +240,15 @@ class TaskProcessor:
                                for _, task in tasks)
             execution_type = "Sequential" if has_transfer else "Parallel"
 
-            print(f"\n📦 Wave {wave_id} ({execution_type}) - {len(tasks)} task(s):")
+            print(f"\nWave {wave_id} ({execution_type}) - {len(tasks)} task(s):")
 
             for task_id, task in sorted(tasks):
                 lane = "transfer" if task["agent"] in self.handoff_agents else task["agent"]
                 obj = f"[{task['object']}]" if task['object'] else ""
-                print(f"  └─ Task {task_id:2d}: [{task['agent']:15s}] {task['action']:30s} {obj:15s} (lane: {lane})")
-
-        print("\n" + "=" * 70)
+                print(f"  Task {task_id:2d}: [{task['agent']:15s}] {task['action']:30s} {obj:15s} (lane: {lane})")
         print(f"📊 Summary: {len(waves)} waves, {len(self.tasks)} total tasks")
-        print(f"🤖 Robots: {', '.join(sorted(self.robots))}")
-        print("=" * 70 + "\n")
 
 if __name__ == "__main__":
-    task_plan = call_gemini()
     processor = TaskProcessor(task_plan)
     processor.print_summary()
-    processor.export_json("commands_task1.json")
+    processor.export_json("commands_task2.json")
