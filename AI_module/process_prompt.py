@@ -1,4 +1,4 @@
-from Task2.environment import Environment
+from Task4.environment import Environment
 
 AGENT_CONFIG = {
     "robot1": {
@@ -8,12 +8,6 @@ AGENT_CONFIG = {
             - SWEEP(surface, tool): wipe/clean a surface using held object""",
     },
     "robot2": {
-        "capabilities": """- PICK(object): move to object and pick up
-        - MOVE(location): move hand/base to location
-        - PLACE(object, destination): place held object into/onto destination
-        - SWEEP(surface, tool): wipe/clean a surface using held object""",
-    },
-    "robot3": {
         "capabilities": """- PICK(object): move to object and pick up
         - MOVE(location): move hand/base to location
         - PLACE(object, destination): place held object into/onto destination

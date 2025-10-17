@@ -2,24 +2,27 @@ from collections import defaultdict, deque
 import json
 import re
 from AI_module.LLM import call_gemini
-"""
+
 def call_gemini():
     return [
-        ("robot2", "pick yellow_cube"),
-        ("robot2", "place yellow_cube into yellow_bowl"),
-        ("robot1", "pick green_cube_2"),
-        ("robot1", "place green_cube_2 into green_bowl"),
-        ("robot2", "pick green_cube_1"),
-        ("robot2torobot1", "move green_cube_1 to robot1"),
-        ("robot1", "pick green_cube_1"),
-        ("robot1", "place green_cube_1 into green_bowl"),
-        ("robot1", "pick red_cube"),
-        ("robot1torobot2", "move red_cube to robot2"),
-        ("robot2", "pick red_cube"),
-        ("robot2", "place red_cube into red_bowl")
+        ("robot1", "pick banana"),
+        ("robot1", "place banana on plate"),
+        ("robot2", "pick spoon"),
+        ("robot2", "place spoon in drawer"),
+        ("robot2", "pick purple_cup"),
+        ("robot2", "place purple_cup in drawer"),
+        ("robot2", "pick apple"),
+        ("robot2torobot1", "move apple to robot1"),
+        ("robot1", "pick apple"),
+        ("robot1", "place apple on plate"),
+        ("robot1", "pick orange_cup"),
+        ("robot1torobot2", "move orange_cup to robot2"),
+        ("robot2", "pick orange_cup"),
+        ("robot2", "place orange_cup in drawer")
     ]
-"""
-task_plan = call_gemini()
+
+
+#task_plan = call_gemini()
 class TaskProcessor:
     def __init__(self, task_plan):
         if not task_plan:
@@ -113,50 +116,35 @@ class TaskProcessor:
 
     def assign_waves(self):
         all_nodes = set(self.tasks.keys())
-        adj = defaultdict(list)
-        for u, v in self.edges:
-            adj[u].append(v)
 
-        visited = set()
+        # Build predecessor map
+        predecessors = defaultdict(set)
+        for u, v in self.edges:
+            predecessors[v].add(u)
+
+        remaining = sorted(all_nodes)  # Sorted list of nodes to process
         wave = 1
 
-        # Get sorted list of node IDs
-        sorted_nodes = sorted(all_nodes)
+        while remaining:
+            # Start new wave with first remaining node
+            current_wave = [remaining[0]]
+            to_remove = [remaining[0]]
 
-        while visited != all_nodes:
-            seed = None
-            for node_id in sorted_nodes:
-                if node_id not in visited:
-                    seed = node_id
-                    break
+            # Try to add remaining nodes that have dependency with current wave
+            for node_id in remaining[1:]:
+                # Check if this node has any predecessor in current wave
+                if predecessors[node_id] & set(current_wave):
+                    current_wave.append(node_id)
+                    to_remove.append(node_id)
 
-            if seed is None:
-                break
-
-            # BFS/DFS to traverse all connected edges from seed
-            # Append all reachable nodes to current wave
-            queue = deque([seed])
-            current_wave_nodes = []
-
-            while queue:
-                node = queue.popleft()
-
-                if node in visited:
-                    continue
-
-                visited.add(node)
-                current_wave_nodes.append(node)
-
-                # Traverse all outgoing edges (adjacent nodes)
-                for neighbor in adj[node]:
-                    if neighbor not in visited:
-                        queue.append(neighbor)
-
-            # Assign wave to all nodes in current group
-            for node in current_wave_nodes:
+            # Assign wave to all nodes in current wave
+            for node in current_wave:
                 self.tasks[node]["wave"] = wave
 
-            print(f"  Wave {wave}: {sorted(current_wave_nodes)}")
+            print(f"  Wave {wave}: {sorted(current_wave)}")
+
+            # Remove processed nodes from remaining
+            remaining = [n for n in remaining if n not in to_remove]
             wave += 1
 
         print(f"📊 Assigned {wave - 1} waves to {len(self.tasks)} tasks")
@@ -249,6 +237,8 @@ class TaskProcessor:
         print(f"📊 Summary: {len(waves)} waves, {len(self.tasks)} total tasks")
 
 if __name__ == "__main__":
+    task_plan = call_gemini()
     processor = TaskProcessor(task_plan)
     processor.print_summary()
-    processor.export_json("commands_task2.json")
+    processor.export_json("commands_task3.json")
+

@@ -64,15 +64,24 @@
   },
   {
     "id": 8,
+    "agent": "robot2",
+    "action": "pick",
+    "object": "red_cube_2",
+    "destination": "",
+    "lane": "robot2",
+    "wave": 5
+  },
+  {
+    "id": 9,
     "agent": "robot3",
     "action": "pick",
     "object": "green_cube_1",
     "destination": "",
     "lane": "robot3",
-    "wave": 5
+    "wave": 6
   },
   {
-    "id": 9,
+    "id": 10,
     "agent": "robot1",
     "action": "move",
     "object": "yellow_cube_2",
@@ -81,22 +90,13 @@
     "wave": 4
   },
   {
-    "id": 10,
-    "agent": "robot2",
-    "action": "pick",
-    "object": "yellow_cube_2",
-    "destination": "",
-    "lane": "robot2",
-    "wave": 4
-  },
-  {
     "id": 11,
     "agent": "robot2",
-    "action": "place",
-    "object": "yellow_cube_2",
-    "destination": "yellow_bowl",
-    "lane": "robot2",
-    "wave": 4
+    "action": "move",
+    "object": "red_cube_2",
+    "destination": "robot3",
+    "lane": "transfer",
+    "wave": 5
   },
   {
     "id": 12,
@@ -105,70 +105,70 @@
     "object": "green_cube_1",
     "destination": "robot1",
     "lane": "transfer",
-    "wave": 5
+    "wave": 6
   },
   {
     "id": 13,
+    "agent": "robot2",
+    "action": "pick",
+    "object": "yellow_cube_2",
+    "destination": "",
+    "lane": "robot2",
+    "wave": 4
+  },
+  {
+    "id": 14,
+    "agent": "robot3",
+    "action": "pick",
+    "object": "red_cube_2",
+    "destination": "",
+    "lane": "robot3",
+    "wave": 5
+  },
+  {
+    "id": 15,
     "agent": "robot1",
     "action": "pick",
     "object": "green_cube_1",
     "destination": "",
     "lane": "robot1",
+    "wave": 6
+  },
+  {
+    "id": 16,
+    "agent": "robot2",
+    "action": "place",
+    "object": "yellow_cube_2",
+    "destination": "yellow_bowl",
+    "lane": "robot2",
+    "wave": 4
+  },
+  {
+    "id": 17,
+    "agent": "robot3",
+    "action": "place",
+    "object": "red_cube_2",
+    "destination": "red_bowl",
+    "lane": "robot3",
     "wave": 5
   },
   {
-    "id": 14,
+    "id": 18,
     "agent": "robot1",
     "action": "place",
     "object": "green_cube_1",
     "destination": "green_bowl",
     "lane": "robot1",
-    "wave": 5
-  },
-  {
-    "id": 15,
-    "agent": "robot2",
-    "action": "pick",
-    "object": "red_cube_2",
-    "destination": "",
-    "lane": "robot2",
     "wave": 6
   },
   {
-    "id": 16,
+    "id": 19,
     "agent": "robot3",
     "action": "pick",
     "object": "green_cube_3",
     "destination": "",
     "lane": "robot3",
     "wave": 7
-  },
-  {
-    "id": 17,
-    "agent": "robot2",
-    "action": "move",
-    "object": "red_cube_2",
-    "destination": "robot3",
-    "lane": "transfer",
-    "wave": 6
-  },
-  {
-    "id": 18,
-    "agent": "robot3",
-    "action": "pick",
-    "object": "red_cube_2",
-    "destination": "",
-    "lane": "robot3",
-    "wave": 6
-  },
-  {
-    "id": 19,
-    "agent": "robot3",
-    "action": "place",
-    "object": "red_cube_2",
-    "destination": "red_bowl",
-    "lane": "robot3",
-    "wave": 6
   },
   {
     "id": 20,

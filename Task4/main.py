@@ -1,10 +1,9 @@
 import pybullet as p
 import cv2
 from graph.execute_command import run_from_json
-from Task1 import environment
-#Sort the cubes in the correct bowl
+from Task4 import environment
 
-#chinh lai handoff positions
+
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)
@@ -23,7 +22,7 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "commands_task1.json",
+        "../Task4/commands_task4.json",
         robot_ids,
         object_map
     )
