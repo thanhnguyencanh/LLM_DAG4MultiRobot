@@ -20,8 +20,8 @@ class Environment:
             "green_cube_2": (0.8, 0.0, 0.8),
         }
         self.handoff_points = {
-            "robot1torobot2": [0.5, 0.2, 0.85],
-            "robot2torobot1": [0.65, -0.2, 0.85],
+            "robot1torobot2": [0.55, 0.2, 0.8],
+            "robot2torobot1": [0.65, -0.2, 0.8],
         }
         self.agent_positions = {
             "robot1": [1.35, 0.0, 0.8],

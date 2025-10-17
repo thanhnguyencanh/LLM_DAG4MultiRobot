@@ -4,7 +4,7 @@ from graph.execute_command import run_from_json
 from Task1 import environment
 #Sort the cubes in the correct bowl
 
-#chinh lai handoff positions
+
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)

@@ -7,13 +7,6 @@ from Task4.environment import Environment
 
 class RobotExecutor:
     def __init__(self, robot_ids, object_map, transfer_positions=None):
-        """
-        Args:
-            robot_ids: Dict mapping robot names to robot IDs
-            object_map: Dict mapping object names to object IDs
-            transfer_positions: Dict with transfer positions
-                               (nếu None sẽ lấy từ Environment)
-        """
         self.robot_ids = robot_ids
         self.object_map = object_map
 

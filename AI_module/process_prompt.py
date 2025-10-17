@@ -18,23 +18,12 @@ AGENT_CONFIG = {
 
 class PromptBuilder:
     def __init__(self, agent_config=None):
-        """
-        Args:
-            agent_config: Dict định nghĩa agents và capabilities
-                         (nếu None sẽ dùng AGENT_CONFIG mặc định)
-
-        Lấy agent_positions và handoff_points từ Environment
-        """
         self.agent_config = agent_config or AGENT_CONFIG
         self.env = Environment()
         self.agent_names = list(self.agent_config.keys())
-
-        # Lấy positions từ environment
         self._load_positions_from_environment()
 
     def _load_positions_from_environment(self):
-        """Lấy agent positions và handoff points từ Environment"""
-        # Lấy agent positions
         if hasattr(self.env, 'agent_positions'):
             for agent_name in self.agent_names:
                 if agent_name in self.env.agent_positions:
@@ -45,7 +34,6 @@ class PromptBuilder:
         else:
             raise AttributeError("Environment does not have 'agent_positions' attribute")
 
-        # Lấy handoff points
         if hasattr(self.env, 'handoff_points'):
             self.handoff_points = self.env.handoff_points
             print("[INFO] Loaded handoff points from Environment")
