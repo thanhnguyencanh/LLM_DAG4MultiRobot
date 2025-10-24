@@ -2,6 +2,8 @@ import pybullet as p
 import cv2
 from graph.execute_command import run_from_json
 from Task1 import environment
+
+
 #Sort the cubes in the correct bowl
 
 

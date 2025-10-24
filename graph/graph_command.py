@@ -1,25 +1,7 @@
 from collections import defaultdict, deque
 import json
 import re
-from AI_module.LLM import call_gemini
-
-def call_gemini():
-    return [
-        ("robot1", "pick banana"),
-        ("robot1", "place banana on plate"),
-        ("robot2", "pick spoon"),
-        ("robot2", "place spoon in drawer"),
-        ("robot2", "pick purple_cup"),
-        ("robot2", "place purple_cup in drawer"),
-        ("robot2", "pick apple"),
-        ("robot2torobot1", "move apple to robot1"),
-        ("robot1", "pick apple"),
-        ("robot1", "place apple on plate"),
-        ("robot1", "pick orange_cup"),
-        ("robot1torobot2", "move orange_cup to robot2"),
-        ("robot2", "pick orange_cup"),
-        ("robot2", "place orange_cup in drawer")
-    ]
+from AI_module.call_gemini_test import call_gemini_1
 
 
 #task_plan = call_gemini()
@@ -40,7 +22,7 @@ class TaskProcessor:
     def _discover_agents(self):
         handoff_pattern = re.compile(r'^(robot\d+)to(robot\d+)$')
 
-        for agent, _ in self.task_plan:
+        for agent, _, _ in self.task_plan:
             match = handoff_pattern.match(agent)
             if match:
                 self.handoff_agents.add(agent)
@@ -50,7 +32,6 @@ class TaskProcessor:
                 self.robots.add(agent)
 
     def _get_handoff_target(self, handoff_agent):
-
         match = re.match(r'^robot\d+to(robot\d+)$', handoff_agent)
         return match.group(1) if match else None
 
@@ -58,37 +39,40 @@ class TaskProcessor:
         match = re.match(r'^(robot\d+)torobot\d+$', handoff_agent)
         return match.group(1) if match else None
 
-    def _process_tasks(self):
-        handoffs = {agent: None for agent in self.handoff_agents}
-        object_last_task = {}  # Dictionary to track LastTask[o] as in paper
+    def _parse_dependencies(self, dep_str):
+        """
+        Parse dependency string like 'node[1]', 'node[3,6]', or 'node[]'
+        Returns: list of node IDs
+        """
+        if not dep_str or dep_str == "node[]":
+            return []
 
-        for i, (agent, action) in enumerate(self.task_plan, start=1):
+        # Extract numbers from node[...]
+        match = re.search(r'node\[([\d,\s]+)\]', dep_str)
+        if match:
+            nums_str = match.group(1)
+            return [int(x.strip()) for x in nums_str.split(',') if x.strip()]
+        return []
+
+    def _process_tasks(self):
+        """
+        Tạo tasks và edges dựa trên dependencies từ LLM
+        """
+        for i, (agent, action, dependencies) in enumerate(self.task_plan, start=1):
             obj = self._extract_object(action)
+
             self.tasks[i] = {
                 "agent": agent,
                 "action": action,
                 "object": obj
             }
 
-            # Create edges based on object dependencies (as described in paper)
-            # "If LastTask[o] exists, add edge (v_j, v_i) where v_j = LastTask[o]"
-            if obj:
-                if obj in object_last_task:
-                    self.edges.append((object_last_task[obj], i))
-                object_last_task[obj] = i  # Update LastTask[o] ← v_i
+            # Tạo edges từ dependencies của LLM
+            dep_nodes = self._parse_dependencies(dependencies)
+            for dep_node in dep_nodes:
+                self.edges.append((dep_node, i))
 
-            # Handle handoff logic (collaboration lane)
-            if agent in self.handoff_agents:
-                handoffs[agent] = i
-            else:
-                # Check if this task follows any pending handoff
-                for handoff_agent, handoff_task_id in list(handoffs.items()):
-                    if handoff_task_id is not None:
-                        target_robot = self._get_handoff_target(handoff_agent)
-                        if agent == target_robot:
-                            # Create edge from handoff to target robot's next task
-                            self.edges.append((handoff_task_id, i))
-                            handoffs[handoff_agent] = None
+            print(f"Task {i}: {agent} | {action} | deps: {dep_nodes}")
 
     def _extract_object(self, action):
         action = action.lower().strip()
@@ -115,6 +99,10 @@ class TaskProcessor:
         return ""
 
     def assign_waves(self):
+        """
+        Gán wave: Chỉ những nodes có dependency trực tiếp với nhau mới cùng wave
+        Waves được sort theo node đầu tiên (nhỏ nhất) của mỗi wave
+        """
         all_nodes = set(self.tasks.keys())
 
         # Build predecessor map
@@ -122,32 +110,63 @@ class TaskProcessor:
         for u, v in self.edges:
             predecessors[v].add(u)
 
-        remaining = sorted(all_nodes)  # Sorted list of nodes to process
-        wave = 1
+        # Build successor map
+        successors = defaultdict(set)
+        for u, v in self.edges:
+            successors[u].add(v)
+
+        print("\n🔍 Dependency Analysis:")
+        for node in sorted(all_nodes):
+            deps = sorted(predecessors[node])
+            print(f"  Node {node}: deps={deps}")
+
+        print("\n📊 Initial Wave Grouping:")
+
+        remaining = sorted(all_nodes)
+        temp_waves = []  # Lưu tạm các wave groups
 
         while remaining:
-            # Start new wave with first remaining node
+            # Bắt đầu wave mới với node đầu tiên trong remaining
             current_wave = [remaining[0]]
             to_remove = [remaining[0]]
 
-            # Try to add remaining nodes that have dependency with current wave
+            # Thử thêm các nodes còn lại nếu có dependency với nodes trong current_wave
             for node_id in remaining[1:]:
-                # Check if this node has any predecessor in current wave
-                if predecessors[node_id] & set(current_wave):
+                has_connection = False
+
+                # Kiểm tra xem node này có dependency với bất kỳ node nào trong current_wave không
+                for wave_node in current_wave:
+                    # Có edge từ wave_node đến node_id (predecessor)
+                    if wave_node in predecessors[node_id]:
+                        has_connection = True
+                        break
+                    # Có edge từ node_id đến wave_node (successor)
+                    if wave_node in successors[node_id]:
+                        has_connection = True
+                        break
+
+                if has_connection:
                     current_wave.append(node_id)
                     to_remove.append(node_id)
 
-            # Assign wave to all nodes in current wave
-            for node in current_wave:
-                self.tasks[node]["wave"] = wave
+            temp_waves.append(sorted(current_wave))
+            print(f"  Group {len(temp_waves)}: {sorted(current_wave)}")
 
-            print(f"  Wave {wave}: {sorted(current_wave)}")
-
-            # Remove processed nodes from remaining
+            # Loại bỏ các nodes đã xử lý
             remaining = [n for n in remaining if n not in to_remove]
-            wave += 1
 
-        print(f"📊 Assigned {wave - 1} waves to {len(self.tasks)} tasks")
+        # Sort waves theo node nhỏ nhất trong mỗi wave
+        temp_waves.sort(key=lambda wave: min(wave))
+
+        print(f"\n📊 Sorted Wave Assignment:")
+
+        # Gán wave numbers sau khi sort
+        for wave_num, wave_nodes in enumerate(temp_waves, start=1):
+            for node in wave_nodes:
+                self.tasks[node]["wave"] = wave_num
+            print(f"  Wave {wave_num}: {wave_nodes}")
+
+        print(f"\n✅ Assigned {len(temp_waves)} waves to {len(self.tasks)} tasks")
 
     def parse_action(self, action):
         action = action.lower().strip()
@@ -234,11 +253,12 @@ class TaskProcessor:
                 lane = "transfer" if task["agent"] in self.handoff_agents else task["agent"]
                 obj = f"[{task['object']}]" if task['object'] else ""
                 print(f"  Task {task_id:2d}: [{task['agent']:15s}] {task['action']:30s} {obj:15s} (lane: {lane})")
-        print(f"📊 Summary: {len(waves)} waves, {len(self.tasks)} total tasks")
+
+        print(f"\n📊 Summary: {len(waves)} waves, {len(self.tasks)} total tasks")
+
 
 if __name__ == "__main__":
-    task_plan = call_gemini()
+    task_plan = call_gemini_1()
     processor = TaskProcessor(task_plan)
     processor.print_summary()
-    processor.export_json("commands_task3.json")
-
+    processor.export_json("commands_task1.json")

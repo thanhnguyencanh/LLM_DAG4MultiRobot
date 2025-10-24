@@ -22,7 +22,7 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "../Task4/commands_task4.json",
+        "../task_ground_truth/commands_task4.json",
         robot_ids,
         object_map
     )

@@ -1,8 +1,9 @@
 import threading
 from collections import defaultdict
 import json
+import time
 from robot import robot_action
-from Task4.environment import Environment
+from Task1.environment import Environment
 
 
 class RobotExecutor:
@@ -10,7 +11,22 @@ class RobotExecutor:
         self.robot_ids = robot_ids
         self.object_map = object_map
 
-        # Lấy transfer positions từ Environment nếu không được cung cấp
+        # Agent state management
+        self.agent_states = {agent: "free" for agent in robot_ids.keys()}
+        self.state_lock = threading.Lock()
+
+        # Task completion tracking
+        self.completed_tasks = set()
+        self.completion_lock = threading.Lock()
+
+        # Constraint tracking
+        self.task_constraints = {}
+        self.constraint_lock = threading.Lock()
+
+        # Global task pool - tất cả tasks available
+        self.available_tasks = []
+        self.task_pool_lock = threading.Lock()
+
         if transfer_positions is None:
             env = Environment()
             self.transfer_positions = self._get_transfer_positions_from_env(env)
@@ -23,15 +39,12 @@ class RobotExecutor:
         if not hasattr(env, 'handoff_points') or not env.handoff_points:
             raise ValueError(
                 "[ERROR] Environment does not have 'handoff_points'. "
-                "Please define handoff_points (e.g., {'robot1torobot2': [x, y, z], ...}) in Environment"
+                "Please define handoff_points in Environment"
             )
-
         transfer_pos = env.handoff_points
-
         print("[INFO] Handoff points loaded from Environment:")
         for key, pos in sorted(transfer_pos.items()):
             print(f"  {key}: {pos}")
-
         return transfer_pos
 
     def _validate_robots(self):
@@ -51,7 +64,6 @@ class RobotExecutor:
             )
 
     def print_transfer_positions(self):
-        """In ra tất cả handoff points"""
         print("\n" + "=" * 60)
         print(" HANDOFF POINTS (for move action)")
         print("=" * 60)
@@ -59,11 +71,45 @@ class RobotExecutor:
             print(f"{key}: {pos}")
         print("=" * 60 + "\n")
 
+    def set_agent_busy(self, agent):
+        with self.state_lock:
+            self.agent_states[agent] = "busy"
+            print(f"  [{agent}] → BUSY")
+
+    def set_agent_free(self, agent):
+        with self.state_lock:
+            self.agent_states[agent] = "free"
+            print(f"  [{agent}] → FREE")
+
+    def is_agent_free(self, agent):
+        with self.state_lock:
+            return self.agent_states[agent] == "free"
+
+    def mark_task_completed(self, task_id):
+        with self.completion_lock:
+            self.completed_tasks.add(task_id)
+            print(f"  [Task {task_id}] ✓ Completed")
+
+    def is_task_completed(self, task_id):
+        with self.completion_lock:
+            return task_id in self.completed_tasks
+
+    def set_task_constraint(self, task_id, constraint):
+        with self.constraint_lock:
+            self.task_constraints[task_id] = constraint
+
+    def get_task_constraint(self, task_id):
+        with self.constraint_lock:
+            return self.task_constraints.get(task_id)
+
     def run_from_json(self, json_file):
-        """Chạy commands từ JSON file"""
         with open(json_file) as f:
             commands = json.load(f)
 
+        self.task_map = {cmd["id"]: cmd for cmd in commands}
+        self.dependency_map = self._build_dependency_map(commands)
+
+        # Group by waves
         waves = defaultdict(list)
         for cmd in commands:
             waves[cmd["wave"]].append(cmd)
@@ -71,114 +117,235 @@ class RobotExecutor:
         # Group waves into execution threads
         execution_threads = self._group_execution_threads(waves)
 
-        # Execute each thread sequentially
-        for thread_idx, thread_waves in enumerate(execution_threads):
-            print(f"\n=== Execution Thread {thread_idx + 1} ===")
-            print(f"Waves: {thread_waves}")
-            self._execute_thread(thread_waves, waves)
+        print("\n" + "=" * 70)
+        print("EXECUTION PLAN - PARALLEL WAVES WITH AGENT SWITCHING")
+        print("=" * 70)
+        for idx, thread_waves in enumerate(execution_threads):
+            print(f"Thread {idx + 1}: Waves {thread_waves}")
+            for wave_id in thread_waves:
+                tasks = waves[wave_id]
+                agents = [t["agent"] for t in tasks]
+                print(f"  Wave {wave_id}: {agents}")
+        print("=" * 70 + "\n")
+
+        # Execute with wave-based parallelism and agent switching
+        self._execute_waves_parallel(execution_threads, waves)
+
+    def _build_dependency_map(self, commands):
+        """Build dependency map based on task sequence"""
+        dependency_map = defaultdict(list)
+
+        # Build dependencies based on same object or transfer relationships
+        for i, cmd in enumerate(commands):
+            # Dependency: pick -> move/place (same object, same agent)
+            if cmd["action"] == "pick":
+                for future_cmd in commands[i + 1:]:
+                    if (future_cmd["agent"] == cmd["agent"] and
+                            future_cmd["object"] == cmd["object"] and
+                            future_cmd["action"] in ["move", "place"]):
+                        dependency_map[future_cmd["id"]].append(cmd["id"])
+                        break
+
+            # Dependency: move -> pick (transfer between agents)
+            if cmd["action"] == "move":
+                dest_agent = cmd["destination"]
+                obj = cmd["object"]
+                for future_cmd in commands[i + 1:]:
+                    if (future_cmd["agent"] == dest_agent and
+                            future_cmd["action"] == "pick" and
+                            future_cmd["object"] == obj):
+                        dependency_map[future_cmd["id"]].append(cmd["id"])
+                        break
+
+        print("\n[Dependency Map]")
+        for task_id, deps in dependency_map.items():
+            print(f"  Task {task_id} depends on: {deps}")
+        print()
+
+        return dependency_map
 
     def _group_execution_threads(self, waves):
-        """Nhóm waves thành execution threads"""
+        """Group waves into execution threads based on first node agent"""
         sorted_wave_ids = sorted(waves.keys())
         execution_threads = []
-        remaining_waves = sorted_wave_ids.copy()  # Các wave chưa được xử lý
+        remaining_waves = sorted_wave_ids.copy()
 
         while remaining_waves:
             current_thread = []
             waves_to_remove = []
 
-            # Bắt đầu thread mới với wave đầu tiên còn lại
+            # Start new thread with first remaining wave
             current_thread.append(remaining_waves[0])
             waves_to_remove.append(remaining_waves[0])
+            first_wave_start_agent = waves[remaining_waves[0]][0]["agent"]
 
-            # Thử thêm các wave tiếp theo vào thread
+            # Try to add subsequent waves to thread
             for wave_id in remaining_waves[1:]:
-                # Kiểm tra với TẤT CẢ wave đã có trong thread hiện tại
+                curr_wave_start_agent = waves[wave_id][0]["agent"]
+
+                # Check conflict with ALL waves in current thread
                 can_add = True
                 for existing_wave_id in current_thread:
-                    if not self._check_boundary_agent_non_conflict(
-                            waves[existing_wave_id],
-                            waves[wave_id]
-                    ):
+                    existing_start_agent = waves[existing_wave_id][0]["agent"]
+                    if curr_wave_start_agent == existing_start_agent:
                         can_add = False
-                        break  # Nếu conflict với bất kỳ wave nào → dừng kiểm tra
+                        break
 
                 if can_add:
                     current_thread.append(wave_id)
                     waves_to_remove.append(wave_id)
                 else:
-                    # Gặp conflict → dừng việc thêm vào thread này
                     break
 
-            # Lưu thread và loại bỏ các wave đã xử lý
             execution_threads.append(current_thread)
             for wave_id in waves_to_remove:
                 remaining_waves.remove(wave_id)
 
         return execution_threads
 
-    def _check_boundary_agent_non_conflict(self, prev_tasks, curr_tasks):
-        """Kiểm tra xem hai wave có conflict không"""
-        if not prev_tasks or not curr_tasks:
-            return True
-
-        # Get first agent of previous wave
-        prev_start_agent = prev_tasks[0]["agent"]
-        # Get last agent of previous wave
-        prev_end_agent = prev_tasks[-1]["agent"]
-
-        # Get first agent of current wave
-        curr_start_agent = curr_tasks[0]["agent"]
-        # Get last agent of current wave
-        curr_end_agent = curr_tasks[-1]["agent"]
-
-        # Check non-conflict conditions
-        start_conflict = prev_start_agent == curr_start_agent
-        end_conflict = prev_end_agent == curr_end_agent
-
-        if start_conflict or end_conflict:
-            return False
-
-        return True
-
-    def _execute_thread(self, thread_waves, waves):
+    def _execute_waves_parallel(self, execution_threads, waves):
         """
-        Execute all waves in a thread in parallel.
-        Each wave is executed as a separate thread.
+        Execute waves with true parallelism:
+        - Multiple waves can run simultaneously
+        - Agents can switch between waves/threads when free
         """
+        # Flatten all tasks and sort by wave
+        all_tasks_by_wave = []
+        for thread_waves in execution_threads:
+            for wave_id in thread_waves:
+                for task in waves[wave_id]:
+                    all_tasks_by_wave.append((wave_id, task))
+
+        # Sort by wave ID to maintain wave ordering
+        all_tasks_by_wave.sort(key=lambda x: x[0])
+
+        # Populate available tasks
+        with self.task_pool_lock:
+            self.available_tasks = all_tasks_by_wave.copy()
+
+        print(f"\n[Task Pool] {len(self.available_tasks)} tasks loaded\n")
+
+        # Start worker thread for each agent
         threads = []
+        for agent in self.robot_ids.keys():
+            t = threading.Thread(target=self._agent_worker, args=(agent,))
+            threads.append(t)
+            t.start()
 
-        for wave_id in thread_waves:
-            tasks = waves[wave_id]
-            thread = threading.Thread(
-                target=self._execute_wave_sequential,
-                args=(wave_id, tasks)
-            )
-            threads.append(thread)
-            thread.start()
+        # Wait for all threads
+        for t in threads:
+            t.join()
 
-        # Wait for all waves to complete
-        for thread in threads:
-            thread.join()
+        print("\n✅ All waves completed!")
 
-        print(f"All waves {thread_waves} completed")
-
-    def _execute_wave_sequential(self, wave_id, tasks):
+    def _agent_worker(self, agent):
         """
-        Execute all tasks within a wave sequentially.
+        Worker thread for each agent.
+        Agent picks up any available task assigned to it when free.
         """
-        print(f"Wave {wave_id}: Starting execution")
-        constraint = None
+        print(f"\n[{agent}] Worker started")
 
-        for task in tasks:
-            constraint = self._execute_task(task, constraint)
+        while True:
+            # Try to get next available task for this agent
+            task = self._get_next_available_task(agent)
 
-        print(f"Wave {wave_id}: Completed")
+            if task is None:
+                # No more tasks available
+                if self._all_tasks_completed():
+                    print(f"[{agent}] No more tasks, shutting down")
+                    break
+                else:
+                    # Wait a bit for dependencies to clear
+                    time.sleep(0.1)
+                    continue
+
+            wave_id, task_data = task
+            task_id = task_data["id"]
+
+            # Wait for dependencies
+            self._wait_for_dependencies(task_id)
+
+            # Get constraint if needed
+            prev_constraint = None
+            if task_data["action"] in ["place", "move"]:
+                for prev_task in self.task_map.values():
+                    if (prev_task["agent"] == agent and
+                            prev_task["object"] == task_data["object"] and
+                            prev_task["action"] == "pick" and
+                            prev_task["id"] < task_id):
+                        prev_constraint = self.get_task_constraint(prev_task["id"])
+                        break
+
+            # Set agent busy
+            self.set_agent_busy(agent)
+
+            # Execute task
+            print(f"[{agent}] Executing Wave {wave_id}, Task {task_id}: {task_data['action']} {task_data['object']}")
+            constraint = self._execute_task(task_data, prev_constraint)
+
+            # Store constraint
+            if constraint:
+                self.set_task_constraint(task_id, constraint)
+
+            # Mark completed
+            self.mark_task_completed(task_id)
+
+            # Set agent free
+            self.set_agent_free(agent)
+
+            time.sleep(0.05)
+
+        print(f"[{agent}] Worker finished")
+
+    def _get_next_available_task(self, agent):
+        """
+        Get next available task for this agent.
+        Task is available if:
+        1. Assigned to this agent
+        2. Dependencies are satisfied
+        3. Not yet completed
+        """
+        with self.task_pool_lock:
+            for i, (wave_id, task) in enumerate(self.available_tasks):
+                if task["agent"] != agent:
+                    continue
+
+                task_id = task["id"]
+
+                # Check if already completed
+                if self.is_task_completed(task_id):
+                    continue
+
+                # Check dependencies
+                deps_satisfied = True
+                if task_id in self.dependency_map:
+                    for dep_id in self.dependency_map[task_id]:
+                        if not self.is_task_completed(dep_id):
+                            deps_satisfied = False
+                            break
+
+                if deps_satisfied:
+                    # Remove from pool and return
+                    self.available_tasks.pop(i)
+                    return (wave_id, task)
+
+            return None
+
+    def _all_tasks_completed(self):
+        """Check if all tasks are completed"""
+        with self.completion_lock:
+            return len(self.completed_tasks) == len(self.task_map)
+
+    def _wait_for_dependencies(self, task_id):
+        """Wait for all dependencies to complete"""
+        if task_id in self.dependency_map:
+            deps = self.dependency_map[task_id]
+            for dep_id in deps:
+                while not self.is_task_completed(dep_id):
+                    time.sleep(0.05)
 
     def _execute_task(self, task, constraint):
-        """
-        Execute a single task with its constraint from previous task.
-        """
+        """Execute a single task"""
         agent = task["agent"]
         action = task["action"]
         obj = task["object"]
@@ -190,8 +357,6 @@ class RobotExecutor:
         robot_id = self.robot_ids[agent]
 
         try:
-            print(f"  Executing: {agent} {action} {obj} -> {dest}")
-
             if action == "pick" and obj in self.object_map:
                 pos = robot_action.get_position(self.object_map[obj])
                 constraint = robot_action.pick(robot_id, self.object_map[obj], pos)
@@ -208,7 +373,6 @@ class RobotExecutor:
                 return None
 
             elif action == "move":
-                # Chuyển destination robot name thành handoff label (e.g., robot1 -> robot2torobot1)
                 handoff_label = f"{agent}to{dest}"
                 target_pos = self.get_transfer_position(handoff_label)
                 if constraint:
