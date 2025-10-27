@@ -2,22 +2,20 @@ from robot.robot_env import UR5Robotiq85
 import pybullet as p
 import pybullet_data
 import math
-from paths import BOWL_GREEN_URDF, BOWL_RED_URDF, BOWL_YELLOW_URDF,PLATE_URDF
+from paths import BOWL_GREEN_URDF, BOWL_RED_URDF, BOWL_YELLOW_URDF
 
 
 class Environment:
     def __init__(self):
         self.robot_id = {}
         self.objects = {
-            "green_bowl": (0.8, 0.37, 0.9),
-            "red_bowl": (0.74, -0.33, 0.9),
-            "yellow_bowl": (0.32, 0.4, 0.9),
-            "plate_1": (0.85, -0.3, 0.9),
-            "plate_2": (0.24, 0.2, 0.9),
+            "green_bowl": (0.9, 0.37, 0.9),
+            "red_bowl": (0.85, -0.33, 0.9),
+            "yellow_bowl": (0.3, 0.4, 0.9),
         }
         self.handoff_points = {
-            "robot1torobot2": [0.5, 0.2, 0.85],
-            "robot2torobot1": [0.65, -0.2, 0.85],
+            "robot1torobot2": [0.55, -0.2, 0.8],
+            "robot2torobot1": [0.65, 0.2, 0.8],
         }
         self.agent_positions = {
             "robot1": [1.35, 0.0, 0.8],
@@ -39,12 +37,8 @@ class Environment:
         robot_id_1.load()
 
         green_bowl = p.loadURDF(BOWL_GREEN_URDF, [0.9, 0.37, 0.9], globalScaling=0.13)
-        red_bowl = p.loadURDF(BOWL_RED_URDF, [0.3, -0.33, 0.9], globalScaling=0.13)
-        yellow_bowl = p.loadURDF(BOWL_YELLOW_URDF, [-0.21, 0.0, 0.9], globalScaling=0.13)
-
-        plate_1 = p.loadURDF(PLATE_URDF, [0.7, -0.3, 0.9], globalScaling=1.1)
-        plate_2 = p.loadURDF(PLATE_URDF, [0.4, 0.3, 0.9], globalScaling=1.1)
-
+        red_bowl = p.loadURDF(BOWL_RED_URDF, [0.85, -0.33, 0.9], globalScaling=0.13)
+        yellow_bowl = p.loadURDF(BOWL_YELLOW_URDF, [0.3, 0.4, 0.9], globalScaling=0.13)
 
         self.robot_id = {
             "robot1": robot_id_1,
@@ -55,8 +49,6 @@ class Environment:
             "green_bowl": green_bowl,
             "yellow_bowl": yellow_bowl,
             "red_bowl": red_bowl,
-            "plate_1": plate_1,
-            "plate_2": plate_2,
         }
 
 

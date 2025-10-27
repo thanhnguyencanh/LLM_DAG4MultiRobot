@@ -1,7 +1,6 @@
 from robot.robot_env import UR5Robotiq85
 import pybullet as p
 import pybullet_data
-import math
 from paths import TABLE_URDF,BOWL_GREEN_URDF, BOWL_RED_URDF, BOWL_YELLOW_URDF
 from my_objects.objects_simu import create_item
 class Environment:

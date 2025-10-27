@@ -12,7 +12,6 @@ def main():
     p.setRealTimeSimulation(0)
     env = environment.Environment()
     env.setup_simulation()
-
     robot_ids = env.robot_id
 
     object_map = {}
@@ -25,7 +24,7 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "commands_task1.json",
+        "../task_plan_truth /commands_task1.json",
         robot_ids,
         object_map
     )

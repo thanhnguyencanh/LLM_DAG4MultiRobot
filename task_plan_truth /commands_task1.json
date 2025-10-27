@@ -5,8 +5,7 @@
     "action": "pick",
     "object": "yellow_cube",
     "destination": "",
-    "lane": "robot2",
-    "wave": 1
+    "lane": "robot2"
   },
   {
     "id": 2,
@@ -14,8 +13,7 @@
     "action": "place",
     "object": "yellow_cube",
     "destination": "yellow_bowl",
-    "lane": "robot2",
-    "wave": 1
+    "lane": "robot2"
   },
   {
     "id": 3,
@@ -23,8 +21,7 @@
     "action": "pick",
     "object": "green_cube_2",
     "destination": "",
-    "lane": "robot1",
-    "wave": 2
+    "lane": "robot1"
   },
   {
     "id": 4,
@@ -32,8 +29,7 @@
     "action": "place",
     "object": "green_cube_2",
     "destination": "green_bowl",
-    "lane": "robot1",
-    "wave": 2
+    "lane": "robot1"
   },
   {
     "id": 5,
@@ -41,8 +37,7 @@
     "action": "pick",
     "object": "red_cube",
     "destination": "",
-    "lane": "robot1",
-    "wave": 3
+    "lane": "robot1"
   },
   {
     "id": 6,
@@ -50,8 +45,7 @@
     "action": "move",
     "object": "red_cube",
     "destination": "robot2",
-    "lane": "transfer",
-    "wave": 3
+    "lane": "transfer"
   },
   {
     "id": 7,
@@ -59,8 +53,7 @@
     "action": "pick",
     "object": "red_cube",
     "destination": "",
-    "lane": "robot2",
-    "wave": 3
+    "lane": "robot2"
   },
   {
     "id": 8,
@@ -68,8 +61,7 @@
     "action": "place",
     "object": "red_cube",
     "destination": "red_bowl",
-    "lane": "robot2",
-    "wave": 3
+    "lane": "robot2"
   },
   {
     "id": 9,
@@ -77,8 +69,7 @@
     "action": "pick",
     "object": "green_cube_1",
     "destination": "",
-    "lane": "robot2",
-    "wave": 4
+    "lane": "robot2"
   },
   {
     "id": 10,
@@ -86,8 +77,7 @@
     "action": "move",
     "object": "green_cube_1",
     "destination": "robot1",
-    "lane": "transfer",
-    "wave": 4
+    "lane": "transfer"
   },
   {
     "id": 11,
@@ -95,8 +85,7 @@
     "action": "pick",
     "object": "green_cube_1",
     "destination": "",
-    "lane": "robot1",
-    "wave": 4
+    "lane": "robot1"
   },
   {
     "id": 12,
@@ -104,7 +93,6 @@
     "action": "place",
     "object": "green_cube_1",
     "destination": "green_bowl",
-    "lane": "robot1",
-    "wave": 4
+    "lane": "robot1"
   }
 ]

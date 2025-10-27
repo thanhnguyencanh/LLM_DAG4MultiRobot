@@ -3,7 +3,7 @@ from collections import defaultdict
 import json
 import time
 from robot import robot_action
-from Task1.environment import Environment
+from Task3.environment import Environment # Chỉnh lại trước khi chạy task nào đó
 
 
 class RobotExecutor:
@@ -23,7 +23,7 @@ class RobotExecutor:
         self.task_constraints = {}
         self.constraint_lock = threading.Lock()
 
-        # Global task pool - tất cả tasks available
+        # Global task pool
         self.available_tasks = []
         self.task_pool_lock = threading.Lock()
 
@@ -109,121 +109,18 @@ class RobotExecutor:
         self.task_map = {cmd["id"]: cmd for cmd in commands}
         self.dependency_map = self._build_dependency_map(commands)
 
-        # Group by waves
-        waves = defaultdict(list)
-        for cmd in commands:
-            waves[cmd["wave"]].append(cmd)
-
-        # Group waves into execution threads
-        execution_threads = self._group_execution_threads(waves)
-
         print("\n" + "=" * 70)
-        print("EXECUTION PLAN - PARALLEL WAVES WITH AGENT SWITCHING")
+        print("EXECUTION PLAN - DEPENDENCY-BASED PARALLEL EXECUTION")
         print("=" * 70)
-        for idx, thread_waves in enumerate(execution_threads):
-            print(f"Thread {idx + 1}: Waves {thread_waves}")
-            for wave_id in thread_waves:
-                tasks = waves[wave_id]
-                agents = [t["agent"] for t in tasks]
-                print(f"  Wave {wave_id}: {agents}")
+        print(f"Total tasks: {len(commands)}")
+        print(f"Agents: {list(self.robot_ids.keys())}")
         print("=" * 70 + "\n")
 
-        # Execute with wave-based parallelism and agent switching
-        self._execute_waves_parallel(execution_threads, waves)
-
-    def _build_dependency_map(self, commands):
-        """Build dependency map based on task sequence"""
-        dependency_map = defaultdict(list)
-
-        # Build dependencies based on same object or transfer relationships
-        for i, cmd in enumerate(commands):
-            # Dependency: pick -> move/place (same object, same agent)
-            if cmd["action"] == "pick":
-                for future_cmd in commands[i + 1:]:
-                    if (future_cmd["agent"] == cmd["agent"] and
-                            future_cmd["object"] == cmd["object"] and
-                            future_cmd["action"] in ["move", "place"]):
-                        dependency_map[future_cmd["id"]].append(cmd["id"])
-                        break
-
-            # Dependency: move -> pick (transfer between agents)
-            if cmd["action"] == "move":
-                dest_agent = cmd["destination"]
-                obj = cmd["object"]
-                for future_cmd in commands[i + 1:]:
-                    if (future_cmd["agent"] == dest_agent and
-                            future_cmd["action"] == "pick" and
-                            future_cmd["object"] == obj):
-                        dependency_map[future_cmd["id"]].append(cmd["id"])
-                        break
-
-        print("\n[Dependency Map]")
-        for task_id, deps in dependency_map.items():
-            print(f"  Task {task_id} depends on: {deps}")
-        print()
-
-        return dependency_map
-
-    def _group_execution_threads(self, waves):
-        """Group waves into execution threads based on first node agent"""
-        sorted_wave_ids = sorted(waves.keys())
-        execution_threads = []
-        remaining_waves = sorted_wave_ids.copy()
-
-        while remaining_waves:
-            current_thread = []
-            waves_to_remove = []
-
-            # Start new thread with first remaining wave
-            current_thread.append(remaining_waves[0])
-            waves_to_remove.append(remaining_waves[0])
-            first_wave_start_agent = waves[remaining_waves[0]][0]["agent"]
-
-            # Try to add subsequent waves to thread
-            for wave_id in remaining_waves[1:]:
-                curr_wave_start_agent = waves[wave_id][0]["agent"]
-
-                # Check conflict with ALL waves in current thread
-                can_add = True
-                for existing_wave_id in current_thread:
-                    existing_start_agent = waves[existing_wave_id][0]["agent"]
-                    if curr_wave_start_agent == existing_start_agent:
-                        can_add = False
-                        break
-
-                if can_add:
-                    current_thread.append(wave_id)
-                    waves_to_remove.append(wave_id)
-                else:
-                    break
-
-            execution_threads.append(current_thread)
-            for wave_id in waves_to_remove:
-                remaining_waves.remove(wave_id)
-
-        return execution_threads
-
-    def _execute_waves_parallel(self, execution_threads, waves):
-        """
-        Execute waves with true parallelism:
-        - Multiple waves can run simultaneously
-        - Agents can switch between waves/threads when free
-        """
-        # Flatten all tasks and sort by wave
-        all_tasks_by_wave = []
-        for thread_waves in execution_threads:
-            for wave_id in thread_waves:
-                for task in waves[wave_id]:
-                    all_tasks_by_wave.append((wave_id, task))
-
-        # Sort by wave ID to maintain wave ordering
-        all_tasks_by_wave.sort(key=lambda x: x[0])
-
-        # Populate available tasks
+        # Populate task pool
         with self.task_pool_lock:
-            self.available_tasks = all_tasks_by_wave.copy()
+            self.available_tasks = commands.copy()
 
-        print(f"\n[Task Pool] {len(self.available_tasks)} tasks loaded\n")
+        print(f"[Task Pool] {len(self.available_tasks)} tasks loaded\n")
 
         # Start worker thread for each agent
         threads = []
@@ -236,7 +133,41 @@ class RobotExecutor:
         for t in threads:
             t.join()
 
-        print("\n✅ All waves completed!")
+        print("\n✅ All tasks completed!")
+
+    def _build_dependency_map(self, commands):
+        """Build dependency map from explicit node dependencies in JSON"""
+        dependency_map = defaultdict(list)
+
+        for cmd in commands:
+            task_id = cmd["id"]
+
+            # Parse node dependencies from command
+            # Expected format: "node[1,2,3]" or "node[]"
+            node_str = cmd.get("node", "node[]")
+
+            # Extract dependency IDs from node string
+            if "node[" in node_str:
+                # Extract content between [ and ]
+                start = node_str.index("[") + 1
+                end = node_str.index("]")
+                deps_str = node_str[start:end].strip()
+
+                if deps_str:  # If not empty
+                    # Split by comma and convert to integers
+                    dep_ids = [int(d.strip()) for d in deps_str.split(",")]
+                    dependency_map[task_id] = dep_ids
+
+        print("\n[Dependency Map]")
+        if dependency_map:
+            for task_id in sorted(dependency_map.keys()):
+                deps = dependency_map[task_id]
+                print(f"  Task {task_id} depends on: {deps}")
+        else:
+            print("  No dependencies found")
+        print()
+
+        return dependency_map
 
     def _agent_worker(self, agent):
         """
@@ -259,18 +190,17 @@ class RobotExecutor:
                     time.sleep(0.1)
                     continue
 
-            wave_id, task_data = task
-            task_id = task_data["id"]
+            task_id = task["id"]
 
             # Wait for dependencies
             self._wait_for_dependencies(task_id)
 
             # Get constraint if needed
             prev_constraint = None
-            if task_data["action"] in ["place", "move"]:
+            if task["action"] in ["place", "move"]:
                 for prev_task in self.task_map.values():
                     if (prev_task["agent"] == agent and
-                            prev_task["object"] == task_data["object"] and
+                            prev_task["object"] == task["object"] and
                             prev_task["action"] == "pick" and
                             prev_task["id"] < task_id):
                         prev_constraint = self.get_task_constraint(prev_task["id"])
@@ -280,8 +210,8 @@ class RobotExecutor:
             self.set_agent_busy(agent)
 
             # Execute task
-            print(f"[{agent}] Executing Wave {wave_id}, Task {task_id}: {task_data['action']} {task_data['object']}")
-            constraint = self._execute_task(task_data, prev_constraint)
+            print(f"[{agent}] Executing Task {task_id}: {task['action']} {task['object']}")
+            constraint = self._execute_task(task, prev_constraint)
 
             # Store constraint
             if constraint:
@@ -298,15 +228,9 @@ class RobotExecutor:
         print(f"[{agent}] Worker finished")
 
     def _get_next_available_task(self, agent):
-        """
-        Get next available task for this agent.
-        Task is available if:
-        1. Assigned to this agent
-        2. Dependencies are satisfied
-        3. Not yet completed
-        """
+        """Get next available task for the agent"""
         with self.task_pool_lock:
-            for i, (wave_id, task) in enumerate(self.available_tasks):
+            for i, task in enumerate(self.available_tasks):
                 if task["agent"] != agent:
                     continue
 
@@ -327,7 +251,7 @@ class RobotExecutor:
                 if deps_satisfied:
                     # Remove from pool and return
                     self.available_tasks.pop(i)
-                    return (wave_id, task)
+                    return task
 
             return None
 

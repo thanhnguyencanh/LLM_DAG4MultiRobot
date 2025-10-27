@@ -6,7 +6,7 @@
     "object": "banana",
     "destination": "",
     "lane": "robot1",
-    "wave": 1
+    "node": "node[]"
   },
   {
     "id": 2,
@@ -15,7 +15,7 @@
     "object": "banana",
     "destination": "plate",
     "lane": "robot1",
-    "wave": 1
+    "node": "node[1]"
   },
   {
     "id": 3,
@@ -24,7 +24,7 @@
     "object": "spoon",
     "destination": "",
     "lane": "robot2",
-    "wave": 2
+    "node": "node[]"
   },
   {
     "id": 4,
@@ -33,7 +33,7 @@
     "object": "spoon",
     "destination": "drawer",
     "lane": "robot2",
-    "wave": 2
+    "node": "node[3]"
   },
   {
     "id": 5,
@@ -42,7 +42,7 @@
     "object": "purple_cup",
     "destination": "",
     "lane": "robot2",
-    "wave": 3
+    "node": "node[]"
   },
   {
     "id": 6,
@@ -51,7 +51,7 @@
     "object": "purple_cup",
     "destination": "drawer",
     "lane": "robot2",
-    "wave": 3
+    "node": "node[5]"
   },
   {
     "id": 7,
@@ -60,7 +60,7 @@
     "object": "apple",
     "destination": "",
     "lane": "robot2",
-    "wave": 4
+    "node": "node[]"
   },
   {
     "id": 8,
@@ -69,7 +69,7 @@
     "object": "apple",
     "destination": "robot1",
     "lane": "transfer",
-    "wave": 4
+    "node": "node[7]"
   },
   {
     "id": 9,
@@ -78,7 +78,7 @@
     "object": "apple",
     "destination": "",
     "lane": "robot1",
-    "wave": 4
+    "node": "node[8]"
   },
   {
     "id": 10,
@@ -87,7 +87,7 @@
     "object": "apple",
     "destination": "plate",
     "lane": "robot1",
-    "wave": 4
+    "node": "node[9]"
   },
   {
     "id": 11,
@@ -96,7 +96,7 @@
     "object": "orange_cup",
     "destination": "",
     "lane": "robot1",
-    "wave": 5
+    "node": "node[]"
   },
   {
     "id": 12,
@@ -105,7 +105,7 @@
     "object": "orange_cup",
     "destination": "robot2",
     "lane": "transfer",
-    "wave": 5
+    "node": "node[11]"
   },
   {
     "id": 13,
@@ -114,7 +114,7 @@
     "object": "orange_cup",
     "destination": "",
     "lane": "robot2",
-    "wave": 5
+    "node": "node[12]"
   },
   {
     "id": 14,
@@ -123,6 +123,6 @@
     "object": "orange_cup",
     "destination": "drawer",
     "lane": "robot2",
-    "wave": 5
+    "node": "node[13]"
   }
 ]

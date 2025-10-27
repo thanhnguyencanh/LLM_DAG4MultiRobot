@@ -4,6 +4,9 @@ from graph.execute_command import run_from_json
 from Task4 import environment
 
 
+#Sort the cubes in the correct bowl
+
+
 def main():
     p.connect(p.GUI)
     p.setRealTimeSimulation(0)
@@ -22,7 +25,7 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "../task_ground_truth/commands_task4.json",
+        "../task_plan_truth /commands_task4.json",
         robot_ids,
         object_map
     )
