@@ -3,7 +3,7 @@ from collections import defaultdict
 import json
 import time
 from robot import robot_action
-from Task3.environment import Environment # Chỉnh lại trước khi chạy task nào đó
+from Task5.environment import Environment
 
 
 class RobotExecutor:
@@ -11,9 +11,9 @@ class RobotExecutor:
         self.robot_ids = robot_ids
         self.object_map = object_map
 
-        # Agent state management
-        self.agent_states = {agent: "free" for agent in robot_ids.keys()}
-        self.state_lock = threading.Lock()
+        # Agent state: tracks if agent is holding an object
+        self.agent_holding = {agent: False for agent in robot_ids.keys()}
+        self.holding_lock = threading.Lock()
 
         # Task completion tracking
         self.completed_tasks = set()
@@ -71,19 +71,17 @@ class RobotExecutor:
             print(f"{key}: {pos}")
         print("=" * 60 + "\n")
 
-    def set_agent_busy(self, agent):
-        with self.state_lock:
-            self.agent_states[agent] = "busy"
-            print(f"  [{agent}] → BUSY")
+    def set_agent_holding(self, agent, holding=True):
+        """Set agent's holding state"""
+        with self.holding_lock:
+            self.agent_holding[agent] = holding
+            status = "HOLDING object" if holding else "FREE (hands empty)"
+            print(f"  [{agent}] → {status}")
 
-    def set_agent_free(self, agent):
-        with self.state_lock:
-            self.agent_states[agent] = "free"
-            print(f"  [{agent}] → FREE")
-
-    def is_agent_free(self, agent):
-        with self.state_lock:
-            return self.agent_states[agent] == "free"
+    def is_agent_holding(self, agent):
+        """Check if agent is holding an object"""
+        with self.holding_lock:
+            return self.agent_holding[agent]
 
     def mark_task_completed(self, task_id):
         with self.completion_lock:
@@ -110,7 +108,7 @@ class RobotExecutor:
         self.dependency_map = self._build_dependency_map(commands)
 
         print("\n" + "=" * 70)
-        print("EXECUTION PLAN - DEPENDENCY-BASED PARALLEL EXECUTION")
+        print("EXECUTION PLAN - OPTIMIZED PARALLEL EXECUTION")
         print("=" * 70)
         print(f"Total tasks: {len(commands)}")
         print(f"Agents: {list(self.robot_ids.keys())}")
@@ -141,20 +139,14 @@ class RobotExecutor:
 
         for cmd in commands:
             task_id = cmd["id"]
-
-            # Parse node dependencies from command
-            # Expected format: "node[1,2,3]" or "node[]"
             node_str = cmd.get("node", "node[]")
 
-            # Extract dependency IDs from node string
             if "node[" in node_str:
-                # Extract content between [ and ]
                 start = node_str.index("[") + 1
                 end = node_str.index("]")
                 deps_str = node_str[start:end].strip()
 
-                if deps_str:  # If not empty
-                    # Split by comma and convert to integers
+                if deps_str:
                     dep_ids = [int(d.strip()) for d in deps_str.split(",")]
                     dependency_map[task_id] = dep_ids
 
@@ -172,7 +164,12 @@ class RobotExecutor:
     def _agent_worker(self, agent):
         """
         Worker thread for each agent.
-        Agent picks up any available task assigned to it when free.
+
+        KEY LOGIC:
+        1. Agent picks task that belongs to it
+        2. Check dependencies satisfied
+        3. For PICK: agent must not be holding anything
+        4. Execute immediately when conditions met
         """
         print(f"\n[{agent}] Worker started")
 
@@ -183,64 +180,79 @@ class RobotExecutor:
             if task is None:
                 # No more tasks available
                 if self._all_tasks_completed():
-                    print(f"[{agent}] No more tasks, shutting down")
+                    print(f"[{agent}] All tasks done, shutting down")
                     break
                 else:
-                    # Wait a bit for dependencies to clear
-                    time.sleep(0.1)
+                    # Wait a bit for dependencies or other agents
+                    time.sleep(0.05)
                     continue
 
             task_id = task["id"]
+            action = task["action"]
+            obj = task["object"]
 
-            # Wait for dependencies
+            # Wait for dependencies BEFORE executing
             self._wait_for_dependencies(task_id)
 
-            # Get constraint if needed
+            # Get constraint from previous pick if needed
             prev_constraint = None
-            if task["action"] in ["place", "move"]:
+            if action in ["place", "move"]:
                 for prev_task in self.task_map.values():
                     if (prev_task["agent"] == agent and
-                            prev_task["object"] == task["object"] and
+                            prev_task["object"] == obj and
                             prev_task["action"] == "pick" and
                             prev_task["id"] < task_id):
                         prev_constraint = self.get_task_constraint(prev_task["id"])
                         break
 
-            # Set agent busy
-            self.set_agent_busy(agent)
-
             # Execute task
-            print(f"[{agent}] Executing Task {task_id}: {task['action']} {task['object']}")
+            print(f"[{agent}] Executing Task {task_id}: {action} {obj}")
             constraint = self._execute_task(task, prev_constraint)
 
-            # Store constraint
-            if constraint:
+            # Update agent holding state based on action
+            if action == "pick" and constraint:
+                self.set_agent_holding(agent, True)
                 self.set_task_constraint(task_id, constraint)
+            elif action in ["place", "move"]:
+                self.set_agent_holding(agent, False)
 
-            # Mark completed
+            # Mark task as completed
             self.mark_task_completed(task_id)
 
-            # Set agent free
-            self.set_agent_free(agent)
-
-            time.sleep(0.05)
+            # NO SLEEP HERE - immediately try to get next task!
+            # This allows agent to pick next task ASAP after completing current one
 
         print(f"[{agent}] Worker finished")
 
     def _get_next_available_task(self, agent):
-        """Get next available task for the agent"""
+        """
+        Get next available task for the agent.
+
+        CONDITIONS:
+        1. Task must belong to this agent
+        2. Task not already completed
+        3. All dependencies satisfied
+        4. For PICK action: agent must not be holding anything
+        """
         with self.task_pool_lock:
             for i, task in enumerate(self.available_tasks):
+                # Condition 1: Must be this agent's task
                 if task["agent"] != agent:
                     continue
 
                 task_id = task["id"]
 
-                # Check if already completed
+                # Condition 2: Not already completed
                 if self.is_task_completed(task_id):
                     continue
 
-                # Check dependencies
+                # Condition 4: For PICK, agent must not be holding anything
+                if task["action"] == "pick":
+                    if self.is_agent_holding(agent):
+                        # Agent still holding object, cannot pick new one
+                        continue
+
+                # Condition 3: Check dependencies
                 deps_satisfied = True
                 if task_id in self.dependency_map:
                     for dep_id in self.dependency_map[task_id]:
@@ -249,8 +261,9 @@ class RobotExecutor:
                             break
 
                 if deps_satisfied:
-                    # Remove from pool and return
+                    # Found valid task - remove from pool and return
                     self.available_tasks.pop(i)
+                    print(f"  [{agent}] Selected Task {task_id} from pool")
                     return task
 
             return None
@@ -264,6 +277,11 @@ class RobotExecutor:
         """Wait for all dependencies to complete"""
         if task_id in self.dependency_map:
             deps = self.dependency_map[task_id]
+            waiting_for = [d for d in deps if not self.is_task_completed(d)]
+
+            if waiting_for:
+                print(f"    Task {task_id} waiting for: {waiting_for}")
+
             for dep_id in deps:
                 while not self.is_task_completed(dep_id):
                     time.sleep(0.05)
@@ -285,7 +303,7 @@ class RobotExecutor:
                 pos = robot_action.get_position(self.object_map[obj])
                 constraint = robot_action.pick(robot_id, self.object_map[obj], pos)
                 if constraint is None:
-                    print(f"  Pick action failed for object: {obj}")
+                    print(f"  ⚠️  Pick action failed for object: {obj}")
                 return constraint
 
             elif action == "place":
@@ -308,10 +326,10 @@ class RobotExecutor:
                     obj_id = self.object_map[obj]
                     robot_action.sweep(robot_id, obj_id, sweep_count=3)
                 else:
-                    print(f"  Object {obj} not found for sweeping.")
+                    print(f"  ⚠️  Object {obj} not found for sweeping.")
 
         except Exception as e:
-            print(f"Error executing {action} for {agent}: {e}")
+            print(f"❌ Error executing {action} for {agent}: {e}")
 
         return constraint
 

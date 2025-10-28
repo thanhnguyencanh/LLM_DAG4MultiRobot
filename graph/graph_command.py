@@ -1,11 +1,13 @@
 from collections import defaultdict, deque
 import json
 import re
-from AI_module.call_gemini_test import call_gemini_5, call_gemini_1,call_gemini_2,call_gemini_3
+from AI_module.call_gemini_test import call_gemini_4, call_gemini_1,call_gemini_2,call_gemini_3,call_gemini_5
 from AI_module.LLM import call_gemini
 
 
 #task_plan = call_gemini()
+
+
 class TaskProcessor:
     def __init__(self, task_plan):
         if not task_plan:
@@ -171,6 +173,6 @@ class TaskProcessor:
 
 
 if __name__ == "__main__":
-    task_plan = call_gemini_3()
+    task_plan = call_gemini_5() #chinh cai nay tuy task
     processor = TaskProcessor(task_plan)
-    processor.export_json("commands_task3.json")
+    processor.export_json("commands_task_5.json")

@@ -1,6 +1,6 @@
 import os
 
-# Lấy root path của project (chứa main.py, robot/, my_objects/)
+# Lấy root path của project (chứa main, robot/, my_objects/)
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # Robot URDF

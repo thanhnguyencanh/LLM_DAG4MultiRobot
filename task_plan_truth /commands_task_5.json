@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "agent": "robot2",
+    "action": "pick",
+    "object": "red_cube",
+    "destination": "",
+    "lane": "robot2",
+    "node": "node[]"
+  },
+  {
+    "id": 2,
+    "agent": "robot2",
+    "action": "move",
+    "object": "red_cube",
+    "destination": "robot1",
+    "lane": "transfer",
+    "node": "node[1]"
+  },
+  {
+    "id": 3,
+    "agent": "robot1",
+    "action": "pick",
+    "object": "red_cube",
+    "destination": "",
+    "lane": "robot1",
+    "node": "node[2]"
+  },
+  {
+    "id": 4,
+    "agent": "robot2",
+    "action": "pick",
+    "object": "yellow_cube",
+    "destination": "",
+    "lane": "robot2",
+    "node": "node[]"
+  },
+  {
+    "id": 5,
+    "agent": "robot1",
+    "action": "place",
+    "object": "red_cube",
+    "destination": "red_bowl",
+    "lane": "robot1",
+    "node": "node[3]"
+  },
+  {
+    "id": 6,
+    "agent": "robot2",
+    "action": "move",
+    "object": "yellow_cube",
+    "destination": "robot1",
+    "lane": "transfer",
+    "node": "node[4]"
+  },
+  {
+    "id": 7,
+    "agent": "robot1",
+    "action": "pick",
+    "object": "yellow_cube",
+    "destination": "",
+    "lane": "robot1",
+    "node": "node[6]"
+  },
+  {
+    "id": 8,
+    "agent": "robot2",
+    "action": "pick",
+    "object": "green_cube",
+    "destination": "",
+    "lane": "robot2",
+    "node": "node[]"
+  },
+  {
+    "id": 9,
+    "agent": "robot1",
+    "action": "place",
+    "object": "yellow_cube",
+    "destination": "yellow_bowl",
+    "lane": "robot1",
+    "node": "node[7]"
+  },
+  {
+    "id": 10,
+    "agent": "robot2",
+    "action": "move",
+    "object": "green_cube",
+    "destination": "robot1",
+    "lane": "transfer",
+    "node": "node[8]"
+  },
+  {
+    "id": 11,
+    "agent": "robot1",
+    "action": "pick",
+    "object": "green_cube",
+    "destination": "",
+    "lane": "robot1",
+    "node": "node[10]"
+  },
+  {
+    "id": 12,
+    "agent": "robot1",
+    "action": "place",
+    "object": "green_cube",
+    "destination": "green_bowl",
+    "lane": "robot1",
+    "node": "node[11]"
+  }
+]
