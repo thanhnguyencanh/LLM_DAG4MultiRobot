@@ -84,6 +84,7 @@ dmypy.json
 .pyre/
 
 # IDE
+.idea
 .idea/
 .vscode/
 *.swp
