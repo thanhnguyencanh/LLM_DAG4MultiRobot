@@ -1,11 +1,14 @@
 import pybullet as p
 import cv2
+import os
 from graph.execute_command import run_from_json
 from Task4 import environment
 
 
-#Sort the cubes in the correct bowl
+#Stack bowl in order red, yellow, green
 
+# Get the directory where this script is located
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def main():
     p.connect(p.GUI)
@@ -25,14 +28,14 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "../task_plan_truth /commands_task4.json",
+        os.path.join(SCRIPT_DIR, "../task_plan_truth/commands_task_4.json"),
         robot_ids,
         object_map
     )
 
     cv2.destroyAllWindows()
     p.disconnect()
-    print("Simulation kết thúc.")
+    print("Simulation finished.")
 
 
 if __name__ == "__main__":

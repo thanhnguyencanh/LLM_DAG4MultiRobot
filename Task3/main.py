@@ -1,10 +1,14 @@
 import pybullet as p
 import cv2
+import os
 from Task3 import environment
 from graph.execute_command import run_from_json
 import time
 
-#Clean the table, which fruits should be on the plate, and kitchen utensils in a drawer.
+#Clean the table, which fruits should be on the plate, and kitchen utensils and cup in a drawer.
+
+# Get the directory where this script is located
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def main():
     p.connect(p.GUI)
@@ -25,7 +29,7 @@ def main():
     p.resetDebugVisualizerCamera(camera_distance, camera_yaw, camera_pitch, camera_target_pos)
 
     run_from_json(
-        "commands_task  .json",
+        os.path.join(SCRIPT_DIR, "../task_plan_truth/commands_task_3.json"),
         robot_ids,
         object_map
     )

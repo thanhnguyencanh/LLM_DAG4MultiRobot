@@ -1,4 +1,4 @@
-from Task4.environment import Environment
+from Task4.environment import Environment #Use different environment path base on your task
 
 AGENT_CONFIG = {
     "robot1": {
@@ -13,6 +13,12 @@ AGENT_CONFIG = {
         - PLACE(object, destination): place held object into/onto destination
         - SWEEP(surface, tool): wipe/clean a surface using held object""",
     },
+    # "robot3": {
+    #     "capabilities": """- PICK(object): move to object and pick up
+    #     - MOVE(location): move hand/base to location
+    #     - PLACE(object, destination): place held object into/onto destination
+    #     - SWEEP(surface, tool): wipe/clean a surface using held object""",
+    # },
 }
 
 
@@ -41,16 +47,7 @@ class PromptBuilder:
             raise AttributeError("Environment does not have 'handoff_points' attribute")
 
     def get_handoff_point(self, agent1, agent2):
-        """
-        Lấy handoff point giữa hai robot
 
-        Args:
-            agent1: Robot sẽ gửi object
-            agent2: Robot sẽ nhận object
-
-        Returns:
-            List [x, y, z] của handoff point
-        """
         key = f"{agent1}to{agent2}"
         if key in self.handoff_points:
             return self.handoff_points[key]
@@ -58,34 +55,26 @@ class PromptBuilder:
             raise KeyError(f"Handoff point '{key}' not found in Environment.handoff_points")
 
     def get_all_handoff_points(self):
-        """
-        Lấy tất cả handoff points
 
-        Returns:
-            Dict {handoff_label: [x, y, z]}
-        """
         return self.handoff_points.copy()
 
     def reachability_analysis(self, objects):
-        """
-        Phân tích object nào gần agent nào nhất
-        """
         import math
 
         agent_objects = {agent: [] for agent in self.agent_names}
 
         for obj_name, obj_pos in objects.items():
-            # obj_pos là tuple (x, y, z)
+            # obj_pos is a tuple (x, y, z)
             if not isinstance(obj_pos, tuple) or len(obj_pos) < 3:
                 continue
 
-            # Tính khoảng cách từ object đến tất cả agents
+
             distances = {}
             for agent_name, agent_info in self.agent_config.items():
                 agent_pos = agent_info["position"]
                 distances[agent_name] = math.dist(obj_pos, agent_pos)
 
-            # Tìm agent gần nhất
+            # Find the closest agent
             closest_agent = min(distances, key=distances.get)
             agent_objects[closest_agent].append(obj_name)
 
@@ -137,9 +126,7 @@ class PromptBuilder:
         - {handoff_list}: describes a **move action** between two agents that move to the designated position. This label occurs when the responsible agent for the task cannot directly reach or manipulate the object due to reachability or capability limitations, so another agent must deliver the object via a handover. For example, when the task requires an object that agent A cannot reach but agent B can, agent B must pick up the object and move to the designated handover position. The plan will be: ("BtoA": "move object to A")"""
 
     def _generate_example(self, agent_objects):
-        """
-        Generate example dựa trên số agents hiện có
-        """
+
         agents_for_example = self.agent_names[:2] if len(self.agent_names) >= 2 else self.agent_names
 
         agent1 = agents_for_example[0]
@@ -161,28 +148,28 @@ class PromptBuilder:
 {reachability_str}
 
     RESPONSE: (MUST FOLLOW THE FORMAT)
-    ("{agent2}", "pick lemon"),
-    ("{agent2}", "place lemon on the plate"),
-    ("{agent1}", "pick apple"),
-    ("{agent1}to{agent2}", "move apple to {agent2}"),
-    ("{agent2}", "pick apple"),
-    ("{agent2}", "place apple on the plate"),
-    ("{agent1}", "pick sponge"),
-    ("{agent1}", "sweep the table"),"""
+    ("{agent2}", "pick lemon", "node[]"),
+    ("{agent2}", "place lemon on the plate", "node[1]"),
+    ("{agent1}", "pick apple", "node[]"),
+    ("{agent1}to{agent2}", "move apple to {agent2}", "node[3]"),
+    ("{agent2}", "pick apple", "node[4]"),
+    ("{agent2}", "place apple on the plate", "node[5]"),
+    ("{agent1}", "pick sponge". "node[]"),
+    ("{agent1}", "sweep the table","node[7]),"""
 
     def build_prompt(self, task=None):
-        """Build prompt dựa trên Environment"""
+        """Build prompt based on Environment"""
         if task is None:
             task = input("Input task: ")
 
-        # Lấy tên các objects từ environment
+        # Get object names from environment
         object_names = [name for name in self.env.objects.keys()]
         objects = ", ".join(object_names)
 
-        # Phân tích reachability dựa trên vị trí từ environment
+        # Analyze reachability based on positions from environment
         agent_objects = self.reachability_analysis(self.env.objects)
 
-        # Build các sections của prompt
+        # Build prompt sections
         reachability_status = self._format_reachability_status(agent_objects)
         capabilities = self._format_capabilities()
         label_description = self._generate_label_description()
@@ -205,30 +192,39 @@ class PromptBuilder:
     1) Each step of the task plan must follow this syntax:
          {label_description}
 
-    2) Every "place" action must be preceded by a corresponding "pick" action of the same object. This ensures that the agent actually has the object in hand before placing it into the destination. After the "place" action is executed, the object is no longer in the agent's hand.
+    2) Every "place" action must be preceded by a corresponding "pick" action
+        of the same object. After the "place" action is executed, the object is no longer
+        in the agent's hand.
 
-    3) If an object is not reachable by the agent responsible for the task, a "move" action must be included to transfer the object from another agent who can reach it. This ensures that the object is physically accessible before any manipulation actions are attempted.
+    3) A "pick" action does NOT require an immediate "place" action.
+    An agent may hold an object across multiple steps if it is needed later.
+    
+    4) If an object is not reachable by the agent responsible for the task, a "move" action must be included to transfer the object from another agent who can reach it. This ensures that the object is physically accessible before any manipulation actions are attempted.
 
-    4) Prioritize actions that an agent can complete independently, without requiring handover. Execute these actions first to allow agents to work in parallel. Schedule handover actions only after all independent tasks in the same area are completed.
+    5) Prefer scheduling actions that an agent can complete independently,
+        without requiring handover, unless handover is strictly necessary.
 
-    5) - A robot must place or transfer the object it is holding before picking another one.
-        - Each object can only be held by one robot at a time (no conflicts).
-        - The sequence must be logical and executable step by step without skipping.
+    6) Edge formulate:
+        For every action in the plan, provide a list of dependency nodes as node[...] indicating the step IDs that this action depends on.
+        Step IDs start from 1 in the order of output.
+        Use node[] if no prerequisites.
+        Dependencies must be minimal and logically correct (e.g., place must depend on pick; close must depend on all place actions).
+        Example (illustrative only):
+        (4) ("robot1", "move box to robot2", “node[3]”)
+        ...
+        (9) ("robot2", "close the box",” node[4]”)
 
-    6) Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
-
-    7) Minimize total completion time by: 
-        - Balancing workload across all agents - avoid one agent being overloaded while others are idle.
-        - Scheduling handovers to minimize idle time.
-        - Maximizing parallel execution where possible.
-
+    7)  Do NOT generate redundant actions. Each action must contribute directly to achieving the task goal.
+    
+    
+    8) Output ONLY the task plan. Do not add any explanation, commentary, or extra text.
+    Here is an example to illustrate the expected input and output format:
     {example}
     """
 
         return prompt_template
 
     def print_agent_summary(self):
-        """In ra tóm tắt cấu hình agents và handoff points"""
         print("\n" + "=" * 60)
         print(" AGENT CONFIGURATION SUMMARY")
         print("=" * 60)
@@ -249,15 +245,5 @@ class PromptBuilder:
 
 
 def build_prompt(task=None, agent_config=None):
-    """
-    Build prompt từ Environment
-
-    Args:
-        task: Task description
-        agent_config: Agent configuration (nếu None dùng AGENT_CONFIG mặc định)
-
-    Returns:
-        Prompt string cho LLM
-    """
     builder = PromptBuilder(agent_config)
     return builder.build_prompt(task)

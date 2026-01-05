@@ -43,10 +43,10 @@ class Environment:
 
         table = create_item(
             baseMass=0,
-            position=[0.5, 0.0, 0.0],  # vị trí mặt bàn
+            position=[0.5, 0.0, 0.0],  # table surface position
             shape='cylinder',
-            size=[1.2, 0.5],  # [bán kính, chiều cao]
-            color=[0.5, 0.4, 0.2, 1]  # màu nâu gỗ
+            size=[1.2, 0.5],  # [radius, height]
+            color=[0.5, 0.4, 0.2, 1]  # brown wood color
         )
         robot_id_1 = UR5Robotiq85([0.5, -0.6928, 0.3], [0, 0.0, 1.5])
         robot_id_1.load()

@@ -1,21 +1,29 @@
+"""
+Robot Action Module
+Contains primitive actions for robot manipulation: pick, place, move, sweep.
+"""
+
 import pybullet as p
 import time
 
-SIMULATION_STEPS = 50
-GRIPPER_OPEN = 0.1
-GRIPPER_CLOSE = 0.0
-APPROACH_HEIGHT = 0.3
-GRASP_HEIGHT = 0.12
-PLACE_HEIGHT = 0.15
-DEFAULT_SLEEP = 0.01
+# ============ CONFIGURATION CONSTANTS ============
+SIMULATION_STEPS = 50       # Default simulation steps per action
+GRIPPER_OPEN = 0.1          # Gripper open position (meters)
+GRIPPER_CLOSE = 0.0         # Gripper closed position
+APPROACH_HEIGHT = 0.3       # Height above object for approach
+GRASP_HEIGHT = 0.12         # Height for grasping object
+PLACE_HEIGHT = 0.15         # Height for placing object
+DEFAULT_SLEEP = 0.01        # Sleep time between simulation steps
 
 
 def get_position(obj_id):
+    """Get current [x, y, z] position of an object."""
     pos, _ = p.getBasePositionAndOrientation(obj_id)
     return (pos[0], pos[1], pos[2])
 
 
 def wait_simulation(steps=SIMULATION_STEPS, sleep_time=DEFAULT_SLEEP):
+    """Step the simulation forward and wait."""
     for _ in range(steps):
         p.stepSimulation()
         time.sleep(sleep_time)
@@ -40,24 +48,43 @@ def set_gripper(robot_id, open_length):
 
 
 def pick(robot_id, object_id, target_pos=None):
+    """
+    Pick up an object at target position.
+    
+    Sequence: Home pose -> Approach -> Grasp -> Close gripper -> Lift
+    
+    Args:
+        robot_id: Robot instance
+        object_id: PyBullet object ID to pick
+        target_pos: [x, y, z] position of object
+    
+    Returns:
+        constraint_id: PyBullet constraint ID (for attaching object to gripper)
+    """
+    # Move to home position first
     target_joint_positions = [0, -1.57, 1.57, -1.5, -1.57, 0.0]
     for i, joint_id in enumerate(robot_id.arm_controllable_joints):
         p.setJointMotorControl2(robot_id.id, joint_id, p.POSITION_CONTROL, target_joint_positions[i])
     wait_simulation(steps=200)
 
+    # Get current end-effector orientation
     eef_state = p.getLinkState(robot_id.id, robot_id.eef_id)
     eef_orientation = eef_state[1]
 
+    # Step 1: Move to approach position (above object)
     approach_pos = [target_pos[0], target_pos[1], target_pos[2] + APPROACH_HEIGHT]
     robot_id.move_arm_ik(approach_pos, eef_orientation)
     wait_simulation(50)
 
+    # Step 2: Lower to grasp position
     grasp_pos = [target_pos[0], target_pos[1], target_pos[2] + GRASP_HEIGHT]
     robot_id.move_arm_ik(grasp_pos, eef_orientation)
     wait_simulation(50)
 
+    # Step 3: Close gripper
     set_gripper(robot_id, GRIPPER_CLOSE)
 
+    # Step 4: Create fixed constraint to attach object to gripper
     try:
         constraint_id = p.createConstraint(
             parentBodyUniqueId=robot_id.id,
@@ -74,6 +101,7 @@ def pick(robot_id, object_id, target_pos=None):
         print(f"Failed to create constraint: {e}")
         constraint_id = None
 
+    # Step 5: Lift object
     robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.4], eef_orientation)
     wait_simulation(50)
 
@@ -81,6 +109,17 @@ def pick(robot_id, object_id, target_pos=None):
 
 
 def place(agent_name, target_pos, constraint_id, robot_ids):
+    """
+    Place an object at target position.
+    
+    Sequence: Move above target -> Lower -> Open gripper -> Release -> Lift -> Home
+    
+    Args:
+        agent_name: Name of the robot agent (e.g., "robot1")
+        target_pos: [x, y, z] position to place object
+        constraint_id: PyBullet constraint ID from pick action
+        robot_ids: Dict mapping agent names to robot instances
+    """
     if constraint_id is None:
         print("No constraint found. Cannot place object.")
         return
@@ -89,18 +128,23 @@ def place(agent_name, target_pos, constraint_id, robot_ids):
     eef_state = p.getLinkState(robot_id.id, robot_id.eef_id)
     eef_orientation = eef_state[1]
 
+    # Step 1: Move above target position
     robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.3], eef_orientation)
     wait_simulation(50)
 
+    # Step 2: Lower toward target
     robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.2], eef_orientation)
     wait_simulation(50)
 
+    # Step 3: Open gripper to release object
     robot_id.move_gripper(GRIPPER_OPEN)
     wait_simulation(20)
 
+    # Step 4: Remove constraint to detach object from gripper
     if constraint_id:
         p.removeConstraint(constraint_id)
 
+    # Step 5: Lift arm and return to home position
     robot_id.move_arm_ik([target_pos[0], target_pos[1], target_pos[2] + 0.3], eef_orientation)
     wait_simulation(50)
 

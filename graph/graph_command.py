@@ -1,23 +1,41 @@
+"""
+Task Processor Module
+Processes LLM output into structured task graph for robot execution.
+"""
+
 from collections import defaultdict, deque
 import json
 import re
-from AI_module.call_gemini_test import call_gemini_4, call_gemini_1,call_gemini_2,call_gemini_3,call_gemini_5
-from AI_module.LLM import call_gemini
-
-
-#task_plan = call_gemini()
+from AI_module.call_gemini_test_truth import call_gemini_4, call_gemini_1, call_gemini_2, call_gemini_3, call_gemini_5  # Groundtruth
+from AI_module.LLM import call_gemini  # Call real LLM
 
 
 class TaskProcessor:
+    """
+    Processes task plans from LLM into executable JSON format.
+    
+    Handles:
+    - Parsing agent and action information
+    - Building task dependency graph
+    - Identifying handoff operations between robots
+    - Exporting to JSON for RobotExecutor
+    """
+    
     def __init__(self, task_plan):
+        """
+        Initialize processor with task plan from LLM.
+        
+        Args:
+            task_plan: List of tuples [(agent, action, dependencies), ...]
+        """
         if not task_plan:
             raise ValueError("task_plan cannot be empty")
 
         self.task_plan = task_plan
-        self.tasks = {}
-        self.edges = []
-        self.robots = set()
-        self.handoff_agents = set()
+        self.tasks = {}           # Task ID -> task details
+        self.edges = []           # Dependency edges [(from_id, to_id), ...]
+        self.robots = set()       # Set of robot agents
+        self.handoff_agents = set()  # Set of handoff operations (e.g., "robot1torobot2")
 
         self._discover_agents()
         self._process_tasks()
@@ -59,23 +77,24 @@ class TaskProcessor:
 
     def _process_tasks(self):
         """
-        Tạo tasks và edges dựa trên dependencies từ LLM
+        Process task plan and build task graph with dependencies.
+        Creates tasks dict and dependency edges from LLM output.
         """
         for i, (agent, action, dependencies) in enumerate(self.task_plan, start=1):
             obj = self._extract_object(action)
 
-            # Store dependency string for JSON export
+            # Store task details with dependency string for JSON export
             self.tasks[i] = {
                 "agent": agent,
                 "action": action,
                 "object": obj,
-                "dependencies": dependencies  # Store original dependency string
+                "dependencies": dependencies  # Original dependency string from LLM
             }
 
-            # Tạo edges từ dependencies của LLM
+            # Build dependency edges from LLM dependency format
             dep_nodes = self._parse_dependencies(dependencies)
             for dep_node in dep_nodes:
-                self.edges.append((dep_node, i))
+                self.edges.append((dep_node, i))  # Edge: dep_node -> current task
 
             print(f"Task {i}: {agent} | {action} | deps: {dep_nodes}")
 
@@ -110,22 +129,30 @@ class TaskProcessor:
             return "pick", action[5:].strip(), ""
 
         elif action.startswith("place "):
+            # Split based on common prepositions
             if " into " in action:
                 parts = action[6:].split(" into ", 1)
             elif " in " in action:
                 parts = action[6:].split(" in ", 1)
             elif " on " in action:
                 parts = action[6:].split(" on ", 1)
+            elif " onto " in action:
+                parts = action[6:].split(" onto ", 1)
             else:
                 parts = [action[6:], ""]
+
             obj = parts[0].strip()
-            dest = parts[1].strip() if len(parts) > 1 else ""
+            raw_dest = parts[1].strip() if len(parts) > 1 else ""
+            dest = raw_dest.split()[-1] if raw_dest else ""
+
             return "place", obj, dest
 
         elif action.startswith("move "):
             parts = action[5:].split(" to ", 1)
             obj = parts[0].strip()
-            dest = parts[1].strip() if len(parts) > 1 else ""
+            raw_dest = parts[1].strip() if len(parts) > 1 else ""
+            dest = raw_dest.split()[-1] if raw_dest else ""
+
             return "move", obj, dest
 
         elif action.startswith("sweep "):
@@ -135,12 +162,29 @@ class TaskProcessor:
         return "unknown", action, ""
 
     def export_json(self, filename="commands_task1.json"):
+        """
+        Export processed tasks to JSON file for RobotExecutor.
+        
+        Output format:
+        {
+            "id": task_id,
+            "agent": robot name,
+            "action": pick/place/move/sweep,
+            "object": target object,
+            "destination": target location,
+            "lane": execution lane,
+            "node": dependency string
+        }
+        
+        Args:
+            filename: Output JSON filename
+        """
         commands = []
         for task_id in sorted(self.tasks.keys()):
             task = self.tasks[task_id]
             agent = task["agent"]
 
-            # Determine actual agent and destination for move actions
+            # Handle handoff operations (e.g., "robot1torobot2")
             if agent in self.handoff_agents:
                 source_agent = self._get_handoff_source(agent)
                 dest_agent = self._get_handoff_target(agent)
@@ -150,9 +194,10 @@ class TaskProcessor:
                 dest_agent = ""
                 lane = agent
 
+            # Parse action string into verb, object, destination
             verb, obj, dest = self.parse_action(task["action"])
 
-            # For move action, destination is the target robot
+            # For move action during handoff, destination is the receiving robot
             if verb == "move" and agent in self.handoff_agents:
                 dest = dest_agent
 
@@ -163,7 +208,7 @@ class TaskProcessor:
                 "object": obj.replace(" ", "_") if obj else "",
                 "destination": dest.replace(" ", "_") if dest else "",
                 "lane": lane,
-                "node": task["dependencies"]  # Add node field with dependency string
+                "node": task["dependencies"]  # Dependency string for executor
             })
 
         with open(filename, "w", encoding="utf-8") as f:
@@ -173,6 +218,6 @@ class TaskProcessor:
 
 
 if __name__ == "__main__":
-    task_plan = call_gemini_5() #chinh cai nay tuy task
+    task_plan = call_gemini() #Define which function to call for groundtruth or LLM
     processor = TaskProcessor(task_plan)
-    processor.export_json("commands_task_5.json")
+    processor.export_json("commands_task_4.json")

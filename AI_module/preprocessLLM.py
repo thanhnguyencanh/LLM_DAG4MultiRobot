@@ -1,67 +1,47 @@
+import re
+
+
 def preprocess_llm_response(llm_response):
     lines = []
+    # Regex pattern to find tuple structure ("...", "...", "...") precisely
+    # It captures 3 groups of content within double quotes
+    tuple_pattern = re.compile(r'\(\s*"([^"]*)"\s*,\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)')
 
     for line in llm_response.strip().split('\n'):
         line = line.strip()
         if not line:
             continue
 
-        agent = None
-        action = None
-        node_str = "node[]"  # default
+        # Try to find standard Tuple format (agent, action, node)
+        match = tuple_pattern.search(line)
 
-        # Tuple format with optional node: (robot1, pick cube, node[...])
-        if line.startswith('(') or line.startswith('['):
-            line_clean = line.strip('()[]')
-            parts = line_clean.split(',', 2)  # up to 3 parts
-            if len(parts) >= 2:
-                agent = parts[0].strip().lower()
-                action = parts[1].strip()
-                if len(parts) == 3:
-                    node_str = parts[2].strip()
+        if match:
+            agent = match.group(1).lower()
+            action = match.group(2)
+            node_str = match.group(3)
 
-        # Colon format: robot2: PICK apple
-        elif ':' in line:
-            parts = line.split(':', 1)
-            agent = parts[0].strip().lower()
-            action = parts[1].strip()
-        # Comma separated: robot1, pick cube
-        elif ',' in line:
-            parts = line.split(',', 1)
-            agent = parts[0].strip().lower()
-            action = parts[1].strip()
-        # Space separated: robot1 pick cube
-        else:
-            parts = line.split(None, 1)
-            if len(parts) == 2:
-                agent = parts[0].strip().lower()
-                action = parts[1].strip()
-
-        # Fix PLACE actions
-        if action:
             action_fixed = fix_place_action(action)
             if action_fixed:
-                # Wrap agent, action, node in quotes
-                lines.append(f'("{agent}", "{action_fixed}", "{node_str}"),')
+                # Repack into standard format
+                lines.append(f'("{agent}", "{action_fixed}", "{node_str}")')
 
-    return '\n'.join(lines)
+        # If not tuple format, handle legacy formats (fallback)
+        elif ':' in line:
+            parts = line.split(':', 1)
+            agent = parts[0].strip().strip('"\'').lower()
+            action = parts[1].strip().strip('"\'')
+            lines.append(f'("{agent}", "{fix_place_action(action)}", "node[]")')
 
+    return ',\n'.join(lines)
 
 def fix_place_action(action):
-    """
-    Fix or validate PLACE actions to ensure proper format.
-    """
     action = action.strip()
     if action.lower().startswith('place '):
         parts = action.split()
-        if len(parts) >= 4:
-            prepositions = ['in', 'on', 'into', 'onto', 'at']
-            if any(prep in parts for prep in prepositions):
-                return action
-            else:
+        prepositions = ['in', 'on', 'into', 'onto', 'at']
+        if not any(prep in parts for prep in prepositions):
+            if len(parts) >= 3:
                 return f"{parts[0]} {parts[1]} in {' '.join(parts[2:])}"
-        elif len(parts) == 3:
-            return f"{parts[0]} {parts[1]} in {parts[2]}"
-        else:
-            return None
+            elif len(parts) == 2:
+                return action
     return action

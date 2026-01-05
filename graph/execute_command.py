@@ -1,29 +1,52 @@
+"""
+Robot Executor Module
+Handles multi-robot task execution with parallel processing and dependency management.
+"""
+
 import threading
 from collections import defaultdict
 import json
 import time
 from robot import robot_action
-from Task5.environment import Environment
+from Task1.environment import Environment  # Define your environment class here
 
 
 class RobotExecutor:
+    """
+    Executes robot tasks from JSON with multi-threaded parallel execution.
+    
+    Features:
+    - Multi-agent parallel execution using threads
+    - Task dependency management
+    - Handoff point coordination between robots
+    - Thread-safe state tracking
+    """
+    
     def __init__(self, robot_ids, object_map, transfer_positions=None):
+        """
+        Initialize executor with robots and environment.
+        
+        Args:
+            robot_ids: Dict mapping agent names to robot instances
+            object_map: Dict mapping object names to PyBullet IDs
+            transfer_positions: Dict of handoff points (optional)
+        """
         self.robot_ids = robot_ids
         self.object_map = object_map
 
-        # Agent state: tracks if agent is holding an object
+        # Agent state: tracks if agent is holding an object (thread-safe)
         self.agent_holding = {agent: False for agent in robot_ids.keys()}
         self.holding_lock = threading.Lock()
 
-        # Task completion tracking
+        # Task completion tracking (thread-safe)
         self.completed_tasks = set()
         self.completion_lock = threading.Lock()
 
-        # Constraint tracking
+        # Constraint tracking for pick/place operations (thread-safe)
         self.task_constraints = {}
         self.constraint_lock = threading.Lock()
 
-        # Global task pool
+        # Global task pool for work distribution (thread-safe)
         self.available_tasks = []
         self.task_pool_lock = threading.Lock()
 
@@ -76,7 +99,7 @@ class RobotExecutor:
         with self.holding_lock:
             self.agent_holding[agent] = holding
             status = "HOLDING object" if holding else "FREE (hands empty)"
-            print(f"  [{agent}] → {status}")
+            print(f"  [{agent}]: {status}")
 
     def is_agent_holding(self, agent):
         """Check if agent is holding an object"""
@@ -86,7 +109,7 @@ class RobotExecutor:
     def mark_task_completed(self, task_id):
         with self.completion_lock:
             self.completed_tasks.add(task_id)
-            print(f"  [Task {task_id}] ✓ Completed")
+            print(f"  [Task {task_id}] Completed")
 
     def is_task_completed(self, task_id):
         with self.completion_lock:
@@ -131,7 +154,7 @@ class RobotExecutor:
         for t in threads:
             t.join()
 
-        print("\n✅ All tasks completed!")
+        print("\nAll tasks completed!")
 
     def _build_dependency_map(self, commands):
         """Build dependency map from explicit node dependencies in JSON"""
@@ -156,7 +179,7 @@ class RobotExecutor:
                 deps = dependency_map[task_id]
                 print(f"  Task {task_id} depends on: {deps}")
         else:
-            print("  No dependencies found")
+            print("No dependencies found")
         print()
 
         return dependency_map
@@ -303,7 +326,7 @@ class RobotExecutor:
                 pos = robot_action.get_position(self.object_map[obj])
                 constraint = robot_action.pick(robot_id, self.object_map[obj], pos)
                 if constraint is None:
-                    print(f"  ⚠️  Pick action failed for object: {obj}")
+                    print(f"    Pick action failed for object: {obj}")
                 return constraint
 
             elif action == "place":
@@ -326,10 +349,10 @@ class RobotExecutor:
                     obj_id = self.object_map[obj]
                     robot_action.sweep(robot_id, obj_id, sweep_count=3)
                 else:
-                    print(f"  ⚠️  Object {obj} not found for sweeping.")
+                    print(f"  Object {obj} not found for sweeping.")
 
         except Exception as e:
-            print(f"❌ Error executing {action} for {agent}: {e}")
+            print(f"Error executing {action} for {agent}: {e}")
 
         return constraint
 

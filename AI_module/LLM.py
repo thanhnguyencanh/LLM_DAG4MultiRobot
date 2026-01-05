@@ -24,54 +24,49 @@ def call_gemini():
 
 def parse_task_plan(text):
     try:
-        pattern = r'\("([^"]+)",\s*"([^"]+)"\)'
+        # Regex to extract 3 elements, including when 3rd element has commas (like node[4,8])
+        pattern = r'\("([^"]+)",\s*"([^"]+)",\s*"([^"]+)"\)'
         matches = re.findall(pattern, text)
 
         if matches:
+            # Return list of tuples (agent, action, node)
             return matches
 
-        lines = text.split('\n')
+        # Fallback if Regex fails, use ast.literal_eval line by line
         task_list = []
-
-        for line in lines:
-            line = line.strip()
-            if line.startswith('(') and line.endswith('),'):
-                line = line[:-1]
-                try:
-                    # Safely evaluate the tuple
-                    task_tuple = ast.literal_eval(line)
-                    if len(task_tuple) == 2:
-                        task_list.append(task_tuple)
-                except:
-                    continue
-            elif line.startswith('(') and line.endswith(')'):
-                try:
-                    task_tuple = ast.literal_eval(line)
-                    if len(task_tuple) == 2:
-                        task_list.append(task_tuple)
-                except:
-                    continue
-
-        if task_list:
-            return task_list
-
-        return manual_parse_tasks(text)
+        for line in text.split('\n'):
+            line = line.strip().rstrip(',')
+            if not line: continue
+            try:
+                task_tuple = ast.literal_eval(line)
+                if len(task_tuple) == 3:
+                    task_list.append(task_tuple)
+            except:
+                continue
+        return task_list
 
     except Exception as e:
         print(f"Error parsing task plan: {e}")
         return []
 
 
+def manual_parse_single_line(line):
+    # Helper function for manual parsing if ast.literal_eval fails
+    try:
+        # More flexible regex to extract content between double quotes
+        parts = re.findall(r'"([^"]*)"', line)
+        if len(parts) >= 3:
+            return (parts[0], parts[1], parts[2])
+    except:
+        pass
+    return None
+
+
 def manual_parse_tasks(text):
     tasks = []
     lines = text.split('\n')
-
     for line in lines:
-        line = line.strip()
-        if '("' in line and '")' in line:
-            parts = line.split('("')[1].split('")')[0]
-            if '", "' in parts:
-                agent, action = parts.split('", "')
-                tasks.append((agent, action))
-
+        task = manual_parse_single_line(line)
+        if task:
+            tasks.append(task)
     return tasks
