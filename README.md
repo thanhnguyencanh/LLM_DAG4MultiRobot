@@ -1,7 +1,7 @@
 # Human-Robot Collaboration (HRC) Simulation
 
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 HRC/
@@ -70,6 +70,10 @@ pip install -r requirements.txt
 ```bash
 # Run from project root directory
 cd /path/to/HRC
+
+#Modify your LLM API in AI_module/LLM.py
+
+#Before run task, modify task in graph/execute_command
 
 # Task 1: Sort cubes with 2 robots
 python Task1/main.py

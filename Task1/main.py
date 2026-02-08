@@ -1,16 +1,21 @@
 import pybullet as p
 import cv2
 import os
+import sys
+
+# Get the directory where this script is located
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Add the parent directory (project root) to sys.path so we can import 'graph'
+sys.path.append(os.path.join(SCRIPT_DIR, ".."))
+
 from graph.execute_command import run_from_json
 from Task1 import environment
 
 #Sort the cubes in the correct bowl
 
-# Get the directory where this script is located
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-
 def main():
     p.connect(p.GUI)
+    p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
     p.setRealTimeSimulation(0)
     env = environment.Environment()
     env.setup_simulation()

@@ -11,7 +11,7 @@ class Environment:
         self.robot_id = {}
         self.objects = {
             "green_bowl": (0.9, 0.37, 0.9),
-            "red_bowl": (0.3, -0.33, 0.9),
+            "red_bowl": (0.3, -0.3, 0.9),
             "yellow_bowl": (0.3, 0.4, 0.9),
 
             "red_cube": (1.005, -0.3, 0.81),
@@ -43,7 +43,7 @@ class Environment:
         robot_id_1.load()
 
         green_bowl = p.loadURDF(BOWL_GREEN_URDF, [0.9, 0.37, 0.9], globalScaling=0.13)
-        red_bowl = p.loadURDF(BOWL_RED_URDF, [0.3, -0.33, 0.9], globalScaling=0.13)
+        red_bowl = p.loadURDF(BOWL_RED_URDF, [0.3, -0.3, 0.9], globalScaling=0.13)
         yellow_bowl = p.loadURDF(BOWL_YELLOW_URDF, [0.3, 0.4, 0.9], globalScaling=0.13)
 
         red_cube = create_item([1.005, -0.3, 0.81], 'box', [0.025, 0.025, 0.02], [1, 0, 0, 1])

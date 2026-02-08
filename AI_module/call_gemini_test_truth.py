@@ -61,16 +61,18 @@ def call_gemini_3():
 
 def call_gemini_4():
     return [
-            ("robot1", "pick red bowl", "node[]"),
-            ("robot1torobot2", "move red bowl to robot2", "node[1]"),
+        ("robot1", "pick apple", "node[]"),
+        
+        ("robot1", "place apple in the box", "node[1]"),
+    
+        ("robot2", "pick banana", "node[]"),
+    
+        ("robot2", "place banana in the box", "node[3, 2]"),
 
-            ("robot2", "pick yellow bowl", "node[]"),
-            ("robot2", "place yellow bowl on the red bowl", "node[2, 3]"),
-
-            ("robot1", "pick green bowl", "node[]"),
-            ("robot1", "place green bowl on the yellow bowl", "node[4,5]"),
-
-]
+        ("robot2", "pick cup", "node[4]"),
+        
+        ("robot2", "place cup in the box", "node[5]")
+    ]
 
 def call_gemini_5():
     return [

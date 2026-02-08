@@ -6,7 +6,7 @@ from AI_module.preprocessLLM import preprocess_llm_response
 
 
 def call_gemini():
-    API_KEY = "AIzaSyCkzGKs2xcyQgrQ1hweFV92_XkPrutCFEc"
+    API_KEY = ""  # Replace with your actual API key
     genai.configure(api_key=API_KEY)
 
     model = genai.GenerativeModel("gemini-2.5-flash")

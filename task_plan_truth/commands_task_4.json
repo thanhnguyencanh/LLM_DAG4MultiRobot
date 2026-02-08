@@ -3,7 +3,7 @@
     "id": 1,
     "agent": "robot1",
     "action": "pick",
-    "object": "red_bowl",
+    "object": "apple",
     "destination": "",
     "lane": "robot1",
     "node": "node[]"
@@ -11,17 +11,17 @@
   {
     "id": 2,
     "agent": "robot1",
-    "action": "move",
-    "object": "red_bowl",
-    "destination": "robot2",
-    "lane": "transfer",
+    "action": "place",
+    "object": "apple",
+    "destination": "box",
+    "lane": "robot1",
     "node": "node[1]"
   },
   {
     "id": 3,
     "agent": "robot2",
     "action": "pick",
-    "object": "yellow_bowl",
+    "object": "banana",
     "destination": "",
     "lane": "robot2",
     "node": "node[]"
@@ -30,27 +30,27 @@
     "id": 4,
     "agent": "robot2",
     "action": "place",
-    "object": "yellow_bowl",
-    "destination": "the_red_bowl",
+    "object": "banana",
+    "destination": "box",
     "lane": "robot2",
-    "node": "node[2, 3]"
+    "node": "node[3,2]"
   },
   {
     "id": 5,
-    "agent": "robot1",
+    "agent": "robot2",
     "action": "pick",
-    "object": "green_bowl",
+    "object": "cup",
     "destination": "",
-    "lane": "robot1",
-    "node": "node[]"
+    "lane": "robot2",
+    "node": "node[4]"
   },
   {
     "id": 6,
-    "agent": "robot1",
+    "agent": "robot2",
     "action": "place",
-    "object": "green_bowl",
-    "destination": "the_yellow_bowl",
-    "lane": "robot1",
-    "node": "node[4,5]"
+    "object": "cup",
+    "destination": "box",
+    "lane": "robot2",
+    "node": "node[5]"
   }
 ]
