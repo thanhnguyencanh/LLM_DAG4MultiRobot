@@ -46,8 +46,8 @@ HRC/
 ### 1. Clone repository
 
 ```bash
-git clone https://github.com/TranThang27/Human_Robot_Colab.git
-cd Human_Robot_Colab
+git clone https://github.com/thanhnguyencanh/LLM_DAG4MultiRobot.git
+cd LLM_DAG4MultiRobot
 ```
 
 ### 2. Create virtual environment
@@ -69,7 +69,7 @@ pip install -r requirements.txt
 
 ```bash
 # Run from project root directory
-cd /path/to/HRC
+cd /path/to/HLLM_DAG4MultiRobot
 
 #Modify your LLM API in AI_module/LLM.py
 
