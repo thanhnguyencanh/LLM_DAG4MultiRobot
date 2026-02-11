@@ -300,46 +300,57 @@
                     </tr>
                     <td width=900px>
                         <center>
-                            <span style="font-size:18px"><i>System overview of OSDAG. The framework processes a high-level natural language instruction through three stages: (1)~\textit{LLM-driven Task Decomposition} grounds the instruction into agent-assigned, dependency-annotated sub-tasks using environment context and capability descriptions; (2)~\textit{Task Graph Formalization} constructs a DAG encoding precedence and resource constraints; (3)~\textit{Constraint-Aware Online Scheduling} dynamically assigns ready tasks to idle agents in real time, maximizing parallel execution while preserving task dependencies.</i>
+                            <span style="font-size:18px"><i>System overview of OSDAG. The framework processes a
+                                    high-level natural language instruction through three stages: (1)~\textit{LLM-driven
+                                    Task Decomposition} grounds the instruction into agent-assigned,
+                                    dependency-annotated sub-tasks using environment context and capability
+                                    descriptions; (2)~\textit{Task Graph Formalization} constructs a DAG encoding
+                                    precedence and resource constraints; (3)~\textit{Constraint-Aware Online Scheduling}
+                                    dynamically assigns ready tasks to idle agents in real time, maximizing parallel
+                                    execution while preserving task dependencies.</i>
                         </center>
                     </td>
             </tr>
         </table>
-                    <br>
-            <table align=center width=800px>
-                <tr>
-                    <td width=800px>
-                        <center>
-                            <a href="docs/images/onl_scheduling.png"><img src="docs/images/onl_scheduling.png"
-                                    width="800px"></img></href>
-                            </a><br>
-                        </center>
-                    </td>
-                </tr>
-                <td width=600px>
+        <br>
+        <table align=center width=800px>
+            <tr>
+                <td width=800px>
                     <center>
-                        <span style="font-size:18px"><i> Illustration of the online scheduling process. Steps~(1)--(5) demonstrate dynamic task allocation across three robots. Dashed rectangles indicate ongoing tasks; robots are tagged as \textit{busy} or \textit{free} based on current status. Upon task completion, agents immediately receive new assignments satisfying precedence and resource constraints, eliminating idle time and maximizing parallel efficiency.</i>
+                        <a href="docs/images/onl_scheduling.png"><img src="docs/images/onl_scheduling.png"
+                                width="800px"></img></href>
+                        </a><br>
                     </center>
                 </td>
-            </table>
+            </tr>
+            <td width=600px>
+                <center>
+                    <span style="font-size:18px"><i> Illustration of the online scheduling process. Steps~(1)--(5)
+                            demonstrate dynamic task allocation across three robots. Dashed rectangles indicate ongoing
+                            tasks; robots are tagged as \textit{busy} or \textit{free} based on current status. Upon
+                            task completion, agents immediately receive new assignments satisfying precedence and
+                            resource constraints, eliminating idle time and maximizing parallel efficiency.</i>
+                </center>
+            </td>
+        </table>
 
-            <br><br>
-            <table align=center width=800px>
-                <tr>
-                    <td width=800px>
-                        <center>
-                            <a href="docs/images/task.png" target="_blank"><img src="docs/images/task.png"
-                                    width="800px"></img></href>
-                            </a><br>
-                        </center>
-                    </td>
-                </tr>
-                <td width=600px>
+        <br><br>
+        <table align=center width=800px>
+            <tr>
+                <td width=800px>
                     <center>
-                        <span style="font-size:18px"><i> Simulation environments for the five evaluation tasks.</i>
+                        <a href="docs/images/task.png" target="_blank"><img src="docs/images/task.png"
+                                width="800px"></img></href>
+                        </a><br>
                     </center>
                 </td>
-            </table>
+            </tr>
+            <td width=600px>
+                <center>
+                    <span style="font-size:18px"><i> Simulation environments for the five evaluation tasks.</i>
+                </center>
+            </td>
+        </table>
 
         <br>
         <table align=center width=800>
@@ -362,7 +373,10 @@
                 </tr>
                 <td width=600px>
                     <center>
-                        <span style="font-size:18px"><i> Performance comparison across all tasks. We report Success Rate (SR, \%), Step Success Efficiency (SSE), Reasoning Time (RT, seconds), and Makespan (MS, seconds) averaged over 10 trials. Best results are in \textbf{bold}. ``--'' indicates execution failure.</i>
+                        <span style="font-size:18px"><i> Performance comparison across all tasks. We report Success Rate
+                                (SR, \%), Step Success Efficiency (SSE), Reasoning Time (RT, seconds), and Makespan (MS,
+                                seconds) averaged over 10 trials. Best results are in \textbf{bold}. ``--'' indicates
+                                execution failure.</i>
                     </center>
                 </td>
             </table>
@@ -380,7 +394,10 @@
                 </tr>
                 <td width=600px>
                     <center>
-                        <span style="font-size:18px"><i>Ablation study results.} We evaluate each component's contribution by systematic removal. Removing dependency graphs causes complete failure (SR$=$0). Disabling online scheduling increases makespan by up to 63\% despite correct plans.</i>
+                        <span style="font-size:18px"><i>Ablation study results. We evaluate each component's
+                                contribution by systematic removal. Removing dependency graphs causes complete failure
+                                (SR$=$0). Disabling online scheduling increases makespan by up to 63\% despite correct
+                                plans.</i>
                     </center>
                 </td>
             </table>
@@ -440,7 +457,7 @@
                 <tr>
                     <td colspan="2" align="center">
                         <span style="font-size:16px; font-style:italic;">
-                            Real experiment with Reach and Pick action using UF850 robot.</span>
+                            Real experiment.</span>
                     </td>
                 </tr>
             </table>
@@ -473,7 +490,8 @@
                 <tr>
                     <left> <br>
                         <span style="font-size:18px">1. Canh T. N., Viet T. T., Dinh P. V., HoangVan X., Chong
-                            A.Y. <a href='https://thanhnguyencanh.github.io/LLM_DAG4MultiRobot/'>OSDAG: Online Scheduling for
+                            A.Y. <a href='https://thanhnguyencanh.github.io/LLM_DAG4MultiRobot/'>OSDAG: Online
+                                Scheduling for
                                 Efficient Multi-Robot Collaboration</a>. , 2026.
 
 
