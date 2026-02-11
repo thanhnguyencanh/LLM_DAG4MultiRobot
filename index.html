@@ -1,0 +1,838 @@
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-10550309-8"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-10550309-8');
+</script>
+
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript">google.load("jquery", "1.3.2");</script>
+
+<style type="text/css">
+    body {
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: 300;
+        font-size: 18px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 1100px;
+    }
+
+    h1 {
+        font-weight: 300;
+    }
+
+    .disclaimerbox {
+        background-color: #eee;
+        border: 1px solid #eeeeee;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        padding: 20px;
+    }
+
+    video.header-vid {
+        height: 140px;
+        border: 1px solid black;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+    }
+
+    img.header-img {
+        height: 140px;
+        border: 1px solid black;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+    }
+
+    img.rounded {
+        border: 1px solid #eeeeee;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+    }
+
+    a:link,
+    a:visited {
+        color: #1367a7;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #208799;
+    }
+
+    td.dl-link {
+        height: 160px;
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .layered-paper-big {
+        /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+        box-shadow:
+            0px 0px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The top layer shadow */
+            5px 5px 0 0px #fff,
+            /* The second layer */
+            5px 5px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The second layer shadow */
+            10px 10px 0 0px #fff,
+            /* The third layer */
+            10px 10px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The third layer shadow */
+            15px 15px 0 0px #fff,
+            /* The fourth layer */
+            15px 15px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The fourth layer shadow */
+            20px 20px 0 0px #fff,
+            /* The fifth layer */
+            20px 20px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The fifth layer shadow */
+            25px 25px 0 0px #fff,
+            /* The fifth layer */
+            25px 25px 1px 1px rgba(0, 0, 0, 0.35);
+        /* The fifth layer shadow */
+        margin-left: 10px;
+        margin-right: 45px;
+    }
+
+
+    .layered-paper {
+        /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+        box-shadow:
+            0px 0px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The top layer shadow */
+            5px 5px 0 0px #fff,
+            /* The second layer */
+            5px 5px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The second layer shadow */
+            10px 10px 0 0px #fff,
+            /* The third layer */
+            10px 10px 1px 1px rgba(0, 0, 0, 0.35);
+        /* The third layer shadow */
+        margin-top: 5px;
+        margin-left: 10px;
+        margin-right: 30px;
+        margin-bottom: 5px;
+    }
+
+    .vert-cent {
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    hr {
+        border: 0;
+        height: 1.5px;
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+    }
+</style>
+
+<html>
+
+<head>
+    <title> Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven Imitation Framework</title>
+    <meta property="og:title" content="LfD4hri" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <style>
+        code {
+            font-family: Consolas, "courier new";
+            color: darkcyan;
+            background-color: #f1f1f1;
+            padding: 2px;
+            font-size: 105%;
+        }
+    </style>
+</head>
+
+<body>
+    <br>
+    <center>
+        <span style="font-size:42px"> Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven
+            Imitation Framework</span>
+
+    </center>
+
+    <br><br>
+    <table align=center width=1000px>
+        <tr>
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"><a href="https://thanhnguyencanh.github.io/">Thanh Nguyen
+                            Canh</a></span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"> Thanh Tuan Tran</span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"> Haolan Zhang</span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"> Ziyan Gao</span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"><a href="https://sites.google.com/site/xiemhoang/home?authuser=0">Xiem
+                            HoangVan</a></span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"><a href="https://www.jaist.ac.jp/robot/">Nak Young Chong</a></span>
+                </center>
+            </td>
+        </tr>
+    </table>
+
+    <table align=center width=700px>
+        <tr>
+            <td align=center width=100px>
+                <center>
+                    <span style="font-size:20px">School of Information Science, JAIST, Japan <br> VNU University of
+                        Engineering and Technology, Vietnam <br> Department of Robotics, Hanyang University, Korea <br /><a href=""></a>, 2026.</span>
+                </center>
+            </td>
+        </tr>
+    </table>
+
+    <br>
+
+    <table align=center width=500px>
+        <tr>
+            <td align=center width=100px>
+                <center>
+                    <span style="font-size:20px"><a href="">[Paper]</a></span>
+                </center>
+            </td>
+            <td align=center width=100px>
+                <center>
+                    <span style="font-size:20px"><a href="https://github.com/thanhnguyencanh/LfD4hri">[Code]</a></span>
+                </center>
+            </td>
+
+        </tr>
+    </table>
+
+    <br>
+
+
+    <br>
+    Learning from Demonstration (LfD) offers a promising paradigm for robot skill acquisition. Recent approaches attempt
+    to extract manipulation commands directly from video demonstrations, yet face two critical challenges: (1) general
+    video captioning models prioritize global scene features over task-relevant objects, producing descriptions
+    unsuitable for precise robotic execution, and (2) end-to-end architectures coupling visual understanding with policy
+    learning require extensive paired datasets and struggle to generalize across objects and scenarios. To address these
+    limitations, we propose a novel ``Human-to-Robot'' imitation learning pipeline that enables robots to acquire
+    manipulation skills directly from unstructured video demonstrations, inspired by the human ability to learn by
+    ``\textit{watching}'' and ``\textit{imitating}''. Our key innovation is a modular framework that decouples the
+    learning process into two distinct stages: (1) Video Understanding, which combines Temporal Shift Modules (TSM) with
+    Vision-Language Models (VLMs) to extract actions and identify interacted objects, and (2) Robot Imitation, which
+    employs TD3-based deep reinforcement learning to execute the demonstrated manipulations. We validated our approach
+    in PyBullet simulation environments using a UR5e robotic arm across four fundamental actions: reach, pick, move, and
+    put. For video understanding, our method achieves $89.97\%$ action classification accuracy and attains BLEU-4 scores
+    of $0.351$ on standard objects and $0.265$ on novel objects, representing improvements of $76.4\%$ and $128.4\%$
+    over the best baseline, respectively. For robot manipulation, our framework achieves an average success rate of
+    $87.5\%$ across all actions, with $100\%$ success on reaching tasks and up to $90\%$ on complex pick-and-place
+    operations. These results demonstrate strong generalization capability, particularly for previously unseen object
+    categories.
+    <br><br>
+
+    <hr>
+    <!-- <table align=center width=550px> -->
+    <table align=center width=900>
+        <center>
+            <h1>Paper</h1>
+        </center>
+        <tr>
+            <!--<td width=300px align=left>-->
+            <!-- <a href="http://arxiv.org/pdf/1603.08511.pdf"> -->
+            <!-- <td><a href="#"><img class="layered-paper-big" style="height:175px" src="./resources/images/paper.png"/></a></td> -->
+            <td><a href=""><img style="height:400px" src="docs/images/thumbnails.png" /></a></td>
+            <td><span style="font-size:14pt">Thanh Nguyen Canh, Thanh Tuan Tran, Haolan Zhang, Ziyan Gao, Xiem HoangVan,
+                    Nak Young Chong<br><br>
+                    Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven Imitation
+                    Framework<br><br>
+                    2026.<br><br>
+                    <a href="">[pdf]</a> &nbsp; &nbsp;
+                    <!--    <a href="./resources/bibtex.txt">[Bibtex]</a> -->
+                    <!-- [hosted on <a href="#">arXiv</a>]</a> -->
+            </td>
+        </tr>
+    </table>
+
+
+    <!-- <hr>
+    <h1>Overview and Results</h1>
+    </center>
+    <table align=center width=900px>
+        <tr>
+            <td width=600px>
+                <center>
+                    <video width="900" controls>
+                        <source src="docs/mp4/ECMR2025-Presentation.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </center>
+            </td>
+        </tr>
+    </table>
+    <br> -->
+    <hr>
+    <table align=center width=550px>
+        <table align=center width=800>
+            <center>
+                <h1>Overview</h1>
+            </center>
+            <tr>
+                <br>
+
+                <td width=600px>
+                    <center>
+                        <span style="font-size:28px">Settings
+                            <br>
+                            <br>
+                    </center>
+                </td>
+
+                <br>
+                <table align=center width=900px>
+                    <tr>
+                        <td width=900px>
+                            <center>
+                                <a href="docs/images/overview.png"><img src="docs/images/overview.png"
+                                        width="900px"></img></href>
+                                </a><br>
+                            </center>
+                        </td>
+                    </tr>
+                    <td width=900px>
+                        <center>
+                            <span style="font-size:18px"><i>The proposed Video Understanding architecture consists of
+                                    two parallel branches: (a) Interacted Object Understanding Module and (b) Action
+                                    Understand- ing Module. Initially, the raw input frames F = {f1, f2, . . . , fn} are
+                                    downsampled to ˜F = {˜f1, ˜f2, . . . , ˜fm} (where n > m) to optimize runtime and
+                                    match the training data frame rate in Action Understanding Module. (a) The
+                                    Interacted Object Understand- ing Module processes ˜F to extract a subset of
+                                    keyframes ˆF = {ˆf1, ˆf2, . . . , ˆfk}, (where m > k). These frames are analyzed by
+                                    our Object Selection algorithm and Vision- Language Models (VLMs) to identify the
+                                    specific objects involved in the interaction accurately. (b) The Action
+                                    Understanding Module is implemented based on a CNN architecture with a ResNet-50
+                                    [47] backbone with Temporal Shift Modules (TSM) that shift feature channels along
+                                    the temporal dimension to capture fine-grained motion dynamics for action
+                                    classification.</i>
+                        </center>
+                    </td>
+            </tr>
+        </table>
+
+        <br>
+        <table align=center width=800>
+
+            <hr>
+            <center>
+                <h1>Experiments Results</h1>
+            </center>
+
+
+            <br><br>
+            <table align="center" width="1200px">
+                <tr>
+                    <td width="600px" align="center">
+                        <a href="docs/images/vu_comparison.png" target="_blank">
+                            <iframe src="docs/images/vu_comparison.png" width="400" height="370px"
+                                style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="600px" align="center">
+                        <a href="docs/images/vu_comparison2.png" target="_blank">
+                            <iframe src="docs/images/vu_comparison2.png" width="400" height="370px"
+                                style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Video-to-command generation performance (BLEU scores) on standard object sets (bold and
+                            underline are best and second best, respectively). </span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+
+            <br>
+            <table align=center width=400px>
+                <tr>
+                    <td width=400px>
+                        <center>
+                            <a href="docs/images/drl_comparison.png"><img src="docs/images/drl_comparison.png"
+                                    width="400px"></img></href>
+                            </a><br>
+                        </center>
+                    </td>
+                </tr>
+                <td width=600px>
+                    <center>
+                        <span style="font-size:18px"><i> Comparison of DRL algorithm performance across four
+                                manipulation actions.</i>
+                    </center>
+                </td>
+            </table>
+
+            <br><br>
+            <table align=center width=400px>
+                <tr>
+                    <td width=400px>
+                        <center>
+                            <a href="docs/images/reward.png" target="_blank"><img src="docs/images/reward.png"
+                                    width="400px"></img></href>
+                            </a><br>
+                        </center>
+                    </td>
+                </tr>
+                <td width=600px>
+                    <center>
+                        <span style="font-size:18px"><i> Box plots comparing average rewards for four manipulation
+                                actions.</i>
+                    </center>
+                </td>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Reach action with UR5 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Pick action with UR5 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Move action with UR5 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Put action with UR5 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Reach action with UF850 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Pick action with UF850 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Move action with UF850 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/1.mp4" target="_blank">
+                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/2.mp4" target="_blank">
+                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/3.mp4" target="_blank">
+                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/4.mp4" target="_blank">
+                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/5.mp4" target="_blank">
+                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Put action with UF850 robot (simulation).</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="750px" align="center">
+                        <a href="docs/mp4/touch_real_demo.mp4" target="_blank">
+                            <iframe src="docs/mp4/touch_real_demo.mp4" width="400" style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="750px" align="center">
+                        <a href="docs/mp4/pick_real_demo.mp4" target="_blank">
+                            <iframe src="docs/mp4/pick_real_demo.mp4" width="400" style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Real experiment with Reach and Pick action using UF850 robot.</span>
+                    </td>
+                </tr>
+            </table>
+
+
+            <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+            <hr>
+            <center>
+                <h1>Code</h1>
+            </center>
+            <table align=center width=800px>
+                <tr>
+                    <center> <br>
+                        <span style="font-size:28px">&nbsp;<a
+                                href='https://github.com/thanhnguyencanh/LfD4hri'>[github]</a>
+
+                            <span style="font-size:28px"></a></span>
+                            <br>
+                    </center>
+                </tr>
+            </table>
+            <br>
+            <hr>
+
+            <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+            <center>
+                <h1>Citation</h1>
+            </center>
+            <table align=center width=800px>
+                <tr>
+                    <left> <br>
+                        <span style="font-size:18px">1. Canh T. N., Thanh T. T., Zhang H., Gao Z., HoangVan X., Chong A.Y. <a
+                                href='https://thanhnguyencanh.github.io/LfD4hri/'>Learning to Manipulate by Watching
+                                Humans: A Decoupled Vision-Language-Driven Imitation Framework</a>. , 2026.
+
+
+                            <br><br>
+                            <code>@article{canh2026human, 
+                                  <br>
+                                    author    = {Canh, Thanh Nguyen and Thanh, Tuan Tran and Zhang, Haolan and Gao, Ziyan and HoangVan, Xiem and Chong, Nak Young}, 
+                                  <br>
+                                    title     = {{Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven Imitation Framework}}, 
+                                  <br>
+                                    booktitle = {}, 
+                                  <br>
+                                    year      = {2026}, 
+                                  <br>
+                                    address   = {}, 
+                                  <br>
+                                    month     = {}, 
+                                  <br>
+                                    DOI       = {}
+                                  <br>
+                                } 
+                              </code>
+                    </left>
+                </tr>
+                <br><br>
+
+            </table>
+            <br>
+            <hr>
+
+            <table align=center width=1100px>
+                <tr>
+                    <td>
+                        <left>
+                            <center>
+                                <h1>Acknowledgements</h1>
+                            </center>
+                            This work was supported by JST SPRING, Japan Grant Number JPMJSP2102.
+                            <br>
+                            This webpage template was borrowed from <a
+                                href="https://akanazawa.github.io/cmr/">https://akanazawa.github.io/cmr/</a>.
+                        </left>
+                    </td>
+                </tr>
+            </table>
+            <div style="display:inline-block;width:200px;">
+                <script type="text/javascript"
+                    src="//rf.revolvermaps.com/0/0/7.js?i=5ho5yi7e4v7&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;sx=0"
+                    async="async"></script>
+            </div>
+
+            <br><br>
+</body>
+
+</html>
