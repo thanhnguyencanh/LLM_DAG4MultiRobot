@@ -305,6 +305,41 @@
                     </td>
             </tr>
         </table>
+                    <br>
+            <table align=center width=800px>
+                <tr>
+                    <td width=800px>
+                        <center>
+                            <a href="docs/images/onl_scheduling.png"><img src="docs/images/onl_scheduling.png"
+                                    width="800px"></img></href>
+                            </a><br>
+                        </center>
+                    </td>
+                </tr>
+                <td width=600px>
+                    <center>
+                        <span style="font-size:18px"><i> Illustration of the online scheduling process. Steps~(1)--(5) demonstrate dynamic task allocation across three robots. Dashed rectangles indicate ongoing tasks; robots are tagged as \textit{busy} or \textit{free} based on current status. Upon task completion, agents immediately receive new assignments satisfying precedence and resource constraints, eliminating idle time and maximizing parallel efficiency.</i>
+                    </center>
+                </td>
+            </table>
+
+            <br><br>
+            <table align=center width=800px>
+                <tr>
+                    <td width=800px>
+                        <center>
+                            <a href="docs/images/task.png" target="_blank"><img src="docs/images/task.png"
+                                    width="800px"></img></href>
+                            </a><br>
+                        </center>
+                    </td>
+                </tr>
+                <td width=600px>
+                    <center>
+                        <span style="font-size:18px"><i> Simulation environments for the five evaluation tasks.</i>
+                    </center>
+                </td>
+            </table>
 
         <br>
         <table align=center width=800>
@@ -314,68 +349,38 @@
                 <h1>Experiments Results</h1>
             </center>
 
-
             <br><br>
-            <table align="center" width="1200px">
+            <table align=center width=800px>
                 <tr>
-                    <td width="600px" align="center">
-                        <a href="docs/images/vu_comparison.png" target="_blank">
-                            <iframe src="docs/images/vu_comparison.png" width="400" height="370px"
-                                style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="600px" align="center">
-                        <a href="docs/images/vu_comparison2.png" target="_blank">
-                            <iframe src="docs/images/vu_comparison2.png" width="400" height="370px"
-                                style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Video-to-command generation performance (BLEU scores) on standard object sets (bold and
-                            underline are best and second best, respectively). </span>
-                        </span>
-                    </td>
-                </tr>
-            </table>
-
-            <br>
-            <table align=center width=400px>
-                <tr>
-                    <td width=400px>
+                    <td width=800px>
                         <center>
-                            <a href="docs/images/drl_comparison.png"><img src="docs/images/drl_comparison.png"
-                                    width="400px"></img></href>
+                            <a href="docs/images/performance.png" target="_blank"><img src="docs/images/performance.png"
+                                    width="800px"></img></href>
                             </a><br>
                         </center>
                     </td>
                 </tr>
                 <td width=600px>
                     <center>
-                        <span style="font-size:18px"><i> Comparison of DRL algorithm performance across four
-                                manipulation actions.</i>
+                        <span style="font-size:18px"><i> Performance comparison across all tasks. We report Success Rate (SR, \%), Step Success Efficiency (SSE), Reasoning Time (RT, seconds), and Makespan (MS, seconds) averaged over 10 trials. Best results are in \textbf{bold}. ``--'' indicates execution failure.</i>
                     </center>
                 </td>
             </table>
 
             <br><br>
-            <table align=center width=400px>
+            <table align=center width=800px>
                 <tr>
-                    <td width=400px>
+                    <td width=800px>
                         <center>
-                            <a href="docs/images/reward.png" target="_blank"><img src="docs/images/reward.png"
-                                    width="400px"></img></href>
+                            <a href="docs/images/ablation.png" target="_blank"><img src="docs/images/ablation.png"
+                                    width="800px"></img></href>
                             </a><br>
                         </center>
                     </td>
                 </tr>
                 <td width=600px>
                     <center>
-                        <span style="font-size:18px"><i> Box plots comparing average rewards for four manipulation
-                                actions.</i>
+                        <span style="font-size:18px"><i>Ablation study results.} We evaluate each component's contribution by systematic removal. Removing dependency graphs causes complete failure (SR$=$0). Disabling online scheduling increases makespan by up to 63\% despite correct plans.</i>
                     </center>
                 </td>
             </table>
@@ -384,310 +389,37 @@
             <table align="center" width="1500px">
                 <tr>
                     <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
+                        <a href="docs/mp4/task1.mp4" target="_blank">
+                            <iframe src="docs/mp4/task1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
+                        <a href="docs/mp4/task2.mp4" target="_blank">
+                            <iframe src="docs/mp4/task2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
+                        <a href="docs/mp4/task3.mp4" target="_blank">
+                            <iframe src="docs/mp4/task3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
+                        <a href="docs/mp4/task4.mp4" target="_blank">
+                            <iframe src="docs/mp4/task4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
+                        <a href="docs/mp4/task5.mp4" target="_blank">
+                            <iframe src="docs/mp4/task5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
                 <tr>
                     <td colspan="2" align="center">
                         <span style="font-size:16px; font-style:italic;">
-                            Reach action with UR5 robot (simulation).</span>
-                    </td>
-                </tr>
-            </table>
-
-            <br><br>
-            <table align="center" width="1500px">
-                <tr>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Pick action with UR5 robot (simulation).</span>
-                    </td>
-                </tr>
-            </table>
-
-            <br><br>
-            <table align="center" width="1500px">
-                <tr>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Move action with UR5 robot (simulation).</span>
-                    </td>
-                </tr>
-            </table>
-
-            <br><br>
-            <table align="center" width="1500px">
-                <tr>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Put action with UR5 robot (simulation).</span>
-                    </td>
-                </tr>
-            </table>
-
-            <br><br>
-            <table align="center" width="1500px">
-                <tr>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Reach action with UF850 robot (simulation).</span>
-                    </td>
-                </tr>
-            </table>
-
-            <br><br>
-            <table align="center" width="1500px">
-                <tr>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Pick action with UF850 robot (simulation).</span>
-                    </td>
-                </tr>
-            </table>
-
-            <br><br>
-            <table align="center" width="1500px">
-                <tr>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Move action with UF850 robot (simulation).</span>
-                    </td>
-                </tr>
-            </table>
-
-            <br><br>
-            <table align="center" width="1500px">
-                <tr>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                        </a>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                    <td width="300px" align="center">
-                        <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
-                        </a><br>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <span style="font-size:16px; font-style:italic;">
-                            Put action with UF850 robot (simulation).</span>
+                            Simulation Demonstration.</span>
                     </td>
                 </tr>
             </table>
