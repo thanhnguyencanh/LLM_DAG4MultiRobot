@@ -138,8 +138,8 @@
 <html>
 
 <head>
-    <title> Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven Imitation Framework</title>
-    <meta property="og:title" content="LfD4hri" />
+    <title> OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration</title>
+    <meta property="og:title" content="OSDAG" />
     <meta property="og:image" content="" />
     <meta property="og:url" content="" />
     <style>
@@ -156,8 +156,7 @@
 <body>
     <br>
     <center>
-        <span style="font-size:42px"> Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven
-            Imitation Framework</span>
+        <span style="font-size:42px"> OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration</span>
 
     </center>
 
@@ -173,19 +172,13 @@
 
             <td align=center width=150px>
                 <center>
-                    <span style="font-size:20px"> Thanh Tuan Tran</span>
+                    <span style="font-size:20px"> Thang Tran Viet</span>
                 </center>
             </td>
 
             <td align=center width=150px>
                 <center>
-                    <span style="font-size:20px"> Haolan Zhang</span>
-                </center>
-            </td>
-
-            <td align=center width=150px>
-                <center>
-                    <span style="font-size:20px"> Ziyan Gao</span>
+                    <span style="font-size:20px"> Phuc Van Dinh</span>
                 </center>
             </td>
 
@@ -209,7 +202,8 @@
             <td align=center width=100px>
                 <center>
                     <span style="font-size:20px">School of Information Science, JAIST, Japan <br> VNU University of
-                        Engineering and Technology, Vietnam <br> Department of Robotics, Hanyang University, Korea <br /><a href=""></a>, 2026.</span>
+                        Engineering and Technology, Vietnam <br> Department of Robotics, Hanyang University, Korea
+                        <br /><a href=""></a>, 2026.</span>
                 </center>
             </td>
         </tr>
@@ -226,7 +220,8 @@
             </td>
             <td align=center width=100px>
                 <center>
-                    <span style="font-size:20px"><a href="https://github.com/thanhnguyencanh/LfD4hri">[Code]</a></span>
+                    <span style="font-size:20px"><a
+                            href="https://github.com/thanhnguyencanh/LLM_DAG4MultiRobot">[Code]</a></span>
                 </center>
             </td>
 
@@ -237,24 +232,20 @@
 
 
     <br>
-    Learning from Demonstration (LfD) offers a promising paradigm for robot skill acquisition. Recent approaches attempt
-    to extract manipulation commands directly from video demonstrations, yet face two critical challenges: (1) general
-    video captioning models prioritize global scene features over task-relevant objects, producing descriptions
-    unsuitable for precise robotic execution, and (2) end-to-end architectures coupling visual understanding with policy
-    learning require extensive paired datasets and struggle to generalize across objects and scenarios. To address these
-    limitations, we propose a novel ``Human-to-Robot'' imitation learning pipeline that enables robots to acquire
-    manipulation skills directly from unstructured video demonstrations, inspired by the human ability to learn by
-    ``\textit{watching}'' and ``\textit{imitating}''. Our key innovation is a modular framework that decouples the
-    learning process into two distinct stages: (1) Video Understanding, which combines Temporal Shift Modules (TSM) with
-    Vision-Language Models (VLMs) to extract actions and identify interacted objects, and (2) Robot Imitation, which
-    employs TD3-based deep reinforcement learning to execute the demonstrated manipulations. We validated our approach
-    in PyBullet simulation environments using a UR5e robotic arm across four fundamental actions: reach, pick, move, and
-    put. For video understanding, our method achieves $89.97\%$ action classification accuracy and attains BLEU-4 scores
-    of $0.351$ on standard objects and $0.265$ on novel objects, representing improvements of $76.4\%$ and $128.4\%$
-    over the best baseline, respectively. For robot manipulation, our framework achieves an average success rate of
-    $87.5\%$ across all actions, with $100\%$ success on reaching tasks and up to $90\%$ on complex pick-and-place
-    operations. These results demonstrate strong generalization capability, particularly for previously unseen object
-    categories.
+    Multi-Robot Systems (MRS) enable heterogeneous agents to collaboratively accomplish complex tasks that exceed
+    individual robot capabilities. Recent advances in Large Language Models (LLMs) have introduced flexible task
+    decomposition and natural language interfaces for MRS. However, existing LLM-based approaches suffer from two
+    critical limitations: (1) excessive reliance on LLM inference, leading to high computational costs and latency, and
+    (2) dependence on offline scheduling, which forces sequential execution, causing prolonged robot idle time, and
+    increases overall makespan. This paper presents OSDAG, a novel framework that integrates LLM-based task reasoning
+    with Directed Acyclic Graph (DAG) representation and constraint-aware online scheduling. The LLM decomposes
+    high-level natural language instructions into dependency-annotated subtasks, which are formalized as a DAG encoding
+    precedence and resource constraints. A dynamic scheduler then allocates ready tasks to idle agents in real time,
+    maximizing parallel execution while preserving task dependencies. Experiments across five benchmark scenarios
+    demonstrate that OSDAG achieves 7–15 x faster reasoning time compared to dialogue-based methods, reduces
+    makespan by up to 48% over sequential baselines, and maintains competitive success rates. Both simulation and
+    real-world experiments on dual-arm manipulation tasks validate the effectiveness and practicality of the proposed
+    approach for efficient multi-robot coordination.
     <br><br>
 
     <hr>
@@ -268,10 +259,9 @@
             <!-- <a href="http://arxiv.org/pdf/1603.08511.pdf"> -->
             <!-- <td><a href="#"><img class="layered-paper-big" style="height:175px" src="./resources/images/paper.png"/></a></td> -->
             <td><a href=""><img style="height:400px" src="docs/images/thumbnails.png" /></a></td>
-            <td><span style="font-size:14pt">Thanh Nguyen Canh, Thanh Tuan Tran, Haolan Zhang, Ziyan Gao, Xiem HoangVan,
+            <td><span style="font-size:14pt">Thanh Nguyen Canh, Viet Thang Tran, Dinh Phuc Van, Xiem HoangVan,
                     Nak Young Chong<br><br>
-                    Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven Imitation
-                    Framework<br><br>
+                    OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration<br><br>
                     2026.<br><br>
                     <a href="">[pdf]</a> &nbsp; &nbsp;
                     <!--    <a href="./resources/bibtex.txt">[Bibtex]</a> -->
@@ -280,23 +270,6 @@
         </tr>
     </table>
 
-
-    <!-- <hr>
-    <h1>Overview and Results</h1>
-    </center>
-    <table align=center width=900px>
-        <tr>
-            <td width=600px>
-                <center>
-                    <video width="900" controls>
-                        <source src="docs/mp4/ECMR2025-Presentation.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </center>
-            </td>
-        </tr>
-    </table>
-    <br> -->
     <hr>
     <table align=center width=550px>
         <table align=center width=800>
@@ -327,19 +300,7 @@
                     </tr>
                     <td width=900px>
                         <center>
-                            <span style="font-size:18px"><i>The proposed Video Understanding architecture consists of
-                                    two parallel branches: (a) Interacted Object Understanding Module and (b) Action
-                                    Understand- ing Module. Initially, the raw input frames F = {f1, f2, . . . , fn} are
-                                    downsampled to ˜F = {˜f1, ˜f2, . . . , ˜fm} (where n > m) to optimize runtime and
-                                    match the training data frame rate in Action Understanding Module. (a) The
-                                    Interacted Object Understand- ing Module processes ˜F to extract a subset of
-                                    keyframes ˆF = {ˆf1, ˆf2, . . . , ˆfk}, (where m > k). These frames are analyzed by
-                                    our Object Selection algorithm and Vision- Language Models (VLMs) to identify the
-                                    specific objects involved in the interaction accurately. (b) The Action
-                                    Understanding Module is implemented based on a CNN architecture with a ResNet-50
-                                    [47] backbone with Temporal Shift Modules (TSM) that shift feature channels along
-                                    the temporal dimension to capture fine-grained motion dynamics for action
-                                    classification.</i>
+                            <span style="font-size:18px"><i>System overview of OSDAG. The framework processes a high-level natural language instruction through three stages: (1)~\textit{LLM-driven Task Decomposition} grounds the instruction into agent-assigned, dependency-annotated sub-tasks using environment context and capability descriptions; (2)~\textit{Task Graph Formalization} constructs a DAG encoding precedence and resource constraints; (3)~\textit{Constraint-Aware Online Scheduling} dynamically assigns ready tasks to idle agents in real time, maximizing parallel execution while preserving task dependencies.</i>
                         </center>
                     </td>
             </tr>
@@ -424,29 +385,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -463,29 +424,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -502,29 +463,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -541,29 +502,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -580,29 +541,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -619,29 +580,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -658,29 +619,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -697,29 +658,29 @@
                 <tr>
                     <td width="300px" align="center">
                         <a href="docs/mp4/1.mp4" target="_blank">
-                            <iframe src="docs/mp4/1.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/1.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/2.mp4" target="_blank">
-                            <iframe src="docs/mp4/2.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/2.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/3.mp4" target="_blank">
-                            <iframe src="docs/mp4/3.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/3.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                         </a>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/4.mp4" target="_blank">
-                            <iframe src="docs/mp4/4.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/4.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                     <td width="300px" align="center">
                         <a href="docs/mp4/5.mp4" target="_blank">
-                            <iframe src="docs/mp4/5.mp4" width="290"  style="border:none;"></iframe>
+                            <iframe src="docs/mp4/5.mp4" width="290" style="border:none;"></iframe>
                         </a><br>
                     </td>
                 </tr>
@@ -762,7 +723,7 @@
                 <tr>
                     <center> <br>
                         <span style="font-size:28px">&nbsp;<a
-                                href='https://github.com/thanhnguyencanh/LfD4hri'>[github]</a>
+                                href='https://github.com/thanhnguyencanh/LLM_DAG4MultiRobot'>[github]</a>
 
                             <span style="font-size:28px"></a></span>
                             <br>
@@ -779,17 +740,18 @@
             <table align=center width=800px>
                 <tr>
                     <left> <br>
-                        <span style="font-size:18px">1. Canh T. N., Thanh T. T., Zhang H., Gao Z., HoangVan X., Chong A.Y. <a
-                                href='https://thanhnguyencanh.github.io/LfD4hri/'>Learning to Manipulate by Watching
-                                Humans: A Decoupled Vision-Language-Driven Imitation Framework</a>. , 2026.
+                        <span style="font-size:18px">1. Canh T. N., Viet T. T., Dinh P. V., HoangVan X., Chong
+                            A.Y. <a href='https://thanhnguyencanh.github.io/LLM_DAG4MultiRobot/'>OSDAG: Online Scheduling for
+                                Efficient Multi-Robot Collaboration</a>. , 2026.
+
 
 
                             <br><br>
                             <code>@article{canh2026human, 
                                   <br>
-                                    author    = {Canh, Thanh Nguyen and Thanh, Tuan Tran and Zhang, Haolan and Gao, Ziyan and HoangVan, Xiem and Chong, Nak Young}, 
+                                    author    = {Canh, Thanh Nguyen and Viet, Thang Tran and Dinh, Phuc Van and HoangVan, Xiem and Chong, Nak Young}, 
                                   <br>
-                                    title     = {{Learning to Manipulate by Watching Humans: A Decoupled Vision-Language-Driven Imitation Framework}}, 
+                                    title     = {OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration}, 
                                   <br>
                                     booktitle = {}, 
                                   <br>
