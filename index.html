@@ -1,0 +1,540 @@
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-10550309-8"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-10550309-8');
+</script>
+
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript">google.load("jquery", "1.3.2");</script>
+
+<style type="text/css">
+    body {
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+        font-weight: 300;
+        font-size: 18px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 1100px;
+    }
+
+    h1 {
+        font-weight: 300;
+    }
+
+    .disclaimerbox {
+        background-color: #eee;
+        border: 1px solid #eeeeee;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+        padding: 20px;
+    }
+
+    video.header-vid {
+        height: 140px;
+        border: 1px solid black;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+    }
+
+    img.header-img {
+        height: 140px;
+        border: 1px solid black;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+    }
+
+    img.rounded {
+        border: 1px solid #eeeeee;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+    }
+
+    a:link,
+    a:visited {
+        color: #1367a7;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #208799;
+    }
+
+    td.dl-link {
+        height: 160px;
+        text-align: center;
+        font-size: 22px;
+    }
+
+    .layered-paper-big {
+        /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+        box-shadow:
+            0px 0px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The top layer shadow */
+            5px 5px 0 0px #fff,
+            /* The second layer */
+            5px 5px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The second layer shadow */
+            10px 10px 0 0px #fff,
+            /* The third layer */
+            10px 10px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The third layer shadow */
+            15px 15px 0 0px #fff,
+            /* The fourth layer */
+            15px 15px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The fourth layer shadow */
+            20px 20px 0 0px #fff,
+            /* The fifth layer */
+            20px 20px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The fifth layer shadow */
+            25px 25px 0 0px #fff,
+            /* The fifth layer */
+            25px 25px 1px 1px rgba(0, 0, 0, 0.35);
+        /* The fifth layer shadow */
+        margin-left: 10px;
+        margin-right: 45px;
+    }
+
+
+    .layered-paper {
+        /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+        box-shadow:
+            0px 0px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The top layer shadow */
+            5px 5px 0 0px #fff,
+            /* The second layer */
+            5px 5px 1px 1px rgba(0, 0, 0, 0.35),
+            /* The second layer shadow */
+            10px 10px 0 0px #fff,
+            /* The third layer */
+            10px 10px 1px 1px rgba(0, 0, 0, 0.35);
+        /* The third layer shadow */
+        margin-top: 5px;
+        margin-left: 10px;
+        margin-right: 30px;
+        margin-bottom: 5px;
+    }
+
+    .vert-cent {
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    hr {
+        border: 0;
+        height: 1.5px;
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+    }
+</style>
+
+<html>
+
+<head>
+    <title> OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration</title>
+    <meta property="og:title" content="OSDAG" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <style>
+        code {
+            font-family: Consolas, "courier new";
+            color: darkcyan;
+            background-color: #f1f1f1;
+            padding: 2px;
+            font-size: 105%;
+        }
+    </style>
+</head>
+
+<body>
+    <br>
+    <center>
+        <span style="font-size:42px"> OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration</span>
+
+    </center>
+
+    <br><br>
+    <table align=center width=1000px>
+        <tr>
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"><a href="https://thanhnguyencanh.github.io/">Thanh Nguyen
+                            Canh</a></span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"> Thang Tran Viet</span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"> Phuc Van Dinh</span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"><a href="https://sites.google.com/site/xiemhoang/home?authuser=0">Xiem
+                            HoangVan</a></span>
+                </center>
+            </td>
+
+            <td align=center width=150px>
+                <center>
+                    <span style="font-size:20px"><a href="https://www.jaist.ac.jp/robot/">Nak Young Chong</a></span>
+                </center>
+            </td>
+        </tr>
+    </table>
+
+    <table align=center width=700px>
+        <tr>
+            <td align=center width=100px>
+                <center>
+                    <span style="font-size:20px">School of Information Science, JAIST, Japan <br> VNU University of
+                        Engineering and Technology, Vietnam <br> Department of Robotics, Hanyang University, Korea
+                        <br /><a href=""></a>, 2026.</span>
+                </center>
+            </td>
+        </tr>
+    </table>
+
+    <br>
+
+    <table align=center width=500px>
+        <tr>
+            <td align=center width=100px>
+                <center>
+                    <span style="font-size:20px"><a href="">[Paper]</a></span>
+                </center>
+            </td>
+            <td align=center width=100px>
+                <center>
+                    <span style="font-size:20px"><a
+                            href="https://github.com/thanhnguyencanh/LLM_DAG4MultiRobot">[Code]</a></span>
+                </center>
+            </td>
+
+        </tr>
+    </table>
+
+    <br>
+
+
+    <br>
+    Multi-Robot Systems (MRS) enable heterogeneous agents to collaboratively accomplish complex tasks that exceed
+    individual robot capabilities. Recent advances in Large Language Models (LLMs) have introduced flexible task
+    decomposition and natural language interfaces for MRS. However, existing LLM-based approaches suffer from two
+    critical limitations: (1) excessive reliance on LLM inference, leading to high computational costs and latency, and
+    (2) dependence on offline scheduling, which forces sequential execution, causing prolonged robot idle time, and
+    increases overall makespan. This paper presents OSDAG, a novel framework that integrates LLM-based task reasoning
+    with Directed Acyclic Graph (DAG) representation and constraint-aware online scheduling. The LLM decomposes
+    high-level natural language instructions into dependency-annotated subtasks, which are formalized as a DAG encoding
+    precedence and resource constraints. A dynamic scheduler then allocates ready tasks to idle agents in real time,
+    maximizing parallel execution while preserving task dependencies. Experiments across five benchmark scenarios
+    demonstrate that OSDAG achieves 7–15 x faster reasoning time compared to dialogue-based methods, reduces
+    makespan by up to 48% over sequential baselines, and maintains competitive success rates. Both simulation and
+    real-world experiments on dual-arm manipulation tasks validate the effectiveness and practicality of the proposed
+    approach for efficient multi-robot coordination.
+    <br><br>
+
+    <hr>
+    <!-- <table align=center width=550px> -->
+    <table align=center width=900>
+        <center>
+            <h1>Paper</h1>
+        </center>
+        <tr>
+            <!--<td width=300px align=left>-->
+            <!-- <a href="http://arxiv.org/pdf/1603.08511.pdf"> -->
+            <!-- <td><a href="#"><img class="layered-paper-big" style="height:175px" src="./resources/images/paper.png"/></a></td> -->
+            <td><a href=""><img style="height:400px" src="docs/images/thumbnails.png" /></a></td>
+            <td><span style="font-size:14pt">Thanh Nguyen Canh, Viet Thang Tran, Dinh Phuc Van, Xiem HoangVan,
+                    Nak Young Chong<br><br>
+                    OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration<br><br>
+                    2026.<br><br>
+                    <a href="">[pdf]</a> &nbsp; &nbsp;
+                    <!--    <a href="./resources/bibtex.txt">[Bibtex]</a> -->
+                    <!-- [hosted on <a href="#">arXiv</a>]</a> -->
+            </td>
+        </tr>
+    </table>
+
+    <hr>
+    <table align=center width=550px>
+        <table align=center width=800>
+            <center>
+                <h1>Overview</h1>
+            </center>
+            <tr>
+                <br>
+                <table align=center width=900px>
+                    <tr>
+                        <td width=900px>
+                            <center>
+                                <a href="docs/images/overview.png"><img src="docs/images/overview.png"
+                                        width="900px"></img></href>
+                                </a><br>
+                            </center>
+                        </td>
+                    </tr>
+                    <td width=900px>
+                        <center>
+                            <span style="font-size:18px"><i>System overview of OSDAG. The framework processes a
+                                    high-level natural language instruction through three stages: (1)~<i>LLM-driven
+                                    Task Decomposition</i> grounds the instruction into agent-assigned,
+                                    dependency-annotated sub-tasks using environment context and capability
+                                    descriptions; (2)~<i>Task Graph Formalization</i> constructs a DAG encoding
+                                    precedence and resource constraints; (3)~<i>Constraint-Aware Online Scheduling</i>
+                                    dynamically assigns ready tasks to idle agents in real time, maximizing parallel
+                                    execution while preserving task dependencies.</i>
+                        </center>
+                    </td>
+            </tr>
+        </table>
+        <br>
+        <table align=center width=800px>
+            <tr>
+                <td width=800px>
+                    <center>
+                        <a href="docs/images/onl_scheduling.png"><img src="docs/images/onl_scheduling.png"
+                                width="800px"></img></href>
+                        </a><br>
+                    </center>
+                </td>
+            </tr>
+            <td width=600px>
+                <center>
+                    <span style="font-size:18px"><i> Illustration of the online scheduling process. Steps~(1)--(5)
+                            demonstrate dynamic task allocation across three robots. Dashed rectangles indicate ongoing
+                            tasks; robots are tagged as <i>busy</i> or <i>free</i> based on current status. Upon
+                            task completion, agents immediately receive new assignments satisfying precedence and
+                            resource constraints, eliminating idle time and maximizing parallel efficiency.</i>
+                </center>
+            </td>
+        </table>
+
+        <br><br>
+        <table align=center width=800px>
+            <tr>
+                <td width=800px>
+                    <center>
+                        <a href="docs/images/task.png" target="_blank"><img src="docs/images/task.png"
+                                width="800px"></img></href>
+                        </a><br>
+                    </center>
+                </td>
+            </tr>
+            <td width=600px>
+                <center>
+                    <span style="font-size:18px"><i> Simulation environments for the five evaluation tasks.</i>
+                </center>
+            </td>
+        </table>
+
+        <br>
+        <table align=center width=800>
+
+            <hr>
+            <center>
+                <h1>Experiments Results</h1>
+            </center>
+
+            <br><br>
+            <table align=center width=800px>
+                <tr>
+                    <td width=800px>
+                        <center>
+                            <a href="docs/images/performance.png" target="_blank"><img src="docs/images/performance.png"
+                                    width="800px"></img></href>
+                            </a><br>
+                        </center>
+                    </td>
+                </tr>
+                <td width=600px>
+                    <center>
+                        <span style="font-size:18px"><i> Performance comparison across all tasks. We report Success Rate
+                                (SR, %), Step Success Efficiency (SSE), Reasoning Time (RT, seconds), and Makespan (MS,
+                                seconds) averaged over 10 trials. Best results are in <b>bold</b>. "--" indicates
+                                execution failure.</i>
+                    </center>
+                </td>
+            </table>
+
+            <br><br>
+            <table align=center width=800px>
+                <tr>
+                    <td width=800px>
+                        <center>
+                            <a href="docs/images/ablation.png" target="_blank"><img src="docs/images/ablation.png"
+                                    width="800px"></img></href>
+                            </a><br>
+                        </center>
+                    </td>
+                </tr>
+                <td width=600px>
+                    <center>
+                        <span style="font-size:18px"><i>Ablation study results. We evaluate each component's
+                                contribution by systematic removal. Removing dependency graphs causes complete failure
+                                (SR=0). Disabling online scheduling increases makespan by up to 63% despite correct
+                                plans.</i>
+                    </center>
+                </td>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/task1.mp4" target="_blank">
+                            <iframe src="docs/mp4/task1.mp4" width="290" style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/task2.mp4" target="_blank">
+                            <iframe src="docs/mp4/task2.mp4" width="290" style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/task3.mp4" target="_blank">
+                            <iframe src="docs/mp4/task3.mp4" width="290" style="border:none;"></iframe>
+                        </a><br>
+                        </a>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/task4.mp4" target="_blank">
+                            <iframe src="docs/mp4/task4.mp4" width="290" style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="300px" align="center">
+                        <a href="docs/mp4/task5.mp4" target="_blank">
+                            <iframe src="docs/mp4/task5.mp4" width="290" style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Simulation Demonstration.</span>
+                    </td>
+                </tr>
+            </table>
+
+            <br><br>
+            <table align="center" width="1500px">
+                <tr>
+                    <td width="750px" align="center">
+                        <a href="docs/mp4/real_task1.mp4" target="_blank">
+                            <iframe src="docs/mp4/real_task1.mp4" width="400" style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                    <td width="750px" align="center">
+                        <a href="docs/mp4/real_task.mp4" target="_blank">
+                            <iframe src="docs/mp4/real_task.mp4" width="400" style="border:none;"></iframe>
+                        </a><br>
+                    </td>
+                <tr>
+                    <td colspan="2" align="center">
+                        <span style="font-size:16px; font-style:italic;">
+                            Real experiment.</span>
+                    </td>
+                </tr>
+            </table>
+
+
+            <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+            <hr>
+            <center>
+                <h1>Code</h1>
+            </center>
+            <table align=center width=800px>
+                <tr>
+                    <center> <br>
+                        <span style="font-size:28px">&nbsp;<a
+                                href='https://github.com/thanhnguyencanh/LLM_DAG4MultiRobot'>[github]</a>
+
+                            <span style="font-size:28px"></a></span>
+                            <br>
+                    </center>
+                </tr>
+            </table>
+            <br>
+            <hr>
+
+            <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+            <center>
+                <h1>Citation</h1>
+            </center>
+            <table align=center width=800px>
+                <tr>
+                    <left> <br>
+                        <span style="font-size:18px">1. Canh T. N., Viet T. T., Dinh P. V., HoangVan X., Chong
+                            A.Y. <a href='https://thanhnguyencanh.github.io/LLM_DAG4MultiRobot/'>OSDAG: Online
+                                Scheduling for
+                                Efficient Multi-Robot Collaboration</a>. , 2026.
+
+
+
+                            <br><br>
+                            <code>@article{canh2026human, 
+                                  <br>
+                                    author    = {Canh, Thanh Nguyen and Viet, Thang Tran and Dinh, Phuc Van and HoangVan, Xiem and Chong, Nak Young}, 
+                                  <br>
+                                    title     = {OSDAG: Online Scheduling for Efficient Multi-Robot Collaboration}, 
+                                  <br>
+                                    booktitle = {}, 
+                                  <br>
+                                    year      = {2026}, 
+                                  <br>
+                                    address   = {}, 
+                                  <br>
+                                    month     = {}, 
+                                  <br>
+                                    DOI       = {}
+                                  <br>
+                                } 
+                              </code>
+                    </left>
+                </tr>
+                <br><br>
+
+            </table>
+            <br>
+            <hr>
+
+            <table align=center width=1100px>
+                <tr>
+                    <td>
+                        <left>
+                            <center>
+                                <h1>Acknowledgements</h1>
+                            </center>
+                            This work was supported by JST SPRING, Japan Grant Number JPMJSP2102.
+                            <br>
+                            This webpage template was borrowed from <a
+                                href="https://akanazawa.github.io/cmr/">https://akanazawa.github.io/cmr/</a>.
+                        </left>
+                    </td>
+                </tr>
+            </table>
+            <div style="display:inline-block;width:200px;">
+                <script type="text/javascript"
+                    src="//rf.revolvermaps.com/0/0/7.js?i=5ho5yi7e4v7&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;sx=0"
+                    async="async"></script>
+            </div>
+
+            <br><br>
+</body>
+
+</html>
